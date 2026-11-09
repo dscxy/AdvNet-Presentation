@@ -2,21 +2,17 @@
 
 ## 1. What Research Problem Are We Trying to Solve?
 
-Today, we will introduce AdvNet, a system for adversarially testing network protocols, especially Congestion Control. The question is simple: even if a protocol works well in existing tests, can we automatically find network conditions where it performs much worse?
+Today, we will introduce AdvNet, a system for adversarially testing network protocols, especially congestion control.
 
-I'll start with how AdvNet works, focusing on its genetic algorithm.
+I'll start with the motivation and how AdvNet works.
 
-First, a little background. A sender usually does not know how much bandwidth it can use. Sending too slowly wastes capacity. Sending too quickly builds a queue and increases delay.
+First, let's start with some background. Bandwidth describes the capacity of a link, while throughput describes the rate that the protocol actually achieves.
 
-Bandwidth describes the capacity of a link. Throughput describes the rate that the protocol actually achieves. The two can be very different.
+In a network, a sender typically does not know how much bandwidth it can use. If it sends too slowly, throughput can be much lower than available bandwidth. If it sends too fast, packets will build up in router queues. This leads to higher round-trip time and eventually packet loss.
 
-(**Visual Suggestion**: Show a diagram of "Sender — Bottleneck Queue — Receiver" and the ACK return path, labeling bottleneck bandwidth, actual throughput, and RTT.)
+Creating a robust congestion control algorithm is hard. First, available resources and network conditions can change over time. So CC algorithms need to be optimized for throughput, loss, and latency in lots of environments. Second, they need to guarantee quick convergence to stable and fair rates when multiple senders compete. (**Adapted from PCC Vivace: Online-Learning Congestion Control §1**)
 
-Two mechanisms help control sending. The congestion window limits how much unacknowledged data can be in flight. Pacing controls how quickly packets leave the sender. A fast path with a long round-trip time usually needs more data in flight to stay busy. In addition, acknowledgment and retransmission logic—such as duplicate ACKs and retransmission timeouts (RTO)—also directly affect performance.
-
-Network conditions also change over time, while protocols retain state from the past. So two traces with the same average bandwidth and delay can produce different behavior. This is why a few static test settings may miss important behavior: the order of changes matters, as well as their average values.
-
-In the paper's pairwise tests of seventeen Linux TCP algorithms, every protocol had some environment where another protocol performed substantially better. The core problem of this paper is how to automatically search for these vulnerable environments and help developers diagnose protocol flaws.
+These requirements also make it difficult for the protocols to be thoroughly tested. Therefore, new protocols or an upgrade to an existing protocol may perform better in test suites, but they could introduce hidden performance regressions. How to find these scenarios is the main focus of this paper.
 
 ## 2. What Are the Existing Solutions?
 
@@ -108,7 +104,7 @@ But that winner may have benefited from an unusually favorable measurement. When
 
 (**Visual Suggestion**: Show a scatter plot of Environment A (high mean, low variance) vs. Environment B (low mean, but one lucky high outlier) to explain why SimpleMax can pick the wrong trace.)
 
-The paper uses repeated protocol runs during search and takes median performance measurements. **Post-Learning Selection**, or **PLS**, adds a separate selection stage after search. Finally, independent evaluation checks the returned trace. 
+The paper uses repeated protocol runs during search and takes median performance measurements. **Post-Learning Selection**, or **PLS**, adds a separate selection stage after search. Finally, independent evaluation checks the returned trace.
 
 PLS starts with the twenty-five highest-scoring environments found during search.
 
@@ -118,7 +114,7 @@ Once five or fewer remain, it stops eliminating and keeps evaluating until the b
 
 How much time should selection receive? In this experiment (Fig. 2), the best result came from spending ninety percent of the budget on search and ten percent on PLS.
 
-Too little selection can leave an unreliable winner. Too much selection leaves less time to discover strong candidates. The best split here reflects that tradeoff. 
+Too little selection can leave an unreliable winner. Too much selection leaves less time to discover strong candidates. The best split here reflects that tradeoff.
 
 (**Visual Suggestion**: Show the MRE funnel diagram alongside Fig. 2, and a bottom timeline summarizing "Median during search → Mean via MRE in PLS → Independent final evaluation".)
 
@@ -204,7 +200,7 @@ Fig. 7 plots the throughput over time when downloading a 20 MB file—note that 
 
 Beyond DChannel, the authors also tested the Linux kernel implementation of MPTCP across all four of its congestion control algorithms: LIA, OLIA, BALIA, and wVegas. For every single one of them, AdvNet found environments where using two paths yields lower throughput than using a single path.
 
-Taking BALIA as an example, in the discovered adversarial environment, dual-path throughput was 85.5% lower than single-path throughput. Looking at cumulative bytes sent in Fig. 8, the dual-path configuration (`balia2`) initially sends faster by leveraging the high bandwidth of Link 1, but the single-path configuration (`balia1`) catches up and overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate across both links—even though Link 1 still has plenty of bandwidth available. 
+Taking BALIA as an example, in the discovered adversarial environment, dual-path throughput was 85.5% lower than single-path throughput. Looking at cumulative bytes sent in Fig. 8, the dual-path configuration (`balia2`) initially sends faster by leveraging the high bandwidth of Link 1, but the single-path configuration (`balia1`) catches up and overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate across both links—even though Link 1 still has plenty of bandwidth available.
 
 (**Visual Suggestion**: Show Fig. 8, highlighting where the slope flattens at 1.2 seconds.)
 
