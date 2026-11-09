@@ -1,0 +1,4 @@
+\note{Now, what exactly does the search change? AdvNet represents a trace using four parts:\par \par \[
+T=(B,L,D,I).
+\]\par \par $B$ contains bandwidths, $L$ contains one-way delays, and $D$ contains interval durations. $I$ contains parameters that stay fixed within the trace, such as queue capacity. For multipath tests, each link has its own bandwidth and delay sequence, with shared interval durations.\par \par Here is a teaching example. The first interval has twenty megabits per second and twenty milliseconds of one-way delay. Bandwidth then falls while delay rises. Finally, bandwidth recovers and delay falls. Each parameter is constrained within user-specified bounds (for example, 1 to 100 Mbps, 5 to 100 ms, and 0.5 to 2.5 seconds per interval in Table 1).
+\par\smallskip Source: AdvNet paper §3.1, Table 1; teaching example}

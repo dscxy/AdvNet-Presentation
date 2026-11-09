@@ -1,88 +1,959 @@
-% 30 static main slides and 4 backup slides.
-% Slide changes and timing: ../scripts/slide_cues.md.
-\pdfminorversion=7
-\documentclass[aspectratio=169]{beamer}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern,exscale,amsmath,amssymb}
-\DeclareFontShape{OMX}{cmex}{m}{n}{<-> cmex10}{}
-\usepackage{booktabs,tabularx,array,colortbl}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
-\geometry{paperwidth=13.333in,paperheight=7.5in}
-\graphicspath{{figures/}}
-\definecolor{SemBlue}{HTML}{244A73}
-\definecolor{SemTeal}{HTML}{176B63}
-\definecolor{SemGray}{HTML}{555555}
-\definecolor{SemOrange}{HTML}{B65A2A}
-\definecolor{PaleBlue}{HTML}{E7EEF5}
-\definecolor{PaleTeal}{HTML}{E4F0EC}
-\definecolor{PaleOrange}{HTML}{FAEDE4}
-\definecolor{RuleGray}{HTML}{CCD4DB}
-\setbeamersize{text margin left=.48in,text margin right=.48in}
-\setbeamercolor{normal text}{fg=black,bg=white}
-\setbeamercolor{structure}{fg=SemTeal}
-\setbeamercolor{frametitle}{fg=SemBlue,bg=white}
-\setbeamercolor{headline}{fg=SemGray,bg=white}
-\setbeamercolor{footline}{fg=SemGray,bg=white}
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage{lmodern,fontspec}
+\IfFontExistsTF{Arial}{\setsansfont{Arial}}{\setsansfont{TeX Gyre Heros}}
+\usefonttheme{professionalfonts}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{amsmath,amssymb,array,booktabs,colortbl,graphicx}
+\definecolor{navy}{HTML}{142D45}
+\definecolor{paper}{HTML}{FAFCFE}
+\definecolor{paleblue}{HTML}{DDEBFA}
+\definecolor{paleteal}{HTML}{D9EFEA}
+\setbeamercolor{background canvas}{bg=paper}
+\setbeamercolor{normal text}{fg=navy}
+\setbeamercolor{itemize item}{fg=navy}
 \setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{itemize item}{\raisebox{2pt}{\color{SemTeal}\rule{5pt}{5pt}}}
-\setbeamerfont{frametitle}{size=\fontsize{31}{36}\selectfont,series=\bfseries}
-\setbeamerfont{normal text}{size=\fontsize{24}{30}\selectfont}
-\setbeamerfont{itemize/enumerate body}{size=\fontsize{24}{30}\selectfont}
-\setbeamerfont{itemize/enumerate subbody}{size=\fontsize{22}{28}\selectfont}
-\newcommand{\bodyfont}{\fontsize{24}{30}\selectfont}
-\newcommand{\compactfont}{\fontsize{22}{28}\selectfont}
-\newcommand{\labelfont}{\fontsize{20}{25}\selectfont}
-\newcommand{\eqfont}{\fontsize{30}{38}\selectfont}
-\newcommand{\key}[1]{\textcolor{SemTeal}{\textbf{#1}}}
-\newcommand{\lead}[1]{\par{\color{SemBlue}\bfseries #1}\par\vspace{8pt}}
-\newcommand{\takeaway}[1]{\par\vspace{14pt}{\color{SemTeal}\bfseries #1\par}}
-\newenvironment{points}{\begin{itemize}\setlength{\itemsep}{12pt}}{\end{itemize}}
-\newcolumntype{L}{>{\raggedright\arraybackslash}X}
-\newcommand{\currentsection}{1}
-\newcommand{\currentsource}{}
-\newcommand{\sectiontag}[1]{\renewcommand{\currentsection}{#1}}
-\newcommand{\source}[1]{\renewcommand{\currentsource}{#1}}
-\newcommand{\navitem}[2]{\ifnum\currentsection=#1\relax\textcolor{SemBlue}{\underline{\textbf{#2}}}\else#2\fi}
-\setbeamertemplate{headline}{%
-  \begin{beamercolorbox}[wd=\paperwidth,ht=28pt,dp=7pt]{headline}%
-    \fontsize{18.5}{22}\selectfont\hspace*{.48in}%
-    \hbox to \dimexpr\paperwidth-.96in\relax{%
-      \navitem{1}{Problem}\hfil\navitem{2}{Search design}\hfil
-      \navitem{3}{Objectives}\hfil\navitem{4}{Findings}\hfil
-      \navitem{5}{Takeaways}\hfil\navitem{6}{Backup}}%
-  \end{beamercolorbox}}
-\setbeamertemplate{frametitle}{%
-  \vspace{6pt}\begin{beamercolorbox}[wd=\textwidth,sep=0pt]{frametitle}%
-  \usebeamerfont{frametitle}\strut\insertframetitle\strut\par
-  \end{beamercolorbox}\vspace{8pt}}
-\setbeamertemplate{footline}{%
-  \begin{beamercolorbox}[wd=\paperwidth,ht=25pt,dp=12pt]{footline}%
-  \hspace*{.48in}\fontsize{18.5}{22}\selectfont
-  \makebox[\dimexpr\paperwidth-1.95in\relax][l]{\currentsource}\hfill
-  \ifnum\value{framenumber}>30\relax
-    B\number\numexpr\value{framenumber}-30\relax\,/\,4
-  \else\insertframenumber\,/\,30\fi\hspace*{.48in}
-  \end{beamercolorbox}}
-\DeclareMathSizes{18.5}{18.5}{18.5}{18.5}
-\DeclareMathSizes{20}{20}{18.5}{18.5}
-\DeclareMathSizes{22}{22}{18.5}{18.5}
-\DeclareMathSizes{24}{24}{18.5}{18.5}
-\DeclareMathSizes{28}{28}{20}{18.5}
-\DeclareMathSizes{30}{30}{22}{18.5}
-\DeclareMathSizes{32}{32}{22}{18.5}
-\DeclareMathSizes{36}{36}{24}{18.5}
-\tikzset{every node/.style={font=\fontsize{22}{27}\selectfont,align=center},
-  box/.style={draw=SemBlue,line width=1.2pt,fill=PaleBlue,inner sep=10pt},
-  flow/.style={-{Stealth[length=8pt,width=7pt]},line width=1.7pt,draw=SemBlue},
-  ack/.style={-{Stealth[length=7pt,width=6pt]},line width=1.5pt,draw=SemTeal}}
-\hypersetup{pdftitle={AdvNet: Adversarial Testing of Network Protocols},
-  pdfsubject={25-minute class presentation},colorlinks=true,allcolors=SemBlue}
+\setbeamertemplate{footline}{}
+\setbeamertemplate{itemize item}{\raisebox{0.1ex}{\scriptsize\textbullet}}
+\setbeameroption{hide notes}
+\setbeamertemplate{note page}[plain]
+\graphicspath{{assets/}}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
 \begin{document}
-\input{sections/01_problem}
-\input{sections/02_search}
-\input{sections/03_objectives}
-\input{sections/04_findings}
-\input{sections/05_takeaways_backup}
-\end{document}
 
+% Slide 1: AdvNet
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,12mm)
+\raggedright\color[HTML]{142D45}\fontsize{34}{41.82}\selectfont \bfseries AdvNet
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,35mm)
+\raggedright\color[HTML]{142D45}\fontsize{17}{20.91}\selectfont Revealing Performance Issues in Network Protocols\par by Generating Adversarial Environments
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,65mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont Motivation, search design, and practical use cases
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,81mm)
+\raggedright\color[HTML]{526474}\fontsize{6.3}{7.749}\selectfont Shehab Sarar Ahmed et al. Proc. ACM Netw. 4, CoNEXT2, Article 12 (2026).
+\end{textblock*}
+\end{frame}
+\input{notes/01.tex}
+
+% Slide 2: Bandwidth and throughput
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Bandwidth and throughput
+\end{textblock*}
+\begin{textblock*}{30mm}(9mm,26mm)
+\raggedright\color[HTML]{2869B3}\fontsize{17}{20.91}\selectfont \bfseries Sender
+\end{textblock*}
+\begin{textblock*}{53mm}(56mm,26mm)
+\raggedright\color[HTML]{087F82}\fontsize{16}{19.68}\selectfont \bfseries Bottleneck queue
+\end{textblock*}
+\begin{textblock*}{32mm}(120mm,26mm)
+\raggedright\color[HTML]{2869B3}\fontsize{17}{20.91}\selectfont \bfseries Receiver
+\end{textblock*}
+\begin{textblock*}{12mm}(41mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{18}{22.14}\selectfont →
+\end{textblock*}
+\begin{textblock*}{10mm}(108mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{18}{22.14}\selectfont →
+\end{textblock*}
+\begin{textblock*}{117mm}(34mm,42mm)
+\raggedright\color[HTML]{526474}\fontsize{11}{13.53}\selectfont ACK feedback returns to the sender
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,56mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Bandwidth is link capacity; throughput is the achieved rate
+\item Sending too slowly leaves capacity unused
+\item Sending too quickly builds queues and increases delay
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,83mm)
+\raggedright\color[HTML]{526474}\fontsize{7}{8.61}\selectfont RTT: round-trip time.
+\end{textblock*}
+\end{frame}
+\input{notes/02.tex}
+
+% Slide 3: What controls TCP sending?
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries What controls TCP sending?
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Sending controls
+\end{textblock*}
+\begin{textblock*}{69mm}(8mm,37mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Congestion window limits unacknowledged data in flight
+\item Pacing controls packet departure timing
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{68mm}(85mm,25mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Feedback and recovery
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,37mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item ACK processing
+\item Duplicate ACKs and fast retransmit
+\item Retransmission timeout (RTO)
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/03.tex}
+
+% Slide 4: Why congestion control is hard to test
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Why congestion control is hard to test
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries A changing environment
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Large space of network parameters and temporal patterns
+\item Protocol state carries across changes in conditions
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,25mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries A changing implementation
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Protocol updates can introduce regressions in unfamiliar environments
+\item Examples: new BBR versions and multipath support
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/04.tex}
+
+% Slide 5: Existing testing methods
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Existing testing methods
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{34.600mm}>{\raggedright\arraybackslash}p{51.208mm}>{\raggedright\arraybackslash}p{52.592mm}@{}}\toprule
+\textbf{Method} & \textbf{What it provides} & \textbf{Coverage limit}\\
+\midrule
+Hand-designed tests & Controlled, interpretable scenarios & What the designer anticipated\\
+Trace replay / testbeds & Evidence from observed conditions & Where and when measurements were collected\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,75mm)
+\raggedright\color[HTML]{C06821}\fontsize{11}{13.53}\selectfont \bfseries Adversarial search adds tests beyond anticipated or sampled conditions.
+\end{textblock*}
+\end{frame}
+\input{notes/05.tex}
+
+% Slide 6: Simulation and emulation
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Simulation and emulation
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{30.448mm}>{\raggedright\arraybackslash}p{53.976mm}>{\raggedright\arraybackslash}p{53.976mm}@{}}\toprule
+\textbf{} & \textbf{Simulation} & \textbf{Emulation}\\
+\midrule
+Protocol & Model of behavior & Real implementation\\
+Network & Modeled conditions & Controlled conditions\\
+Main concern & Model fidelity & Execution cost and noise\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,77mm)
+\raggedright\color[HTML]{526474}\fontsize{10.5}{12.915}\selectfont Repeatability and runtime depend on the model and execution setup.
+\end{textblock*}
+\end{frame}
+\input{notes/06.tex}
+
+% Slide 7: CC-Fuzz and the move to emulation
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries CC-Fuzz and the move to emulation
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries CC-Fuzz: GA in ns-3
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,39mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont Packet delivery opportunities (PDOs) specify when a link can transmit a packet.
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,59mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Moving to real-code emulation
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,70mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Each candidate costs a real execution
+\item Search dimension and measurement noise consume the available budget
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/07.tex}
+
+% Slide 8: The AdvNet framework
+% AdvNet paper Fig.1; §3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries The AdvNet framework
+\end{textblock*}
+\begin{textblock*}{57mm}(8mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Search over candidate network environments
+\item Compare a target with a meaningful reference
+\item Use measured performance gaps as feedback
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{81mm}(71mm,24mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=81mm,height=54mm,keepaspectratio]{architecture.pdf}
+\end{textblock*}
+\end{frame}
+\input{notes/08.tex}
+
+% Slide 9: The performance-gap score
+% AdvNet paper §3.5, Eq.(1)
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries The performance-gap score
+\end{textblock*}
+\begin{textblock*}{70mm}(8mm,23mm)
+\raggedright\color[HTML]{142D45}\fontsize{16}{19.68}\selectfont \(\displaystyle \mathrm{score}=\frac{R-P}{\max(R,P)}\)
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont Higher is better: R = reference, P = target\par Example: R = 10, P = 2 gives score = 0.8
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,45mm)
+\raggedright\color[HTML]{142D45}\fontsize{16}{19.68}\selectfont \(\displaystyle U=t_{\mathrm{coeff}}\frac{\tau}{\tau_{\max}}+(1-t_{\mathrm{coeff}})\frac{d_{\min}}{d}\)
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,65mm)
+\raggedright\color[HTML]{526474}\fontsize{9.3}{11.439}\selectfont τ: throughput; d: average packet delay; τmax and dmin: normalization benchmarks
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,76mm)
+\raggedright\color[HTML]{2869B3}\fontsize{9.2}{11.316}\selectfont Throughput weight: 0 = delay only, 0.5 = equal normalized weights, 1 = throughput only
+\end{textblock*}
+\end{frame}
+\input{notes/09.tex}
+
+% Slide 10: Post-learning selection
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Post-learning selection
+\end{textblock*}
+\begin{textblock*}{43mm}(8mm,27mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Search
+\end{textblock*}
+\begin{textblock*}{43mm}(8mm,41mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont Generate and evaluate new candidate traces
+\end{textblock*}
+\begin{textblock*}{43mm}(59mm,27mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries PLS
+\end{textblock*}
+\begin{textblock*}{43mm}(59mm,41mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont Re-measure promising candidates and select by mean
+\end{textblock*}
+\begin{textblock*}{42mm}(110mm,27mm)
+\raggedright\color[HTML]{C06821}\fontsize{12}{14.76}\selectfont \bfseries Independent check
+\end{textblock*}
+\begin{textblock*}{42mm}(110mm,41mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont Re-evaluate the returned trace
+\end{textblock*}
+\end{frame}
+\input{notes/10.tex}
+
+% Slide 11: Two design challenges
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Two design challenges
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Sample efficiency
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,37mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Real-code runs cost time
+\item Large environment space
+\item Repetition competes with exploration
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,25mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Practical usefulness
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,37mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Avoid trivial zero-capacity examples
+\item Allow expected adaptation delays
+\item Choose meaningful reference comparisons
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/11.tex}
+
+% Slide 12: Representing a network trace
+% AdvNet paper §3.1, Table 1; teaching example
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Representing a network trace
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,23mm)
+\raggedright\color[HTML]{142D45}\fontsize{15}{18.45}\selectfont \(\displaystyle T=(B,L,D,I)\)
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,37mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{23.052mm}>{\raggedright\arraybackslash}p{37.968mm}>{\raggedright\arraybackslash}p{42.036mm}>{\raggedright\arraybackslash}p{32.544mm}@{}}\toprule
+\textbf{Interval} & \textbf{B: bandwidth} & \textbf{L: one-way delay} & \textbf{D: duration}\\
+\midrule
+1 & 20 Mbps & 20 ms & 1 s\\
+2 & 5 Mbps & 80 ms & 2 s\\
+3 & 20 Mbps & 10 ms & 1 s\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,72mm)
+\raggedright\color[HTML]{142D45}\fontsize{10}{12.3}\selectfont I: queue capacity and optional transfer size, fixed within a trace
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,81mm)
+\raggedright\color[HTML]{526474}\fontsize{9.5}{11.685}\selectfont Table 1 bounds: 1–100 Mbps, 5–100 ms, 0.5–2.5 s per interval
+\end{textblock*}
+\end{frame}
+\input{notes/12.tex}
+
+% Slide 13: Intervals versus packet delivery opportunities
+% AdvNet paper §4.2.1, Table 2
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{18.7}{23.001}\selectfont \bfseries Intervals versus packet delivery opportunities
+\end{textblock*}
+\begin{textblock*}{81mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{22.620mm}>{\raggedright\arraybackslash}p{26.390mm}>{\raggedright\arraybackslash}p{26.390mm}@{}}\toprule
+\textbf{Target} & \textbf{Intervals} & \textbf{PDOs}\\
+\midrule
+BBR & 79.11\% & 14.31\%\\
+CUBIC & 46.24\% & 29.78\%\\
+Vegas & 84.71\% & 27.29\%\\
+Reno & 41.26\% & 28.80\%\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{54mm}(98mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Matched comparison inside AdvNet
+\item Higher PDO dimension makes search harder
+\item Direct control of delay changes
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,79mm)
+\raggedright\color[HTML]{526474}\fontsize{9.3}{11.439}\selectfont Higher scores expose larger throughput shortfalls. This compares representations, not complete systems.
+\end{textblock*}
+\end{frame}
+\input{notes/13.tex}
+
+% Slide 14: Trace-based and action-based adversaries
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{20}{24.6}\selectfont \bfseries Trace-based and action-based adversaries
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Action-based adversary
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Observe state and choose the next condition online
+\item Requires reliable synchronization despite scheduling jitter
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,25mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Trace-based adversary
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Generate the full trace before execution
+\item Replay the same external conditions for comparison
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/14.tex}
+
+% Slide 15: Genetic algorithms in AdvNet
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Genetic algorithms in AdvNet
+\end{textblock*}
+\begin{textblock*}{47mm}(8mm,26mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Select
+\end{textblock*}
+\begin{textblock*}{47mm}(8mm,37mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont Favor promising traces
+\end{textblock*}
+\begin{textblock*}{47mm}(8mm,51mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Recombine
+\end{textblock*}
+\begin{textblock*}{47mm}(8mm,62mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont Exchange parameter segments
+\end{textblock*}
+\begin{textblock*}{92mm}(60mm,34mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=92mm,height=39mm,keepaspectratio]{ga-dna.png}
+\end{textblock*}
+\begin{textblock*}{92mm}(60mm,24mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont Candidate = a complete trace\par Fitness = measured performance-gap score
+\end{textblock*}
+\begin{textblock*}{92mm}(60mm,78mm)
+\raggedright\color[HTML]{C06821}\fontsize{9.7}{11.931}\selectfont Mutation introduces new values; every child still needs evaluation.
+\end{textblock*}
+\end{frame}
+\input{notes/15.tex}
+
+% Slide 16: Crossover and integer mutation
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Crossover and integer mutation
+\end{textblock*}
+\begin{textblock*}{87mm}(8mm,24mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Two-point crossover
+\end{textblock*}
+\begin{textblock*}{87mm}(8mm,36mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.2}{12.546}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{27.288mm}>{\raggedright\arraybackslash}p{12.128mm}>{\raggedright\arraybackslash}p{12.128mm}>{\raggedright\arraybackslash}p{12.128mm}>{\raggedright\arraybackslash}p{12.128mm}@{}}\toprule
+\textbf{} & \textbf{x\(_1\)} & \textbf{x\(_2\)} & \textbf{x\(_3\)} & \textbf{x\(_4\)}\\
+\midrule
+Parent A & \cellcolor{paleblue}20 & \cellcolor{paleblue}5 & \cellcolor{paleblue}40 & \cellcolor{paleblue}10\\
+Parent B & \cellcolor{paleteal}60 & \cellcolor{paleteal}30 & \cellcolor{paleteal}15 & \cellcolor{paleteal}80\\
+Child 1 & \cellcolor{paleblue}20 & \cellcolor{paleteal}30 & \cellcolor{paleteal}15 & \cellcolor{paleblue}10\\
+Child 2 & \cellcolor{paleteal}60 & \cellcolor{paleblue}5 & \cellcolor{paleblue}40 & \cellcolor{paleteal}80\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{48mm}(104mm,24mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Integer mutation
+\end{textblock*}
+\begin{textblock*}{48mm}(104mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont Each gene mutates\par with probability p.
+\end{textblock*}
+\begin{textblock*}{48mm}(104mm,59mm)
+\raggedright\color[HTML]{C06821}\fontsize{21}{25.83}\selectfont \bfseries 15 → 73
+\end{textblock*}
+\begin{textblock*}{48mm}(104mm,74mm)
+\raggedright\color[HTML]{526474}\fontsize{9.5}{11.685}\selectfont Sample from that gene’s allowed range.\par Toy range here: 1–100.
+\end{textblock*}
+\end{frame}
+\input{notes/16.tex}
+
+% Slide 17: Evidence for the search design
+% AdvNet paper §4.2.3, Fig.3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Evidence for the search design
+\end{textblock*}
+\begin{textblock*}{69mm}(8mm,24mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries GA versus random generation
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,24mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries GA, BO, and EPS
+\end{textblock*}
+\begin{textblock*}{69mm}(8mm,36mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=69mm,height=36mm,keepaspectratio]{optimizers-random.pdf}
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,36mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=67mm,height=36mm,keepaspectratio]{optimizers-active.pdf}
+\end{textblock*}
+\begin{textblock*}{69mm}(8mm,76mm)
+\raggedright\color[HTML]{142D45}\fontsize{9.7}{11.931}\selectfont 1 hour total; PLS uses the last 6 minutes
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,76mm)
+\raggedright\color[HTML]{142D45}\fontsize{9.7}{11.931}\selectfont 2 hours total; PLS uses the last 12 minutes
+\end{textblock*}
+\end{frame}
+\input{notes/17.tex}
+
+% Slide 18: Noisy scores and SimpleMax
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Noisy scores and SimpleMax
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,26mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries SimpleMax
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,40mm)
+\raggedright\color[HTML]{142D45}\fontsize{15}{18.45}\selectfont Return the largest score observed during search.
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,60mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Hundreds of candidates create chances for lucky observations
+\item The apparent winner may score lower when re-tested
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/18.tex}
+
+% Slide 19: Multi-round elimination
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Multi-round elimination
+\end{textblock*}
+\begin{textblock*}{35mm}(8mm,28mm)
+\raggedright\color[HTML]{2869B3}\fontsize{35}{43.05}\selectfont \bfseries 25
+\end{textblock*}
+\begin{textblock*}{45mm}(8mm,52mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont Top search candidates
+\end{textblock*}
+\begin{textblock*}{91mm}(61mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Evaluate every remaining candidate once
+\item Remove roughly the lower half by observed mean
+\item At five or fewer, keep measuring until the budget ends
+\item Return the highest observed mean
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/19.tex}
+
+% Slide 20: The search and selection budget
+% AdvNet paper §4.2.2, Fig.2
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries The search and selection budget
+\end{textblock*}
+\begin{textblock*}{76mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=76mm,height=49mm,keepaspectratio]{pls-budget.pdf}
+\end{textblock*}
+\begin{textblock*}{58mm}(94mm,27mm)
+\raggedright\color[HTML]{087F82}\fontsize{24}{29.52}\selectfont \bfseries 90\% search\par 10\% PLS
+\end{textblock*}
+\begin{textblock*}{58mm}(94mm,61mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Best split in this experiment
+\item More selection means less exploration
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/20.tex}
+
+% Slide 21: From search design to practical use
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries From search design to practical use
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Compact representation makes the search manageable
+\item GA uses execution feedback to discover challenging traces
+\item PLS selects an output for practical investigation
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,77mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Next: Xiaoyang presents the protocol testing use cases.
+\end{textblock*}
+\end{frame}
+\input{notes/21.tex}
+
+% Slide 22: Developer tasks and comparisons
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Developer tasks and comparisons
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{9.5}{11.685}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{16.272mm}>{\raggedright\arraybackslash}p{42.036mm}>{\raggedright\arraybackslash}p{46.104mm}>{\raggedright\arraybackslash}p{31.188mm}@{}}\toprule
+\textbf{Use case} & \textbf{Reference} & \textbf{Target / comparison} & \textbf{Question}\\
+\midrule
+UC1 & Capacity, another TCP, or a reference flow alone & Protocol under test, or reference with a competitor & Underutilization or unfairness?\\
+UC2 & Earlier protocol version & Newer version; compare the same metric & Did an update regress?\\
+UC3 & One path & Two paths & Can an extra path hurt?\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\end{frame}
+\input{notes/22.tex}
+
+% Slide 23: 17 TCP protocols: pairwise robustness
+% AdvNet paper §4.3, Fig.4(a)
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries 17 TCP protocols: pairwise robustness
+\end{textblock*}
+\begin{textblock*}{72mm}(8mm,22mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=72mm,height=64mm,keepaspectratio]{matrix-balanced.pdf}
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,24mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Equal throughput / delay weights
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,36mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont 17 protocols\par 272 directed pairs per objective\par 544 scenarios across both objectives
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,65mm)
+\raggedright\color[HTML]{2869B3}\fontsize{23}{28.29}\selectfont \bfseries 448 / 544
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,80mm)
+\raggedright\color[HTML]{526474}\fontsize{9.7}{11.931}\selectfont scenarios with a positive score
+\end{textblock*}
+\end{frame}
+\input{notes/23.tex}
+
+% Slide 24: Different traces, different weaknesses
+% AdvNet paper §4.3, Fig.4(b)
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Different traces, different weaknesses
+\end{textblock*}
+\begin{textblock*}{72mm}(8mm,22mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=72mm,height=64mm,keepaspectratio]{matrix-throughput.pdf}
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,24mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Throughput-only objective
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{10}{12.3}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{21.744mm}>{\raggedright\arraybackslash}p{21.744mm}>{\raggedright\arraybackslash}p{16.912mm}@{}}\toprule
+\textbf{Reference} & \textbf{Target} & \textbf{Score}\\
+\midrule
+BBR & CUBIC & 0.85\\
+CUBIC & BBR & 0.86\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{66mm}(86mm,69mm)
+\raggedright\color[HTML]{C06821}\fontsize{11}{13.53}\selectfont Each cell uses a different discovered trace. Both directions can reveal a weakness.
+\end{textblock*}
+\end{frame}
+\input{notes/24.tex}
+
+% Slide 25: A Linux TCP acknowledgment bug
+% AdvNet paper §4.4.1
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries A Linux TCP acknowledgment bug
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.6}{13.038}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{14.120mm}>{\raggedright\arraybackslash}p{127.080mm}@{}}\toprule
+\textbf{Step} & \textbf{Observed event}\\
+\midrule
+1 & Delay drops; later packets arrive first\\
+2 & Three duplicate ACKs trigger fast retransmit\\
+3 & The original packet arrives before its retransmission\\
+4 & ACK advancement fails; duplicate ACKs persist\\
+5 & The sender enters retransmission timeout\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,81mm)
+\raggedright\color[HTML]{526474}\fontsize{9.5}{11.685}\selectfont eBPF and Wireshark helped the authors diagnose the packet sequence.
+\end{textblock*}
+\end{frame}
+\input{notes/25.tex}
+
+% Slide 26: BBR v3: slow convergence
+% AdvNet paper §4.4.1, Fig.6
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries BBR v3: slow convergence
+\end{textblock*}
+\begin{textblock*}{78mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=78mm,height=52mm,keepaspectratio]{bbr-convergence.pdf}
+\end{textblock*}
+\begin{textblock*}{57mm}(95mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.7}{13.161}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Short run: BBR v3 stays low while CUBIC ramps up
+\item Longer run: BBR v3 eventually increases throughput
+\item Changing fq\_codel to fq did not remove slow convergence
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/26.tex}
+
+% Slide 27: Fairness between competing flows
+% AdvNet paper §3.5, §4.4.2
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Fairness between competing flows
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Fairness comparison
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{70.600mm}>{\raggedright\arraybackslash}p{70.600mm}@{}}\toprule
+\textbf{Reference score} & \textbf{Target score}\\
+\midrule
+Reference flow running alone & The same reference flow competing with a target\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{51mm}(8mm,67mm)
+\raggedright\color[HTML]{2869B3}\fontsize{24}{29.52}\selectfont \bfseries 40–80 s
+\end{textblock*}
+\begin{textblock*}{87mm}(65mm,66mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont Initially normal operation, then one packet at a time per ACK for the remaining 25–60 seconds.
+\end{textblock*}
+\end{frame}
+\input{notes/27.tex}
+
+% Slide 28: Regression testing: BBR v1 and v3
+% AdvNet paper §4.4.5; introduction
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Regression testing: BBR v1 and v3
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Dynamic trace, then 60 s fixed conditions; measure the final 10 s
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,43mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{70.600mm}>{\raggedright\arraybackslash}p{70.600mm}@{}}\toprule
+\textbf{Competing configuration} & \textbf{Reported throughput balance}\\
+\midrule
+CUBIC with BBR v1 & CUBIC / BBR v1 = 12\\
+CUBIC with BBR v3 & BBR v3 / CUBIC = 11.6\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,80mm)
+\raggedright\color[HTML]{526474}\fontsize{10.5}{12.915}\selectfont Single-flow tests also found BBR v1 throughput more than five times BBR v3.
+\end{textblock*}
+\end{frame}
+\input{notes/28.tex}
+
+% Slide 29: DChannel and early timeout estimates
+% AdvNet paper §4.4.3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries DChannel and early timeout estimates
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{52.592mm}>{\raggedright\arraybackslash}p{34.600mm}>{\raggedright\arraybackslash}p{51.208mm}@{}}\toprule
+\textbf{Path} & \textbf{One-way delay} & \textbf{Typical packets}\\
+\midrule
+High bandwidth (HBP) & 120 ms & Large data packets\\
+Low latency (LLP) & 3 ms & Small control packets\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\begin{textblock*}{69mm}(8mm,63mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Small early RTT estimate
+\end{textblock*}
+\begin{textblock*}{69mm}(8mm,76mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont The handshake uses the LLP.
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,63mm)
+\raggedright\color[HTML]{C06821}\fontsize{12}{14.76}\selectfont \bfseries About 200 ms minimum RTO
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,76mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont HBP data can time out before its ACK.
+\end{textblock*}
+\end{frame}
+\input{notes/29.tex}
+
+% Slide 30: DChannel: two paths can finish later
+% AdvNet paper §4.4.3, Fig.7
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries DChannel: two paths can finish later
+\end{textblock*}
+\begin{textblock*}{81mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=81mm,height=49mm,keepaspectratio]{dchannel.pdf}
+\end{textblock*}
+\begin{textblock*}{54mm}(98mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item 20 MB file transfer
+\item All tested alpha values finish later than the single HBP
+\item Changing alpha softens the issue but does not remove it
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/30.tex}
+
+% Slide 31: MPTCP: one path versus two
+% AdvNet paper §4.4.4, Fig.8
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries MPTCP: one path versus two
+\end{textblock*}
+\begin{textblock*}{81mm}(8mm,30mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=81mm,height=39mm,keepaspectratio]{mptcp.pdf}
+\end{textblock*}
+\begin{textblock*}{54mm}(98mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.8}{13.284}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item All four tested MPTCP algorithms have counterexamples
+\item BALIA two-path throughput is 85.5\% lower in this example
+\item A \textasciitilde{}40 ms ACK delay precedes the slowdown on both paths
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/31.tex}
+
+% Slide 32: What AdvNet contributes
+% AdvNet paper §1–3
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries What AdvNet contributes
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,28mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item A shared search pipeline supports several developer tasks
+\item Compact environments and noise handling contribute to its effectiveness
+\item Representation, evaluation, and reference design deserve attention
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/32.tex}
+
+% Slide 33: Scope and open questions
+% AdvNet paper §5
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Scope and open questions
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Current boundaries
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item No estimate of deployment frequency
+\item Manual root-cause diagnosis
+\item Limited workload and loss dimensions
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,25mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Extensions
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Richer environments and workloads
+\item Characterize problematic environment regions
+\item An ABR prototype already exists
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/33.tex}
+
+% Slide 34: Backup: formal methods and GANs
+% AdvNet paper §6, Appendix D
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Backup: formal methods and GANs
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,25mm)
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Formal methods
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Specify properties and models
+\item Can provide guarantees within those assumptions
+\item Scaling to real kernel state is challenging
+\end{itemize}
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,25mm)
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries GANs
+\end{textblock*}
+\begin{textblock*}{67mm}(85mm,38mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Usually learn a data distribution
+\item AdvNet has no challenging-trace dataset to imitate
+\item Execution feedback drives a search for weaknesses
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/34.tex}
+
+% Slide 35: Backup: alternatives to MRE
+% AdvNet paper §3.3, Appendix B
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Backup: alternatives to MRE
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{35.300mm}>{\raggedright\arraybackslash}p{105.900mm}@{}}\toprule
+\textbf{Method} & \textbf{Budget allocation}\\
+\midrule
+RoundRobin & Equal allocation across candidates\\
+OCBA & More measurements for uncertain or close contenders\\
+MRE & Repeated elimination, then continued evaluation of survivors\\
+\bottomrule\end{tabular}
+\end{textblock*}
+\end{frame}
+\input{notes/35.tex}
+
+% Slide 36: Backup: GA operator equations
+% AdvNet paper §3.2.2
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Backup: GA operator equations
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,25mm)
+\raggedright\color[HTML]{142D45}\fontsize{14}{17.22}\selectfont \(\displaystyle c_i=\begin{cases}b_i,&k_1<i\leq k_2,\\a_i,&\text{otherwise}\end{cases}\)
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,51mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont \(\displaystyle m_i=\begin{cases}U_i,&\text{with probability }p,\\c_i,&\text{otherwise}\end{cases}\quad U_i\sim\operatorname{Unif}\{l_i,\ldots,u_i\}\)
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,78mm)
+\raggedright\color[HTML]{526474}\fontsize{10}{12.3}\selectfont a, b: parents; c: child; m: mutated child; k\(_1\), k\(_2\): cut positions; lᵢ, uᵢ: bounds
+\end{textblock*}
+\end{frame}
+\input{notes/36.tex}
+
+% Slide 37: Backup: the selection simulation
+% AdvNet paper Appendix B, Fig.11
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Backup: the selection simulation
+\end{textblock*}
+\begin{textblock*}{82mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=82mm,height=50mm,keepaspectratio]{mre-simulation.pdf}
+\end{textblock*}
+\begin{textblock*}{53mm}(99mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{10.8}{13.284}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item 50 Gaussian alternatives with means sampled from 0–100
+\item The vertical axis is the true mean of the selected alternative
+\item MRE leads among the tested methods under this statistical model
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/37.tex}
+
+% Slide 38: Backup: parallel execution costs
+% AdvNet paper Appendix A, Fig.9
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Backup: parallel execution costs
+\end{textblock*}
+\begin{textblock*}{85mm}(8mm,24mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=85mm,height=51mm,keepaspectratio]{parallel-interference.pdf}
+\end{textblock*}
+\begin{textblock*}{51mm}(101mm,26mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item Three dedicated cores per execution
+\item Throughput changes with parallelism
+\item Variance rises at nine and ten executions
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/38.tex}
+
+% Slide 39: Backup: choosing the parallelism level
+% AdvNet paper Appendix A, Fig.10
+\begin{frame}[plain]
+\begin{textblock*}{144mm}(8mm,6mm)
+\raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Backup: choosing the parallelism level
+\end{textblock*}
+\begin{textblock*}{76mm}(8mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=76mm,height=52mm,keepaspectratio]{parallel-score.pdf}
+\end{textblock*}
+\begin{textblock*}{58mm}(94mm,27mm)
+\raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
+\item More repetitions help with noise but add interference
+\item Five-way evaluation gives the best score in this setup
+\item The improvement over one evaluation is small
+\end{itemize}
+\end{textblock*}
+\end{frame}
+\input{notes/39.tex}
+\end{document}
