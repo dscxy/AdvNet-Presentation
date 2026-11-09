@@ -14,19 +14,17 @@ Creating a robust congestion control algorithm is hard. First, available resourc
 
 These requirements also make it difficult for the protocols to be thoroughly tested. Therefore, new protocols or an upgrade to an existing protocol may perform better in test suites, but they could introduce hidden performance regressions. How to find these scenarios is the main focus of this paper.
 
-## 2. What Are the Existing Solutions?
+## 2. What Are the Existing Solutions, and Why Do They Fall Short?
 
-The usual testing methods are still useful. Hand-designed tests are easy to interpret and can check a suspected problem directly. But their coverage depends on what the designer thinks of testing.
+How do developers test protocols today, and why isn't that enough?
 
-Real network traces show conditions that users actually experience. Their coverage, however, depends on where and when we collect them. Rare or unfamiliar conditions may be missing. AdvNet adds another way to search for those gaps.
+First, hand-designed tests run a protocol under manually chosen parameters, such as fixed bandwidth and latency ranges. They are easy to interpret and they can check suspected problems directly, but their coverage depends on what the designer thinks of testing. Another problem is that many protocols retain certain states from the past, so the actual behavior may depend on previous environments. Thus, the number of possible test cases grows exponentially with sequence length.
 
-There is also a choice between simulation and emulation. Simulation runs models of the protocol and network. It offers control, but the modeled behavior may differ from the deployed implementation.
+Second, developers may replay captured traces in emulators like Mahimahi, or evaluate protocols on platforms like Pantheon and Puffer to test conditions that users actually experience. These are essential for benchmarking average real-world performance, but their coverage is bounded by where and when traces were collected. In addition, they do not actively search for unknown worst-case conditions. Reproducing real-world anomalies is also difficult due to uncontrolled background processes. (**Visual Suggestion**: Add visual-only notes that explain differences between Pantheon, Puffer, and Mahimahi.)
 
-Emulation runs real protocol code under controlled network conditions. This includes implementation details, but each evaluation takes time and can vary between runs.
+Third, what about automated adversarial testing? Here we first need to distinguish between simulation and emulation. Simulation (such as ns-3) runs simplified models of the protocol and network; it is fast and deterministic, but the modeled behavior can differ from real deployed code. Emulation (such as Mahimahi) runs the real operating system kernel protocol stack under controlled virtual links. It can capture real implementation bugs, but at the cost of slow execution and runtime noise.
 
-(**Visual Suggestion**: Side-by-side comparison of Simulation vs. Emulation architectures, pros, and cons.)
-
-Earlier work, including CC-Fuzz, already explored adversarial testing. AdvNet focuses on making this approach useful for real implementations. It also uses a different environment representation, which I will explain shortly.
+An important piece of prior work, CC-Fuzz, used a genetic algorithm to generate adversarial environments, but only inside the ns-3 simulator, representing links via low-level Packet Delivery Opportunities. The problem is that its high-dimensional PDO representation struggles to find strong adversarial examples within a limited emulation budget.
 
 ## 3. How Does This Paper Solve the Problem?
 
