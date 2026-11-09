@@ -23,7 +23,7 @@ Sending too slowly wastes capacity; sending too quickly builds queues.
 \begin{tikzpicture}[x=1pt,y=1pt]
 \path[use as bounding box] (0,-55) rectangle (880,135);
 \node[box,minimum width=150pt,minimum height=60pt] (s) at (100,60) {Sender};
-\node[box,minimum width=220pt,minimum height=60pt] (q) at (440,60) {Bottleneck queue};
+\node[box,minimum width=220pt,minimum height=60pt] (q) at (375,60) {Bottleneck queue};
 \node[box,minimum width=150pt,minimum height=60pt] (r) at (780,60) {Receiver};
 \draw[flow] (s) -- (q);
 \draw[flow] (q) -- node[above=10pt,font=\fontsize{20}{25}\selectfont] {Bandwidth: capacity} (r);

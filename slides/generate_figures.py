@@ -99,39 +99,7 @@ plt.close(fig)
     "fig3b": {"GA": [.58, .62], "BO": [.57, .59], "EPS": [.60, .55]}
 }, indent=2) + "\n")
 
-# Preserve all 17 x 17 cell colors directly from the PDF's vector rectangles.
-# The overview omits cell numbers and individual labels; the following slide
-# enlarges the BBR/CUBIC entries and prints their original numerical scores.
-drawings = doc[13].get_drawings()
-matrices = []
-for x0, y0 in [(83.0448, 107.8792), (288.1056, 107.1617)]:
-    matrix = np.ones((17, 17, 3))
-    for row in range(17):
-        for col in range(17):
-            center = pymupdf.Point(x0 + (col + .5) * 8.60976,
-                                   y0 + (row + .5) * 8.37060)
-            matches = [d for d in drawings if d["fill"] is not None
-                       and d["rect"].contains(center)
-                       and 8 < d["rect"].height < 9]
-            if not matches:
-                raise ValueError(f"Missing heatmap cell: {x0}, {row}, {col}")
-            matrix[row, col] = matches[-1]["fill"]
-    matrices.append(matrix)
+# Preserve the original vector heatmaps, including labels and numerical entries.
+crop_pdf(13, (52.0, 86.0, 445.0, 270.0), "fig04_original.pdf")
 
-fig, axes = plt.subplots(1, 2, figsize=(12.3, 3.95))
-fig.subplots_adjust(left=.06, right=.98, bottom=.08, top=.85, wspace=.22)
-for ax, matrix, title in zip(axes, matrices,
-                            ["50% throughput + 50% delay", "Throughput only"]):
-    ax.imshow(matrix, interpolation="none")
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_title(title, fontsize=22, pad=12)
-    ax.set_xlabel("Target protocol", labelpad=9)
-    ax.set_ylabel("Reference protocol", labelpad=9)
-    ax.add_patch(plt.Rectangle((-.5, -.5), 2, 2, fill=False,
-                              ec=blue, lw=2.4, clip_on=False))
-    ax.spines[["left", "bottom"]].set_visible(False)
-fig.savefig(OUT / "fig04_overview.pdf")
-plt.close(fig)
-
-print("Prepared original figures and two redrawn comparisons in slides/figures/.")
+print("Prepared presentation figures in slides/figures/.")
