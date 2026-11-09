@@ -1,0 +1,88 @@
+% 30 static main slides and 4 backup slides.
+% Slide changes and timing: ../scripts/slide_cues.md.
+\pdfminorversion=7
+\documentclass[aspectratio=169]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,exscale,amsmath,amssymb}
+\DeclareFontShape{OMX}{cmex}{m}{n}{<-> cmex10}{}
+\usepackage{booktabs,tabularx,array,colortbl}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing}
+\geometry{paperwidth=13.333in,paperheight=7.5in}
+\graphicspath{{figures/}}
+\definecolor{SemBlue}{HTML}{244A73}
+\definecolor{SemTeal}{HTML}{176B63}
+\definecolor{SemGray}{HTML}{555555}
+\definecolor{SemOrange}{HTML}{B65A2A}
+\definecolor{PaleBlue}{HTML}{E7EEF5}
+\definecolor{PaleTeal}{HTML}{E4F0EC}
+\definecolor{PaleOrange}{HTML}{FAEDE4}
+\definecolor{RuleGray}{HTML}{CCD4DB}
+\setbeamersize{text margin left=.48in,text margin right=.48in}
+\setbeamercolor{normal text}{fg=black,bg=white}
+\setbeamercolor{structure}{fg=SemTeal}
+\setbeamercolor{frametitle}{fg=SemBlue,bg=white}
+\setbeamercolor{headline}{fg=SemGray,bg=white}
+\setbeamercolor{footline}{fg=SemGray,bg=white}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize item}{\raisebox{2pt}{\color{SemTeal}\rule{5pt}{5pt}}}
+\setbeamerfont{frametitle}{size=\fontsize{31}{36}\selectfont,series=\bfseries}
+\setbeamerfont{normal text}{size=\fontsize{24}{30}\selectfont}
+\setbeamerfont{itemize/enumerate body}{size=\fontsize{24}{30}\selectfont}
+\setbeamerfont{itemize/enumerate subbody}{size=\fontsize{22}{28}\selectfont}
+\newcommand{\bodyfont}{\fontsize{24}{30}\selectfont}
+\newcommand{\compactfont}{\fontsize{22}{28}\selectfont}
+\newcommand{\labelfont}{\fontsize{20}{25}\selectfont}
+\newcommand{\eqfont}{\fontsize{30}{38}\selectfont}
+\newcommand{\key}[1]{\textcolor{SemTeal}{\textbf{#1}}}
+\newcommand{\lead}[1]{\par{\color{SemBlue}\bfseries #1}\par\vspace{8pt}}
+\newcommand{\takeaway}[1]{\par\vspace{14pt}{\color{SemTeal}\bfseries #1\par}}
+\newenvironment{points}{\begin{itemize}\setlength{\itemsep}{12pt}}{\end{itemize}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\currentsection}{1}
+\newcommand{\currentsource}{}
+\newcommand{\sectiontag}[1]{\renewcommand{\currentsection}{#1}}
+\newcommand{\source}[1]{\renewcommand{\currentsource}{#1}}
+\newcommand{\navitem}[2]{\ifnum\currentsection=#1\relax\textcolor{SemBlue}{\underline{\textbf{#2}}}\else#2\fi}
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=28pt,dp=7pt]{headline}%
+    \fontsize{18.5}{22}\selectfont\hspace*{.48in}%
+    \hbox to \dimexpr\paperwidth-.96in\relax{%
+      \navitem{1}{Problem}\hfil\navitem{2}{Search design}\hfil
+      \navitem{3}{Objectives}\hfil\navitem{4}{Findings}\hfil
+      \navitem{5}{Takeaways}\hfil\navitem{6}{Backup}}%
+  \end{beamercolorbox}}
+\setbeamertemplate{frametitle}{%
+  \vspace{6pt}\begin{beamercolorbox}[wd=\textwidth,sep=0pt]{frametitle}%
+  \usebeamerfont{frametitle}\strut\insertframetitle\strut\par
+  \end{beamercolorbox}\vspace{8pt}}
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=25pt,dp=12pt]{footline}%
+  \hspace*{.48in}\fontsize{18.5}{22}\selectfont
+  \makebox[\dimexpr\paperwidth-1.95in\relax][l]{\currentsource}\hfill
+  \ifnum\value{framenumber}>30\relax
+    B\number\numexpr\value{framenumber}-30\relax\,/\,4
+  \else\insertframenumber\,/\,30\fi\hspace*{.48in}
+  \end{beamercolorbox}}
+\DeclareMathSizes{18.5}{18.5}{18.5}{18.5}
+\DeclareMathSizes{20}{20}{18.5}{18.5}
+\DeclareMathSizes{22}{22}{18.5}{18.5}
+\DeclareMathSizes{24}{24}{18.5}{18.5}
+\DeclareMathSizes{28}{28}{20}{18.5}
+\DeclareMathSizes{30}{30}{22}{18.5}
+\DeclareMathSizes{32}{32}{22}{18.5}
+\DeclareMathSizes{36}{36}{24}{18.5}
+\tikzset{every node/.style={font=\fontsize{22}{27}\selectfont,align=center},
+  box/.style={draw=SemBlue,line width=1.2pt,fill=PaleBlue,inner sep=10pt},
+  flow/.style={-{Stealth[length=8pt,width=7pt]},line width=1.7pt,draw=SemBlue},
+  ack/.style={-{Stealth[length=7pt,width=6pt]},line width=1.5pt,draw=SemTeal}}
+\hypersetup{pdftitle={AdvNet: Adversarial Testing of Network Protocols},
+  pdfsubject={25-minute class presentation},colorlinks=true,allcolors=SemBlue}
+\begin{document}
+\input{sections/01_problem}
+\input{sections/02_search}
+\input{sections/03_objectives}
+\input{sections/04_findings}
+\input{sections/05_takeaways_backup}
+\end{document}
+

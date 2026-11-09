@@ -14,6 +14,8 @@ course requirements the talk has to satisfy; this file is the map of the reposit
 | --- | --- |
 | `AGENTS.md` | Project conventions, presentation objective, and the mandatory course requirements. |
 | `docs/` | Source material: the paper PDF, plus `docs/mineru/` with a machine-readable parse of it. |
+| `scripts/` | Accepted spoken script and the slide-change cue sheet for a 25-minute talk. |
+| `slides/` | Beamer source, the compiled presentation PDF, figure assets, and build instructions. |
 | `third_party/AdvNet/` | The authors' implementation, tracked as a git submodule. |
 | `tmp/` | Scratch space for local work; not tracked by git. |
 

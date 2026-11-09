@@ -1,0 +1,68 @@
+% 15 — Script §6.1, Xiaoyang starts; score definition and example.
+\sectiontag{3}\source{Score definition: Eq. 1. Example by presenters.}
+\begin{frame}[t]{A relative gap makes the objective useful}
+\bodyfont
+For a higher-is-better metric, with reference $R$ and target $T$:
+\vspace{12pt}
+{\eqfont\[s=\frac{R-T}{\max(R,T)}\]}
+\begin{center}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\node[box,text width=205pt] (r) at (120,0) {Reference\\\textbf{10 Mbps}};
+\node[box,text width=205pt] (t) at (440,0) {Target\\\textbf{2 Mbps}};
+\node[text width=220pt,font=\fontsize{30}{38}\selectfont] at (770,0) {$\displaystyle\frac{10-2}{10}=\key{0.8}$};
+\end{tikzpicture}
+\end{center}
+\vspace{12pt}
+For a lower-is-better metric such as completion time, use $T-R$.
+\takeaway{Higher score = larger target disadvantage. The score lies in $[-1,1]$.}
+\end{frame}
+
+% 16 — Script §6.1, weighted utility and three use cases.
+\source{}
+\begin{frame}[t]{Choose which performance tradeoff to test}
+\bodyfont
+Normalize throughput $\tau$ and delay $d$ so both terms are higher-is-better.
+\vspace{8pt}
+{\eqfont\[u=w\,\frac{\tau}{\tau_{\max}}+(1-w)\,\frac{d_{\min}}{d}\]}
+{\labelfont $\tau_{\max}$: throughput bound\quad $d_{\min}$: minimum delay\quad $w$: throughput weight}
+\par\vspace{22pt}
+{\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{@{}L L L@{}}
+\toprule
+$w=0$ & $w=0.5$ & $w=1$\\\midrule
+Delay only & Equal weighting & Throughput only\\\bottomrule
+\end{tabularx}}
+\par\vspace{20pt}
+Compute the relative gap between reference and target utilities.
+\takeaway{Change the reference to study weaknesses, regressions, or design goals.}
+\end{frame}
+
+% 17 — Script §6.2, references and all-pairs comparison.
+\sectiontag{4}\source{Fig. 4 (redrawn color overview; blue boxes locate BBR/CUBIC).}
+\begin{frame}[t]{Every tested protocol has a vulnerable environment}
+\bodyfont
+\textbf{17 protocols $\times$ 16 references $\times$ 2 objectives = 544 scenarios}\par
+\key{Adversarial environments found in 448 scenarios.}
+\vspace{2pt}
+\includegraphics[width=\linewidth]{fig04_overview.pdf}
+{\labelfont Each cell is one directed pair.\quad\textcolor{red}{Red: target worse}\quad\textcolor{SemTeal}{Green: target better}}
+\end{frame}
+
+% 18 — Script §6.2, BBR/CUBIC close-up.
+\source{BBR/CUBIC entries from Fig. 4a--b (reformatted).}
+\begin{frame}[t]{BBR and CUBIC expose each other's blind spots}
+\bodyfont
+\vspace{16pt}
+{\renewcommand{\arraystretch}{1.8}
+\begin{tabularx}{\linewidth}{@{}L L L L@{}}
+\toprule
+Reference & Target & 50/50 utility & Throughput\\\midrule
+BBR & CUBIC & \textcolor{SemTeal}{\textbf{0.94}} & \textcolor{SemTeal}{\textbf{0.85}}\\
+CUBIC & BBR & \textcolor{SemTeal}{\textbf{0.70}} & \textcolor{SemTeal}{\textbf{0.86}}\\\bottomrule
+\end{tabularx}}
+\vspace{28pt}
+\takeaway{Both directions reveal substantial gaps, in different environments.}
+\vspace{10pt}
+The next step is to inspect the discovered traces and find the cause.
+\end{frame}
+

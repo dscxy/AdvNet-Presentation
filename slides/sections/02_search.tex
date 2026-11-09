@@ -1,0 +1,212 @@
+% 07 — Script §5.1, trace representation and teaching example.
+\sectiontag{2}\source{Trace illustration by presenters; parameter bounds from Table 1.}
+\begin{frame}[t]{One candidate is a bounded network trace}
+\bodyfont
+{\eqfont $T=(B,L,D,I)$}\hspace{25pt}Bandwidth, delay, duration, fixed settings
+\vspace{12pt}
+\begin{columns}[T,onlytextwidth]
+\column{.64\textwidth}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-30) rectangle (565,255);
+\node[anchor=west,font=\fontsize{20}{25}\selectfont] at (0,240) {Bandwidth (Mbps)};
+\node[anchor=west,font=\fontsize{20}{25}\selectfont] at (0,103) {One-way delay (ms)};
+\draw[SemGray,->] (55,132)--(550,132);
+\draw[SemGray,->] (55,15)--(550,15);
+\foreach \x in {175,415} {\draw[dotted,RuleGray,line width=1.2pt] (\x,15)--(\x,205);}
+\draw[SemBlue,line width=3pt] (55,192)--(175,192)--(175,147)--(415,147)--(415,192)--(535,192);
+\draw[SemTeal,line width=3pt] (55,30)--(175,30)--(175,75)--(415,75)--(415,22.5)--(535,22.5);
+\node[above,font=\fontsize{20}{25}\selectfont] at (115,192) {20};
+\node[above,font=\fontsize{20}{25}\selectfont] at (295,147) {5};
+\node[above,font=\fontsize{20}{25}\selectfont] at (475,192) {20};
+\node[above,font=\fontsize{20}{25}\selectfont] at (115,30) {20};
+\node[above,font=\fontsize{20}{25}\selectfont] at (295,75) {80};
+\node[above,font=\fontsize{20}{25}\selectfont] at (475,22.5) {10};
+\foreach \x/\v in {55/0,175/1,415/3,535/4}{\node[below,font=\fontsize{20}{25}\selectfont] at (\x,15) {\v};}
+\node[font=\fontsize{20}{25}\selectfont] at (295,-25) {Time (s)};
+\end{tikzpicture}
+\column{.32\textwidth}
+\lead{Three intervals}
+$D=(1,2,1)$ seconds
+\vspace{18pt}\par
+\textbf{Fixed within a trace}\par
+$I$: queue capacity
+\vspace{18pt}\par
+\textbf{Multipath}\par
+Each link has its own $B,L$; intervals share $D$.
+\end{columns}
+\vspace{16pt}
+{\compactfont\textbf{Search bounds:} 1--100 Mbps; 5--100 ms; 0.5--2.5 s per interval.}
+\end{frame}
+
+% 08 — Script §5.1, PDO comparison.
+\source{Table 2 (reformatted); PDO dimension comparison from §4.2.1.}
+\begin{frame}[t]{A compact representation improves the search}
+\bodyfont
+\textbf{PDO:} a packet delivery opportunity specifies when a packet can leave.
+\vspace{18pt}
+\begin{columns}[T,onlytextwidth]
+\column{.60\textwidth}
+{\compactfont\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{@{}l L L@{}}
+\toprule
+Target & Intervals & PDOs\\\midrule
+BBR & \textbf{79.11\%} & 14.31\%\\
+CUBIC & \textbf{46.24\%} & 29.78\%\\
+Vegas & \textbf{84.71\%} & 27.29\%\\
+Reno & \textbf{41.26\%} & 28.80\%\\\bottomrule
+\end{tabularx}}
+\vspace{10pt}\par
+{\labelfont Same AdvNet framework and matched configurations.}
+\column{.35\textwidth}
+\lead{More PDOs, harder search}
+BBR, 25 $\rightarrow$ 100 PDOs:\par\vspace{8pt}
+{\fontsize{30}{38}\selectfont 14.31\% $\rightarrow$ 5.91\%}
+\vspace{18pt}\par
+\lead{Why intervals help}
+Fewer dimensions\par\vspace{8pt}
+Direct control of delay changes
+\end{columns}
+\takeaway{Score: throughput shortfall relative to capacity. Higher is more adversarial.}
+\end{frame}
+
+% 09 — Script §5.2, complete traces and GA loop.
+\source{GA diagram by presenters.}
+\begin{frame}[t]{GA evolves a population of complete traces}
+\bodyfont
+\textbf{Generate first, then replay:} avoids synchronizing an online adversary\par
+with both target and reference during execution.
+\vspace{28pt}
+\begin{center}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-25) rectangle (880,185);
+\node[box,text width=155pt,minimum height=90pt] (p) at (95,115) {Population\\of traces};
+\node[box,text width=160pt,minimum height=90pt] (e) at (325,115) {Evaluate\\protocols};
+\node[box,text width=155pt,minimum height=90pt] (s) at (550,115) {Select promising\\candidates};
+\node[box,text width=160pt,minimum height=90pt] (o) at (785,115) {Crossover\\and mutation};
+\draw[flow] (p)--(e);\draw[flow] (e)--(s);\draw[flow] (s)--(o);
+\draw[flow] (o.south)--(785,0)--(95,0)--(p.south);
+\node[fill=white] at (440,0) {Next generation, until the budget ends};
+\end{tikzpicture}
+\end{center}
+\textbf{Genes:} bandwidths, delays, durations, and fixed parameters.\par\vspace{10pt}
+\key{Fitness = measured performance-gap score.}
+\end{frame}
+
+% 10 — Script §5.2, operator example.
+\source{Teaching example by presenters.}
+\begin{frame}[t]{Crossover recombines; mutation introduces new values}
+\bodyfont
+\begin{columns}[T,onlytextwidth]
+\column{.63\textwidth}
+\lead{Two-point crossover}
+Exchange the middle segment.
+\vspace{15pt}
+{\renewcommand{\arraystretch}{1.65}\setlength{\tabcolsep}{13pt}
+\begin{tabular}{@{}lc|cc|c@{}}
+& 1 & 2 & 3 & 4\\
+Parent A & \cellcolor{PaleBlue}20 & \cellcolor{PaleBlue}5 & \cellcolor{PaleBlue}40 & \cellcolor{PaleBlue}10\\
+Parent B & \cellcolor{PaleTeal}60 & \cellcolor{PaleTeal}30 & \cellcolor{PaleTeal}15 & \cellcolor{PaleTeal}80\\\addlinespace[10pt]
+Child A & \cellcolor{PaleBlue}20 & \cellcolor{PaleTeal}30 & \cellcolor{PaleTeal}15 & \cellcolor{PaleBlue}10\\
+Child B & \cellcolor{PaleTeal}60 & \cellcolor{PaleBlue}5 & \cellcolor{PaleBlue}40 & \cellcolor{PaleTeal}80\\
+\end{tabular}}
+\column{.32\textwidth}
+\lead{Uniform integer mutation}
+Each gene changes with probability $p$.
+\vspace{24pt}\par
+{\fontsize{38}{45}\selectfont\color{SemTeal}15 $\rightarrow$ 73}
+\vspace{20pt}\par
+Sample an integer from that gene's allowed range.\par\vspace{10pt}
+Here: 1--100.
+\end{columns}
+\end{frame}
+
+% 11 — Script §5.2, Fig. 3a and 3b.
+\source{Fig. 3a--b (redrawn).}
+\begin{frame}[t]{Genetic search improves on random generation}
+\bodyfont
+\begin{columns}[T,onlytextwidth]
+\column{.49\textwidth}\key{One-hour budget: GA vs. random}
+\column{.49\textwidth}\key{Two-hour budget: GA, BO, EPS}
+\end{columns}
+\vspace{4pt}
+\includegraphics[width=\linewidth]{fig03_search_redrawn.pdf}
+{\labelfont RG: random generation\quad BO: Bayesian optimization\quad EPS: epsilon-greedy}
+\end{frame}
+
+% 12 — Script §5.3, SimpleMax and noisy observations.
+\source{Measurement illustration by presenters.}
+\begin{frame}[t]{The highest observation can be a lucky outlier}
+\bodyfont
+\begin{columns}[T,onlytextwidth]
+\column{.61\textwidth}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-45) rectangle (540,330);
+\draw[->,SemGray,line width=1.2pt] (65,30)--(65,310) node[above] {Score};
+\draw[->,SemGray,line width=1.2pt] (65,30)--(535,30);
+\foreach \x/\y in {170/216,195/224,220/220,245/228,270/212}{\fill[SemBlue] (\x,\y) circle (5pt);}
+\foreach \x/\y in {355/100,380/120,405/140,430/160}{\fill[SemOrange] (\x,\y) circle (5pt);}
+\fill[SemOrange] (455,290) circle (7pt);
+\draw[dashed,SemBlue,line width=1.5pt] (150,220)--(285,220);
+\draw[dashed,SemOrange,line width=1.5pt] (335,162)--(475,162);
+\node[below,text width=180pt] at (220,20) {Environment A\\Higher mean};
+\node[below,text width=180pt] at (410,20) {Environment B\\Lower mean};
+\draw[SemOrange,line width=1.4pt] (455,290) circle (14pt);
+\end{tikzpicture}
+\column{.34\textwidth}
+\lead{SimpleMax}
+Return the trace with the largest score observed during search.
+\vspace{24pt}\par
+One unusually high run can make B look best.
+\vspace{24pt}\par
+\key{Re-evaluation tests whether the high score persists.}
+\end{columns}
+\end{frame}
+
+% 13 — Script §5.3, MRE.
+\source{Selection diagram by presenters.}
+\begin{frame}[t]{Post-learning selection focuses runs on strong candidates}
+\bodyfont
+\begin{columns}[T,onlytextwidth]
+\column{.38\textwidth}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-10) rectangle (330,275);
+\filldraw[fill=PaleBlue,draw=SemBlue,line width=1.3pt] (10,260)--(320,260)--(275,170)--(55,170)--cycle;
+\node at (165,218) {Top 25 environments};
+\filldraw[fill=PaleTeal,draw=SemTeal,line width=1.3pt] (55,145)--(275,145)--(230,60)--(100,60)--cycle;
+\node at (165,105) {Keep the\\upper half};
+\draw[flow] (165,170)--(165,145);
+\draw[flow] (165,60)--(165,22);
+\node[below] at (165,22) {$\leq 5$ candidates};
+\end{tikzpicture}
+\column{.57\textwidth}
+\lead{Multi-round elimination (MRE)}
+\begin{points}
+\item Run each remaining candidate once per round.
+\item Rank by the mean observed so far; remove roughly half.
+\item At five or fewer, keep measuring until time is up; return the highest mean.
+\end{points}
+\end{columns}
+\vspace{15pt}
+{\compactfont\key{During search: medians}\quad$\rightarrow$\quad\key{PLS: means}\quad$\rightarrow$\quad\key{Independent evaluation}}
+\end{frame}
+
+% 14 — Script §5.3, Fig. 2, wrap-up and speaker handoff.
+\source{Fig. 2 (original).}
+\begin{frame}[t]{Reserve a small part of the budget for selection}
+\bodyfont
+\begin{columns}[T,onlytextwidth]
+\column{.68\textwidth}
+\includegraphics[width=\linewidth]{fig02_budget.png}
+\column{.28\textwidth}
+{\fontsize{38}{44}\selectfont\color{SemBlue}\textbf{90\%}}\par
+Search for environments
+\vspace{20pt}\par
+{\fontsize{38}{44}\selectfont\color{SemTeal}\textbf{10\%}}\par
+Post-learning selection
+\vspace{24pt}\par
+{\compactfont Best split in this experiment.}
+\vspace{18pt}\par
+{\compactfont Compact traces + GA + PLS}
+\end{columns}
+\end{frame}
+

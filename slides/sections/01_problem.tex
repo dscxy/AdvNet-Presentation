@@ -1,0 +1,140 @@
+% 01 — Script §1, opening.
+\sectiontag{1}\source{}
+\begin{frame}[t]
+\vspace*{38pt}
+{\fontsize{24}{30}\selectfont Adversarial testing of network protocols\par}
+\vspace{24pt}
+{\fontsize{52}{60}\selectfont\bfseries\color{SemBlue} AdvNet\par}
+\vspace{18pt}
+{\fontsize{30}{38}\selectfont Revealing Performance Issues in Network Protocols\\
+by Generating Adversarial Environments\par}
+\vspace{36pt}
+{\fontsize{28}{36}\selectfont\color{SemTeal}
+Can we automatically find conditions where a protocol performs much worse?\par}
+\end{frame}
+
+% 02 — Script §1, bandwidth, throughput, cwnd, pacing, ACKs.
+\source{Diagram by presenters.}
+\begin{frame}[t]{Congestion control balances throughput and delay}
+\bodyfont
+Sending too slowly wastes capacity; sending too quickly builds queues.
+\vspace{12pt}
+\begin{center}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-55) rectangle (880,135);
+\node[box,minimum width=150pt,minimum height=60pt] (s) at (100,60) {Sender};
+\node[box,minimum width=220pt,minimum height=60pt] (q) at (440,60) {Bottleneck queue};
+\node[box,minimum width=150pt,minimum height=60pt] (r) at (780,60) {Receiver};
+\draw[flow] (s) -- (q);
+\draw[flow] (q) -- node[above=10pt,font=\fontsize{20}{25}\selectfont] {Bandwidth: capacity} (r);
+\node[font=\fontsize{20}{25}\selectfont,anchor=south] at (440,108) {Throughput: achieved delivery rate};
+\draw[ack] (r.south) -- ++(0,-55) -| (s.south);
+\node[fill=white,font=\fontsize{20}{25}\selectfont] at (440,-25) {ACK return path \quad\textbullet\quad RTT: round-trip time};
+\end{tikzpicture}
+\end{center}
+\begin{columns}[T,onlytextwidth]
+\column{.48\textwidth}\lead{Congestion window}
+Limits unacknowledged data in flight.
+\column{.48\textwidth}\lead{Pacing}
+Controls when packets leave the sender.
+\end{columns}
+\takeaway{Long RTT + high bandwidth requires enough data in flight.}
+\end{frame}
+
+% 03 — Script §1, state and changing conditions.
+\source{Trace illustration by presenters.}
+\begin{frame}[t]{The order of network changes matters}
+\bodyfont
+Protocols retain state while bandwidth and delay change.
+\vspace{14pt}
+\begin{center}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-35) rectangle (880,190);
+\foreach \x/\label in {50/Trace A,510/Trace B} {
+  \draw[->,SemGray,line width=1pt] (\x,10) -- ++(320,0) node[right,font=\fontsize{20}{25}\selectfont] {Time};
+  \draw[->,SemGray,line width=1pt] (\x,10) -- ++(0,145);
+  \node[anchor=west,font=\fontsize{20}{25}\selectfont] at (\x,175) {\label: bandwidth};
+}
+\draw[SemBlue,line width=3pt] (50,125)--(150,125)--(150,45)--(250,45)--(250,125)--(350,125);
+\draw[SemTeal,line width=3pt] (510,45)--(610,45)--(610,125)--(810,125);
+\node at (440,-22) {Same average; different transitions};
+\end{tikzpicture}
+\end{center}
+\takeaway{17 / 17 tested TCP algorithms had a vulnerable environment.}
+\vspace{8pt}
+The task: search for these environments and investigate the resulting gaps.
+\end{frame}
+
+% 04 — Script §2.
+\source{}
+\begin{frame}[t]{Existing tests cover different parts of the problem}
+\bodyfont
+\begin{columns}[T,onlytextwidth]
+\column{.47\textwidth}
+\lead{Where do test cases come from?}
+\textbf{Hand-designed tests}\par
+Easy to interpret; coverage follows the designer's expectations.
+\par\vspace{18pt}
+\textbf{Real network traces}\par
+Observed conditions; coverage follows collection sites and times.
+\column{.47\textwidth}
+\lead{What executes the test?}
+\textbf{Simulation}\par
+Protocol models under modeled network conditions.
+\par\vspace{18pt}
+\textbf{Emulation}\par
+Real protocol code under controlled conditions; runs cost time and vary.
+\end{columns}
+\vspace{20pt}
+\key{Earlier adversarial testing: CC-Fuzz}\par
+AdvNet emphasizes real implementations and efficient environment search.
+\end{frame}
+
+% 05 — Script §3.
+\source{Architecture redrawn from Fig. 1.}
+\begin{frame}[t]{AdvNet searches over the environment}
+\bodyfont
+\textbf{User inputs:} parameter bounds, target, reference, performance metric
+\vspace{12pt}
+\begin{center}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-18) rectangle (880,280);
+\node[box,text width=190pt,minimum height=75pt] (gen) at (120,220) {Generate a\\complete trace};
+\node[box,text width=235pt,minimum height=75pt] (run) at (450,220) {Run target and reference\\in the same environment};
+\node[box,text width=170pt,minimum height=75pt] (score) at (775,220) {Score the\\performance gap};
+\draw[flow] (gen) -- (run);
+\draw[flow] (run) -- (score);
+\draw[flow] (score.south) -- (775,135) -- (120,135) -- (gen.south);
+\node[fill=white] at (450,135) {Feedback guides the next candidates};
+\node[box,text width=250pt,fill=PaleTeal,draw=SemTeal] (pls) at (450,45) {Post-learning\\selection (PLS)};
+\node[text width=205pt] (out) at (785,45) {Returned trace\\\textcolor{SemGray}{Independent evaluation}};
+\draw[flow] (120,135) -- (120,45) -- node[above,font=\fontsize{20}{25}\selectfont] {Candidates} (pls);
+\draw[flow] (pls) -- (out);
+\end{tikzpicture}
+\end{center}
+\key{A larger score means a larger relative weakness in the target.}
+\end{frame}
+
+% 06 — Script §4.
+\source{}
+\begin{frame}[t]{Two challenges shape the design}
+\bodyfont
+\vspace{20pt}
+\begin{columns}[T,onlytextwidth]
+\column{.46\textwidth}
+\lead{1. Sample efficiency}
+\begin{points}
+\item Each evaluation runs a real protocol.
+\item Long traces and repeated measurements consume the search budget.
+\end{points}
+\column{.46\textwidth}
+\lead{2. Practical usefulness}
+\begin{points}
+\item Very low capacity can make every protocol perform poorly.
+\item A reference exposes a gap worth investigating.
+\end{points}
+\end{columns}
+\vspace{34pt}
+\takeaway{Find strong candidates with few runs; make the comparison meaningful.}
+\end{frame}
+
