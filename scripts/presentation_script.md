@@ -82,27 +82,25 @@ The authors point to two reasons. First, PDOs create a much higher-dimensional s
 
 ### 5.2 Generating the Next Batch of Environments
 
-With the representation fixed, how does AdvNet find increasingly challenging environments?
+With the representation fixed, how does AdvNet search for challenging environments?
 
-The authors first considered an online adversary, such as reinforcement learning, that observes protocol behavior and chooses the next network condition during execution. But synchronizing the adversary with both the target and reference proved difficult, so they chose to generate complete traces before execution, making them easy to replay and compare.
+The authors first considered an action-based online adversary, such as reinforcement learning. It observes protocol state and chooses the next network condition during emulation.
 
-AdvNet's main search method is a **genetic algorithm**, or **GA**. Each candidate is a complete network trace, and its genes are the numerical parameters we just introduced: bandwidths, delays, durations, and fixed settings such as queue capacity.
+However, it requires fine-grained observation of protocol behavior and control over network conditions, which adds engineering work when supporting different protocols. Timing differences and execution randomness also make it difficult to synchronize the target, reference, and adversary. As a result, the adversary may act on stale or mismatched observations, making learning unstable.
 
-GA maintains a population of these candidates. It runs the protocols to evaluate each candidate's fitness, using the performance-gap score. Selection favors promising candidates, while crossover and mutation produce the next generation. This cycle continues until the search budget runs out.
+AdvNet's main search method is a genetic algorithm, or GA. Each candidate is a complete network trace, and its genes are the numerical parameters in $T$. (**Visual Suggestion**: Show $T$ again?) GA maintains a population of traces, evaluates their fitness using the performance-gap score, selects promising parents, and applies crossover and mutation to produce the next generation until the budget expires. (**Visual Suggestion**: Consider GA cycle diagram.)
 
-(**Visual Suggestion**: Show the GA loop: population of traces → protocol evaluation → selection → crossover and mutation → next generation.)
+Let us look at the two operators. In two-point crossover, we choose two cut points and swap the middle segment between two parent traces. In a four-gene example, each child keeps one parent's outer values and takes the other parent's middle values. In real traces, because crossover swaps aligned positions, a bandwidth parameter always replaces a bandwidth parameter, preserving each gene's allowed bounds.
 
-Let us look at the two operators. In **two-point crossover**, we choose two cut points and exchange the segment between them. In this simplified four-gene example, each child keeps one parent's outside values and takes the other parent's middle values. For actual traces, corresponding positions represent the same network parameter, so swapping them preserves their allowed bounds.
+Uniform integer mutation replaces each gene with probability $p$ by sampling a new integer uniformly from that gene's allowed range. For example, change 15 to 73. Both operators preserve the integer format required by Mahimahi, and every newly generated trace is evaluated by running the protocols.
 
-**Uniform integer mutation** introduces new values. Each gene has a probability of being replaced by an integer sampled uniformly from its allowed range. Here, one gene changes from fifteen to seventy-three. Crossover recombines existing values; mutation can introduce values absent from the parents. Both preserve the integer format required by the emulator, and every new trace is evaluated by running the protocols.
+(**Visual Suggestion**: Show parents [20, 5, 40, 10] and [60, 30, 15, 80], with cuts around the middle two genes. Show children [20, 30, 15, 10] and [60, 5, 40, 80], then mutate 15 → 73 within an illustrative range of 1–100. Consider explaining "aligned positions" using visual elements.)
 
-(**Visual Suggestion**: Show parents [20, 5, 40, 10] and [60, 30, 15, 80], with cuts around the middle two genes. Show children [20, 30, 15, 10] and [60, 5, 40, 80], then mutate 15 → 73 within an illustrative range of 1–100.)
+The authors also compared GA against three other trace-based methods: Random Generation (RG), which samples traces uniformly at random as a baseline; Bayesian Optimization (BO) with a random forest surrogate model; and Epsilon-Greedy Search (EPS), which mutates top-performing traces with probability $1-\epsilon$ and explores randomly with probability $\epsilon$.
 
-Does this search actually help? In Figure 3a, GA outperforms random generation under each tested throughput–delay weighting, within a one-hour budget. The authors also compare GA with Bayesian optimization and epsilon-greedy search using two-hour budgets. No method wins every setting, but GA has the highest overall average, so they use it in subsequent experiments.
+In Figure 3a, GA consistently outperforms random generation across all three throughput weights. This confirms that learning from execution feedback helps. In Figure 3b, under a two-hour budget, GA, Bayesian optimization, and epsilon-greedy search achieve fairly similar performance, with GA having a slightly higher average, so the authors adopt GA as the default.
 
-(**Visual Suggestion**: Show Fig. 3a and Fig. 3b; label the throughput weight and runtime budgets.)
-
-Finding high scores is only part of the problem. Next, we need to choose a trace whose score remains high when we run it again.
+(**Visual Suggestion**: Show Fig. 3a and Fig. 3b from the paper.)
 
 ### 5.3 Avoiding Lucky Outliers
 
