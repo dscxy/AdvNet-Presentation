@@ -169,13 +169,18 @@ Digging into the logs, the authors found that the affected flow initially operat
 
 ### 6.5 UC2: Comparing Different Versions of BBR
 
-The second use case is regression testing: using the older version as the reference and the newer version as the target to find performance regressions.
+The second use case is regression testing: setting the older version of a protocol as the reference and the newer version as the target, searching for environments where an update degrades throughput or fairness.
 
-The authors compared the fairness of BBR v1 and BBR v3 when competing against CUBIC. They run CUBIC alongside each version in turn. The throughput CUBIC gets when competing with BBR v1 is the reference score. Its throughput when competing with BBR v3 is the target score. In this experiment, AdvNet first varies the bandwidth and latency, then holds the network parameters fixed for one minute to let the protocols stabilize, and finally measures performance over the last ten seconds.
+As an example, the authors used AdvNet for regression testing between BBR v1 and BBR v3, focusing on their fairness toward a competing CUBIC flow. In each candidate environment, they run two tests:
 
-(**Visual Suggestion**: Show the two competing flow setups alongside a timeline of "Dynamic changes — 1 min fixed parameters — Final 10s measurement".)
+1. CUBIC competing alongside BBR v1. CUBIC throughput from this test serves as the reference score.
+2. CUBIC competing alongside BBR v3. CUBIC throughput from this test serves as the target score.
 
-In one adversarial environment discovered by AdvNet, CUBIC achieves 12 times the throughput of BBR v1; yet when BBR v1 is replaced by BBR v3, the outcome completely reverses, with BBR v3 achieving 11.6 times the throughput of CUBIC. In addition, the paper notes in the introduction that in single-flow tests, AdvNet found environments where BBR v1 achieves more than five times the throughput of BBR v3. These tests expose regressions in both fairness and throughput.
+To measure steady-state impact rather than transient jitter, AdvNet first varies bandwidth and latency, then holds the network conditions fixed for one minute, and measures throughput over the final ten seconds.
+
+In one adversarial environment discovered by AdvNet, when CUBIC competes with BBR v1, CUBIC achieves 12 times the throughput of BBR v1; yet when BBR v1 is replaced by BBR v3 under the exact same trace, BBR v3 achieves 11.6 times the throughput of CUBIC. In single-flow tests, AdvNet also found scenarios where BBR v1 achieves more than five times the throughput of BBR v3.
+
+Even though BBR v3 was designed to improve fairness in typical settings, adversarial testing reveals specific conditions where version changes trigger severe regressions.
 
 ### 6.6 UC3: Does Adding a Path Hurt Performance? — DChannel
 
