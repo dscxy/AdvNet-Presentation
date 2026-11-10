@@ -54,13 +54,11 @@ Finally, because emulation has random variance, AdvNet reserves part of its time
 
 ## 4. What Are the Key Challenges?
 
-The first challenge is sample efficiency. One evaluation requires an actual protocol run. Longer traces cost more time, and repeating measurements leaves fewer chances to explore new environments.
+Realizing this framework in emulation brings two main challenges:
 
-The second challenge is practical usefulness. An environment with almost no capacity makes every protocol look bad. That alone tells a developer very little.
+The first challenge is sample efficiency. Because every evaluation runs real protocol implementations over emulated links for several seconds, we can only afford a limited number of runs. Meanwhile, the space of parameters is huge, and emulation noise means a single run can be misleading. Simply repeating every trace many times would leave very little budget to explore new environments.
 
-A reference makes the comparison more useful. If another implementation performs much better under the same external conditions, the gap is worth investigating.
-
-(**Visual Suggestion**: Two-column summary comparing "Sample Efficiency: huge search space + slow execution + noise" and "Practical Usefulness: avoiding trivial extreme cases + meaningful reference comparisons".)
+The second challenge is practical usefulness. Setting link bandwidth to zero makes every protocol get zero throughput, which is useless for diagnosis. Similarly, if bandwidth jumps instantaneously, any protocol needs time to adapt, so falling short of link capacity right after a spike is expected. Using a suitable reference is essential to uncover actionable flaws.
 
 ## 5. How Does AdvNet Address Sample Efficiency?
 
