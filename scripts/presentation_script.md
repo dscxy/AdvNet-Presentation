@@ -26,15 +26,31 @@ Third, what about automated adversarial testing? Here we first need to distingui
 
 An important piece of prior work, CC-Fuzz, used a genetic algorithm to generate adversarial environments, but only inside the ns-3 simulator, representing links via low-level Packet Delivery Opportunities. The problem is that its high-dimensional PDO representation struggles to find strong adversarial examples within a limited emulation budget.
 
-## 3. How Does This Paper Solve the Problem?
+## 3. How Does AdvNet Solve the Problem?
 
-AdvNet treats the environment as the input to optimize. The user sets parameter bounds, a target, and a reference. The reference can be another protocol or a calculated benchmark. For regression testing, the old version can be the reference and the new version the target.
+AdvNet addresses these gaps by formulating environment generation as a black-box search over real protocol executions. The user provides parameter bounds, a target protocol under test, and a reference baseline. The different baselines shown in the paper include another protocol, an older version of the same protocol, a single-path configuration, or a calculated capacity benchmark. (**Visual Suggestion**: Show Fig. 1.)
 
-(**Visual Suggestion**: Show the redrawn Fig. 1 system architecture, highlighting the main search loop and the final PLS stage.)
+In each iteration, the generator outputs a candidate network trace, and the execution module runs both the target and reference inside an extended Mahimahi emulator (**Visual Suggestion**: Could add a note about the modifications that support time-varying one-way delay and dual paths). The scoring module then quantifies their relative performance gap as a score:
 
-The system generates a trace, evaluates performance, and computes a score. A larger score means a larger relative weakness in the target. The search uses this feedback to generate more candidates. (**Visual Suggestion**: Add a note indicating that the exact score definition will be covered in Part 2.)
+$$
+\text{score} = \frac{R - P}{\max(R, P)} \quad (\text{when a higher metric value is better}).
+$$
 
-After search, post-learning selection, or PLS, chooses an output trace. The authors then evaluate that output independently. (**Visual Suggestion**: Add a note indicating that PLS will be explained in detail in Section 5.3.)
+(**Visual Suggestion**: The formula is for display only. Also show a version that plugs in the numbers. Don't read the formula out. Add a note explaining P and R.)
+
+For example, if the reference achieves 10 Mbps and the target gets only 2 Mbps, the score is 0.8. If a lower metric value is better—such as flow completion time—we reverse the numerator to P minus R. Dividing by the maximum normalizes the score between $-1$ and $1$, so a larger positive score always means a larger relative weakness in the target. The generator uses these scores as feedback to search for environments that expose larger performance gaps.
+
+We can also combine throughput $\tau$ and average packet delay $d$ into a single utility metric using a throughput weight $t_{\mathrm{coeff}} \in [0, 1]$:
+
+$$
+U = t_{\mathrm{coeff}} \frac{\tau}{\tau_{\max}} + (1 - t_{\mathrm{coeff}}) \frac{d_{\min}}{d},
+$$
+
+(**Visual Suggestion**: The formula is for display only. Label $\tau_{\max}$ as the maximum-throughput benchmark and $d_{\min}$ as the minimum-delay benchmark used for normalization.)
+
+A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. We compute this utility separately for the reference and target, using the same normalization benchmarks and weight. We then use their utilities as $R$ and $P$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
+
+Finally, because emulation has random variance, AdvNet reserves part of its time budget for Post-Learning Selection to pick the candidate with the most reliably high average score, followed by an independent re-evaluation.
 
 ## 4. What Are the Key Challenges?
 
