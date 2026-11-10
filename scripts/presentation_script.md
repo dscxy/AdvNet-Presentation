@@ -12,6 +12,8 @@ In a network, a sender typically does not know how much bandwidth it can use. If
 
 Creating a robust congestion control algorithm is hard. First, available resources and network conditions can change over time. So CC algorithms need to be optimized for throughput, loss, and latency in lots of environments. Second, they need to guarantee quick convergence to stable and fair rates when multiple senders compete. (**Adapted from PCC Vivace: Online-Learning Congestion Control §1**)
 
+To adapt, congestion control algorithms use feedback like ACKs, delay, and loss to adjust their congestion window and packet pacing, while TCP relies on duplicate ACKs and retransmission timeouts (RTO) to recover from lost packets.
+
 These requirements also make it difficult for the protocols to be thoroughly tested. Therefore, new protocols or an upgrade to an existing protocol may perform better in test suites, but they could introduce hidden performance regressions. How to find these scenarios is the main focus of this paper.
 
 ## 2. What Are the Existing Solutions, and Why Do They Fall Short?
@@ -33,12 +35,12 @@ AdvNet addresses these gaps by formulating environment generation as a black-box
 In each iteration, the generator outputs a candidate network trace, and the execution module runs both the target and reference inside an extended Mahimahi emulator (**Visual Suggestion**: Could add a note about the modifications that support time-varying one-way delay and dual paths). The scoring module then quantifies their relative performance gap as a score:
 
 $$
-\text{score} = \frac{R - P}{\max(R, P)} \quad (\text{when a higher metric value is better}).
+\text{score} = \frac{R - T}{\max(R, T)} \quad (\text{when a higher metric value is better}).
 $$
 
-(**Visual Suggestion**: The formula is for display only. Also show a version that plugs in the numbers. Don't read the formula out. Add a note explaining P and R.)
+(**Visual Suggestion**: The formula is for display only. Also show a version that plugs in the numbers. Don't read the formula out. Add a note explaining R is for reference and T is for target.)
 
-For example, if the reference achieves 10 Mbps and the target gets only 2 Mbps, the score is 0.8. If a lower metric value is better—such as flow completion time—we reverse the numerator to P minus R. Dividing by the maximum normalizes the score between $-1$ and $1$, so a larger positive score always means a larger relative weakness in the target. The generator uses these scores as feedback to search for environments that expose larger performance gaps.
+For example, if the reference achieves 10 Mbps and the target gets only 2 Mbps, the score is 0.8. If a lower metric value is better—such as flow completion time—we reverse the numerator to T minus R. Dividing by the maximum normalizes the score between $-1$ and $1$, so a larger positive score always means a larger relative weakness in the target. The generator uses these scores as feedback to search for environments that expose larger performance gaps.
 
 We can also combine throughput $\tau$ and average packet delay $d$ into a single utility metric using a throughput weight $t_{\mathrm{coeff}} \in [0, 1]$:
 
@@ -48,7 +50,7 @@ $$
 
 (**Visual Suggestion**: The formula is for display only. Label $\tau_{\max}$ as the maximum-throughput benchmark and $d_{\min}$ as the minimum-delay benchmark used for normalization.)
 
-A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. We compute this utility separately for the reference and target, using the same normalization benchmarks and weight. We then use their utilities as $R$ and $P$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
+A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. We compute this utility separately for the reference and target, using the same normalization benchmarks and weight. We then use their utilities as $R$ and $T$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
 
 Finally, because emulation has random variance, AdvNet reserves part of its time budget for Post-Learning Selection to pick the candidate with the most reliably high average score, followed by an independent re-evaluation.
 
@@ -92,7 +94,7 @@ AdvNet's main search method is a genetic algorithm, or GA. Each candidate is a c
 
 Let us look at the two operators. In two-point crossover, we choose two cut points and swap the middle segment between two parent traces. In a four-gene example, each child keeps one parent's outer values and takes the other parent's middle values. In real traces, because crossover swaps aligned positions, a bandwidth parameter always replaces a bandwidth parameter, preserving each gene's allowed bounds.
 
-Uniform integer mutation replaces each gene with probability $p$ by sampling a new integer uniformly from that gene's allowed range. For example, change 15 to 73. Both operators preserve the integer format required by Mahimahi, and every newly generated trace is evaluated by running the protocols.
+Uniform integer mutation replaces each gene with probability $p$ by sampling a new integer uniformly from that gene's allowed range. For example, it might change 15 to 73. Both operators preserve the integer format required by Mahimahi, and every newly generated trace is evaluated by running the protocols.
 
 (**Visual Suggestion**: Show parents [20, 5, 40, 10] and [60, 30, 15, 80], with cuts around the middle two genes. Show children [20, 30, 15, 10] and [60, 5, 40, 80], then mutate 15 → 73 within an illustrative range of 1–100. Consider explaining "aligned positions" using visual elements.)
 
@@ -126,7 +128,7 @@ Now that we have seen how AdvNet searches efficiently, let's look at how develop
 * UC2 — Regression testing across versions
 * UC3 — Validating design objectives
 
-(**Visual Suggestion**: Show a table of 3 UCs. Don't read.)
+(**Visual Suggestion**: Show a table of 3 UCs.)
 
 Let's examine what AdvNet discovered in each of these three use cases.
 
