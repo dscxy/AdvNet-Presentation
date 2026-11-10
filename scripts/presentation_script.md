@@ -204,17 +204,13 @@ For BALIA, dual-path throughput was 85.5% lower than single-path throughput. Plo
 
 (**Visual Suggestion**: Show Fig. 8. Mark balia2 as dual-path and balia1 as single-path.)
 
-### 6.8 Practical Takeaways from These Results
+## Conclusion and Takeaways
 
-To sum up Section 6, these three use cases show how choosing different references allows the exact same search pipeline to uncover implementation bugs, catch version regressions, and validate design goals.
+To wrap up, AdvNet turns worst-case protocol testing into an automated black-box search over real code in emulation. Its search pipeline can uncover kernel bugs, catch version regressions, and validate design goals by pairing a compact interval representation and Post-Learning Selection with customizable reference comparisons.
 
-## Conclusion
+The choice of optimizer could be a secondary factor, since GA achieves only a slightly better average score compared with the other optimization algorithms the authors tested. Formulating a compact domain representation and handling system execution noise may matter more. (**Visual Suggestion**: Consider showing Fig. 3b again.)
 
-To wrap up, AdvNet turns extreme-case testing into an automated search over network environments, revealing performance problems in real protocol implementations.
-
-Of course, AdvNet still has some limitations. Its current environment model only covers a limited set of network parameters and relatively simple traffic workloads, and root-cause analysis still requires manual investigation. It also does not estimate how often the discovered environments occur in real deployments. Looking forward, the framework could be extended to support more complex network environments and to automatically simplify adversarial traces for easier diagnosis. The same approach could also be applied beyond network protocols, such as to adaptive bitrate video streaming, for which the authors have already built a prototype.
-
-Overall AdvNet provides a practical complementary tool that helps developers proactively uncover hidden performance weaknesses and turn them into reproducible test cases.
+At the same time, AdvNet has clear boundaries. Its current environment model only covers link bandwidth, delay, and buffer size under simple workloads. In addition, it doesn't estimate how often a counterexample occurs in real deployments or automate root-cause diagnosis. Looking ahead, the framework could be extended to automatically simplify adversarial traces to speed up debugging, and applied to other dynamic systems such as adaptive bitrate video streaming.
 
 ## Backup Notes (For Q&A Only)
 
