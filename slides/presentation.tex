@@ -1,3 +1,4 @@
+% !TeX program = xelatex
 \documentclass[aspectratio=169,11pt]{beamer}
 \usepackage{lmodern,fontspec}
 \IfFontExistsTF{Arial}{\setsansfont{Arial}}{\setsansfont{TeX Gyre Heros}}
@@ -137,7 +138,10 @@
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Existing testing methods
 \end{textblock*}
-\begin{textblock*}{144mm}(8mm,25mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont How much of this variety do existing tests actually cover?
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,34mm)
 \raggedright\color[HTML]{142D45}\fontsize{10.5}{12.915}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{34.600mm}>{\raggedright\arraybackslash}p{51.208mm}>{\raggedright\arraybackslash}p{52.592mm}@{}}\toprule
 \textbf{Method} & \textbf{What it provides} & \textbf{Coverage limit}\\
@@ -158,7 +162,10 @@ Trace replay / testbeds & Evidence from observed conditions & Where and when mea
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Simulation and emulation
 \end{textblock*}
-\begin{textblock*}{144mm}(8mm,26mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont Testing more conditions also requires an execution platform.
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,34mm)
 \raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \setlength{\tabcolsep}{1.4mm}\renewcommand{\arraystretch}{1.35}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{30.448mm}>{\raggedright\arraybackslash}p{53.976mm}>{\raggedright\arraybackslash}p{53.976mm}@{}}\toprule
 \textbf{} & \textbf{Simulation} & \textbf{Emulation}\\
@@ -204,15 +211,18 @@ Main concern & Model fidelity & Execution cost and noise\\
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries The AdvNet framework
 \end{textblock*}
-\begin{textblock*}{57mm}(8mm,25mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont We can turn these coverage gaps into a search problem.
+\end{textblock*}
+\begin{textblock*}{57mm}(8mm,34mm)
 \raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Search over candidate network environments
 \item Compare a target with a meaningful reference
 \item Use measured performance gaps as feedback
 \end{itemize}
 \end{textblock*}
-\begin{textblock*}{81mm}(71mm,24mm)
-\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=81mm,height=54mm,keepaspectratio]{architecture.pdf}
+\begin{textblock*}{81mm}(71mm,33mm)
+\raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=81mm,height=45mm,keepaspectratio]{architecture.pdf}
 \end{textblock*}
 \end{frame}
 \input{notes/08.tex}
@@ -274,20 +284,23 @@ Main concern & Model fidelity & Execution cost and noise\\
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Two design challenges
 \end{textblock*}
-\begin{textblock*}{68mm}(8mm,25mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont The framework must find useful failures within a limited budget.
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,34mm)
 \raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Sample efficiency
 \end{textblock*}
-\begin{textblock*}{68mm}(8mm,37mm)
+\begin{textblock*}{68mm}(8mm,45mm)
 \raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Real-code runs cost time
 \item Large environment space
 \item Repetition competes with exploration
 \end{itemize}
 \end{textblock*}
-\begin{textblock*}{67mm}(85mm,25mm)
+\begin{textblock*}{67mm}(85mm,34mm)
 \raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Practical usefulness
 \end{textblock*}
-\begin{textblock*}{67mm}(85mm,37mm)
+\begin{textblock*}{67mm}(85mm,45mm)
 \raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Avoid trivial zero-capacity examples
 \item Allow expected adaptation delays
@@ -303,7 +316,10 @@ Main concern & Model fidelity & Execution cost and noise\\
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Representing a network trace
 \end{textblock*}
-\begin{textblock*}{144mm}(8mm,23mm)
+\begin{textblock*}{92mm}(8mm,23mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont First, keep the environment search space compact.
+\end{textblock*}
+\begin{textblock*}{42mm}(110mm,24mm)
 \raggedright\color[HTML]{142D45}\fontsize{15}{18.45}\selectfont \(\displaystyle T=(B,L,D,I)\)
 \end{textblock*}
 \begin{textblock*}{144mm}(8mm,37mm)
@@ -361,19 +377,22 @@ Reno & 41.26\% & 28.80\%\\
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{20}{24.6}\selectfont \bfseries Trace-based and action-based adversaries
 \end{textblock*}
-\begin{textblock*}{68mm}(8mm,25mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont We have a trace representation. How should the search use it?
+\end{textblock*}
+\begin{textblock*}{68mm}(8mm,34mm)
 \raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries Action-based adversary
 \end{textblock*}
-\begin{textblock*}{68mm}(8mm,38mm)
+\begin{textblock*}{68mm}(8mm,45mm)
 \raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Observe state and choose the next condition online
 \item Requires reliable synchronization despite scheduling jitter
 \end{itemize}
 \end{textblock*}
-\begin{textblock*}{67mm}(85mm,25mm)
+\begin{textblock*}{67mm}(85mm,34mm)
 \raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries Trace-based adversary
 \end{textblock*}
-\begin{textblock*}{67mm}(85mm,38mm)
+\begin{textblock*}{67mm}(85mm,45mm)
 \raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Generate the full trace before execution
 \item Replay the same external conditions for comparison
@@ -454,10 +473,10 @@ Child 2 & \cellcolor{paleteal}60 & \cellcolor{paleblue}5 & \cellcolor{paleblue}4
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Evidence for the search design
 \end{textblock*}
 \begin{textblock*}{69mm}(8mm,24mm)
-\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries GA versus random generation
+\raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries GA versus random generation\par \normalfont\fontsize{9.7}{11.931}\selectfont 1 hour total; 6 min PLS when enabled
 \end{textblock*}
 \begin{textblock*}{67mm}(85mm,24mm)
-\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries GA, BO, and EPS
+\raggedright\color[HTML]{087F82}\fontsize{12}{14.76}\selectfont \bfseries GA, BO, and EPS\par \normalfont\fontsize{9.7}{11.931}\selectfont 2 hours total; last 12 min for PLS
 \end{textblock*}
 \begin{textblock*}{69mm}(8mm,36mm)
 \raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=69mm,height=36mm,keepaspectratio]{optimizers-random.pdf}
@@ -465,11 +484,8 @@ Child 2 & \cellcolor{paleteal}60 & \cellcolor{paleblue}5 & \cellcolor{paleblue}4
 \begin{textblock*}{67mm}(85mm,36mm)
 \raggedright\color[HTML]{142D45}\fontsize{11}{13.53}\selectfont \includegraphics[width=67mm,height=36mm,keepaspectratio]{optimizers-active.pdf}
 \end{textblock*}
-\begin{textblock*}{69mm}(8mm,76mm)
-\raggedright\color[HTML]{142D45}\fontsize{9.7}{11.931}\selectfont 1 hour total; PLS uses the last 6 minutes
-\end{textblock*}
-\begin{textblock*}{67mm}(85mm,76mm)
-\raggedright\color[HTML]{142D45}\fontsize{9.7}{11.931}\selectfont 2 hours total; PLS uses the last 12 minutes
+\begin{textblock*}{144mm}(8mm,77mm)
+\raggedright\color[HTML]{087F82}\fontsize{11.5}{14.145}\selectfont High scores are promising. Final selection still has to handle noise.
 \end{textblock*}
 \end{frame}
 \input{notes/17.tex}
@@ -480,13 +496,16 @@ Child 2 & \cellcolor{paleteal}60 & \cellcolor{paleblue}5 & \cellcolor{paleblue}4
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Noisy scores and SimpleMax
 \end{textblock*}
-\begin{textblock*}{144mm}(8mm,26mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont The search returns many candidates. Which trace should we keep?
+\end{textblock*}
+\begin{textblock*}{144mm}(8mm,36mm)
 \raggedright\color[HTML]{2869B3}\fontsize{12}{14.76}\selectfont \bfseries SimpleMax
 \end{textblock*}
-\begin{textblock*}{144mm}(8mm,40mm)
-\raggedright\color[HTML]{142D45}\fontsize{15}{18.45}\selectfont Return the largest score observed during search.
+\begin{textblock*}{144mm}(8mm,48mm)
+\raggedright\color[HTML]{142D45}\fontsize{13}{15.99}\selectfont Keep the trace with the largest score observed during search.
 \end{textblock*}
-\begin{textblock*}{144mm}(8mm,60mm)
+\begin{textblock*}{144mm}(8mm,63mm)
 \raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Hundreds of candidates create chances for lucky observations
 \item The apparent winner may score lower when re-tested
@@ -501,13 +520,16 @@ Child 2 & \cellcolor{paleteal}60 & \cellcolor{paleblue}5 & \cellcolor{paleblue}4
 \begin{textblock*}{144mm}(8mm,6mm)
 \raggedright\color[HTML]{142D45}\fontsize{22}{27.06}\selectfont \bfseries Multi-round elimination
 \end{textblock*}
-\begin{textblock*}{35mm}(8mm,28mm)
+\begin{textblock*}{144mm}(8mm,22mm)
+\raggedright\color[HTML]{2869B3}\fontsize{11.5}{14.145}\selectfont PLS spends extra evaluations on the most promising candidates.
+\end{textblock*}
+\begin{textblock*}{35mm}(8mm,34mm)
 \raggedright\color[HTML]{2869B3}\fontsize{35}{43.05}\selectfont \bfseries 25
 \end{textblock*}
-\begin{textblock*}{45mm}(8mm,52mm)
+\begin{textblock*}{45mm}(8mm,57mm)
 \raggedright\color[HTML]{142D45}\fontsize{12}{14.76}\selectfont Top search candidates
 \end{textblock*}
-\begin{textblock*}{91mm}(61mm,26mm)
+\begin{textblock*}{91mm}(61mm,35mm)
 \raggedright\color[HTML]{142D45}\fontsize{11.5}{14.145}\selectfont \begin{itemize}\setlength{\itemsep}{2.6mm}\setlength{\parskip}{0pt}
 \item Evaluate every remaining candidate once
 \item Remove roughly the lower half by observed mean
