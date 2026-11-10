@@ -233,3 +233,11 @@ Here, $a$ and $b$ are the parent parameter vectors, and $i$ is a gene index. The
 ### Backup 2 — Statistical Simulation of Selection (Fig. 11)
 
 This experiment (Appendix B, Fig. 11) uses fifty Gaussian alternatives, with their true means sampled uniformly between zero and one hundred. The vertical axis is the true mean of the alternative selected by each method, averaged over two thousand trials. The oracle knows those true means. MRE performs best among the tested selection methods under this model, whereas OCBA struggles at small budgets (< 100 samples) because there are not enough samples per candidate to estimate variance reliably. Note that these values use a different scale from the normalized protocol-gap score.
+
+### Backup 3 — Parallel Execution and Measurement Interference (Fig. 9 & Fig. 10)
+
+To evaluate each candidate environment multiple times without increasing wall-clock time, AdvNet runs multiple Mahimahi instances in parallel, pinning 3 dedicated CPU cores per instance (one each for the emulator, `iperf` client, and `iperf` server).
+
+In Appendix A (Fig. 9), testing fixed network parameters (1 Gbps bandwidth, 5 ms one-way delay) on a 30-core server showed that mean throughput gradually drops as parallelism increases due to hardware contention, and variance spikes sharply at 9 and 10 concurrent runs (where $9 \times 3 = 27$ cores approaches the 30-core limit). The authors therefore capped parallelism at 8.
+
+In Fig. 10 (250 GA iterations), moving from 1 to 2 parallel runs initially lowers the final score because emulator contention distorts throughput during search (while the final output is always evaluated using a single isolated instance). Increasing parallelism further provides more samples to combat noise, peaking at 5-way parallelism—though the gain over a single evaluation per environment is marginal, so 1-way evaluation remains a practical low-CPU alternative.
