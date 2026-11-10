@@ -1,4 +1,4 @@
-% 30 static main slides and 4 backup slides.
+% Main slides and backup slides share automatic, sequential frame numbering.
 % Slide changes and timing: ../scripts/slide_cues.md.
 \pdfminorversion=7
 \documentclass[aspectratio=169]{beamer}
@@ -60,9 +60,7 @@
   \begin{beamercolorbox}[wd=\paperwidth,ht=25pt,dp=12pt]{footline}%
   \hspace*{.48in}\fontsize{18.5}{22}\selectfont
   \makebox[\dimexpr\paperwidth-1.95in\relax][l]{\currentsource}\hfill
-  \ifnum\value{framenumber}>30\relax
-    B\number\numexpr\value{framenumber}-30\relax\,/\,4
-  \else\insertframenumber\,/\,30\fi\hspace*{.48in}
+  \insertframenumber\,/\,\inserttotalframenumber\hspace*{.48in}
   \end{beamercolorbox}}
 \DeclareMathSizes{18.5}{18.5}{18.5}{18.5}
 \DeclareMathSizes{20}{20}{18.5}{18.5}
