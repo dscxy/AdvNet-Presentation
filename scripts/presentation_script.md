@@ -104,29 +104,17 @@ In Figure 3a, GA consistently outperforms random generation across all three thr
 
 ### 5.3 Avoiding Lucky Outliers
 
-There is one more problem: noisy measurements. The simplest rule, **SimpleMax**, returns whichever trace had the highest observed score during search.
+Finding high scores during search is only part of the problem; measurement noise can still mislead our final choice. The simplest rule, SimpleMax, outputs the trace that had the single highest observed score during search.
 
-But that winner may have benefited from an unusually favorable measurement. When we test it again, its score may drop. Searching more candidates creates more opportunities for such lucky observations.
+However, when evaluating hundreds of traces, the single highest observation is often an outlier inflated by positive random noise. Its score can drop sharply when re-tested independently.
 
-(**Visual Suggestion**: Show a scatter plot of Environment A (high mean, low variance) vs. Environment B (low mean, but one lucky high outlier) to explain why SimpleMax can pick the wrong trace.)
+To mitigate noise, AdvNet runs each trace multiple times in parallel during search. It then takes the median performance for the reference and target separately, and then computes the score. After search finishes, Post-Learning Selection takes the top 25 candidate environments and allocates a dedicated evaluation budget using Multi-Round Elimination (MRE). In each round, MRE evaluates every remaining candidate once and discards the bottom half based on their observed mean scores so far. Once 5 or fewer candidates remain, elimination stops and they are repeatedly evaluated until the budget is spent, returning the one with the highest mean score.
 
-The paper uses repeated protocol runs during search and takes median performance measurements. **Post-Learning Selection**, or **PLS**, adds a separate selection stage after search. Finally, independent evaluation checks the returned trace.
+How should we split the total runtime between search and PLS? In Figure 2, when $0\%$ of the time is used for PLS, which is just SimpleMax, noisy outliers leave the average re-tested score around $0.59$. Dedicating **$10\%$** of the runtime to PLS raises the average score to $0.80$, which yields the best performance.
 
-PLS starts with the twenty-five highest-scoring environments found during search.
+(**Visual Suggestion**: Show Figure 2.)
 
-AdvNet uses **multi-round elimination**, or **MRE**. In each round, it evaluates every remaining candidate once, then removes roughly the lower half according to their observed means so far.
-
-Once five or fewer remain, it stops eliminating and keeps evaluating until the budget ends. It returns the highest observed mean. This concentrates measurements on promising candidates.
-
-How much time should selection receive? In this experiment (Fig. 2), the best result came from spending ninety percent of the budget on search and ten percent on PLS.
-
-Too little selection can leave an unreliable winner. Too much selection leaves less time to discover strong candidates. The best split here reflects that tradeoff.
-
-(**Visual Suggestion**: Show the MRE funnel diagram alongside Fig. 2, and a bottom timeline summarizing "Median during search → Mean via MRE in PLS → Independent final evaluation".)
-
-Together, the compact trace representation, genetic search, and post-learning selection help AdvNet find environments with reliably high scores within a limited evaluation budget.
-
-With that, I will hand over to Xiaoyang, who will discuss how the paper uses these environments to study protocol behavior.
+Together, the compact interval representation, genetic search, and post-learning selection allow AdvNet to find reliably adversarial environments within a limited emulation budget. With that, I will hand over to Xiaoyang, who will show how AdvNet uses these environments across concrete protocol testing use cases.
 
 ## 6. How Does AdvNet Ensure Practical Utility?
 
