@@ -198,11 +198,11 @@ The authors confirm the root cause by manually reducing the HBP's RTT below 200 
 
 ### 6.7 UC3: Single-Path vs. Dual-Path in Kernel MPTCP
 
-Beyond DChannel, the authors also tested the Linux kernel implementation of MPTCP across all four of its congestion control algorithms: LIA, OLIA, BALIA, and wVegas. For every single one of them, AdvNet found environments where using two paths yields lower throughput than using a single path.
+Finally, the authors tested the same "do no harm" objective on the Linux kernel implementation of MPTCP across all four of its congestion control algorithms: LIA, OLIA, BALIA, and wVegas. For every single one of them, AdvNet found environments where two paths yield lower throughput than one path.
 
-Taking BALIA as an example, in the discovered adversarial environment, dual-path throughput was 85.5% lower than single-path throughput. Looking at cumulative bytes sent in Fig. 8, the dual-path configuration (`balia2`) initially sends faster by leveraging the high bandwidth of Link 1, but the single-path configuration (`balia1`) catches up and overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate across both links—even though Link 1 still has plenty of bandwidth available.
+For BALIA, dual-path throughput was 85.5% lower than single-path throughput. Plotting cumulative bytes sent over time, `balia2` initially sends faster by using the high bandwidth of Link 1, but `balia1` overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate on both links—even though Link 1 still has plenty of available bandwidth.
 
-(**Visual Suggestion**: Show Fig. 8, highlighting where the slope flattens at 1.2 seconds.)
+(**Visual Suggestion**: Show Fig. 8. Mark balia2 as dual-path and balia1 as single-path.)
 
 ### 6.8 Practical Takeaways from These Results
 
