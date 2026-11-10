@@ -118,17 +118,17 @@ Together, the compact interval representation, genetic search, and post-learning
 
 ## 6. How Does AdvNet Ensure Practical Utility?
 
-### 6.1 Formulating Test Objectives as Relative Performance Gaps
+### 6.1 Mapping Developer Tasks to Reference and Target
 
-Now that we've seen how AdvNet searches efficiently, the next question is: why are the environments it finds actually useful? The authors' answer is to let the user choose the reference, the target, and the performance metrics that matter for their task, and then turn those into an optimizable score.
+Now that we have seen how AdvNet searches efficiently, let's look at how developers can use it to answer practical questions. By changing the definition of the reference and the target, the authors apply AdvNet to three distinct use cases:
 
-(**Visual Suggestion**: Show the score definition from the paper.)
+* UC1 — Finding suboptimal performance and fairness issues
+* UC2 — Regression testing across versions
+* UC3 — Validating design objectives
 
-For example, suppose the reference protocol achieves 10 Mbps and the target gets only 2 Mbps. We take the difference, 8 Mbps, and divide by the larger value, 10 Mbps. That gives a score of 0.8. For a metric where lower is better, such as flow completion time, we reverse the subtraction: target minus reference. A higher score therefore always means a larger disadvantage for the target. Dividing by the larger value keeps the score between -1 and 1 and removes the effect of absolute scale.
+(**Visual Suggestion**: Show a table of 3 UCs. Don't read.)
 
-Multiple metrics can also be combined via a weighted average. We first normalize throughput and delay so that higher values mean better performance, then combine them using the chosen weights. (**Visual Suggestion**: Show the weighted utility formula with throughput and delay as an example. Normalize throughput as $\tau/\tau_{\max}$ and delay as $d_{\min}/d$, so both are higher-is-better quantities, then combine them as $t_{\mathrm{coeff}}\,\tau/\tau_{\max} + (1-t_{\mathrm{coeff}})\,d_{\min}/d$).
-
-In the paper, the authors demonstrate three practical use cases for adversarial testing. Let's walk through each of them.
+Let's examine what AdvNet discovered in each of these three use cases.
 
 ### 6.2 UC1: Finding Suboptimal Performance and Comparing Protocol Weaknesses
 
