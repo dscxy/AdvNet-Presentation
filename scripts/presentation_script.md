@@ -132,15 +132,15 @@ Let's examine what AdvNet discovered in each of these three use cases.
 
 ### 6.2 UC1: Finding Suboptimal Performance and Comparing Protocol Weaknesses
 
-The first use case is finding environments where an individual protocol performs suboptimally. Here, there are two ways to choose the reference. One is to use the theoretical link capacity, which helps catch severe underutilization—even though no protocol can achieve the theoretical limit at all times in a dynamic network, extremely poor performance still points to potential issues worth investigating.
+In the first use case, the target is the protocol under test, and it is compared against either theoretical link capacity or another protocol implementation to uncover severe underutilization or kernel bugs.
 
-The second, more realistic option is to compare against other existing protocols. In the paper, the authors ran an all-pairs comparison across 17 TCP congestion control algorithms in the Linux kernel. That gives $17\times16=272$ directed pairs, and with two different score definitions—an equal 50/50 split between throughput and delay, versus throughput only—there are 544 test scenarios in total. AdvNet found adversarial environments in 448 of them.
+Under UC1, comparing against theoretical link capacity can flag extreme underutilization. Comparing against another real protocol is more informative: if another protocol achieves much higher performance under the exact same trace, we know better performance is achievable.
 
-Let's look at BBR and CUBIC in the top-left corner. Under both score definitions, whether BBR is the reference and CUBIC is the target, or vice versa, AdvNet finds adversarial environments with scores close to 1 in all four cases (**TODO**: Consider reproducing this experiment and reporting the actual traces). It shows that even under the exact same performance metric, both protocols have their own distinct blind spots in different environments.
+The authors ran an all-pairs comparison across 17 TCP congestion control algorithms in the Linux kernel (**Visual Suggestion**: Show Figure 4 heatmaps). That gives 272 directed pairs (**Visual Suggestion**: $17\times16=272$). These pairs are tested under two utility definitions: an equal split between throughput and delay, and throughput only. So the total number of scenarios is doubled. AdvNet found positive scores, which indicate adversarial environments, in 448 of 544 scenarios. Every single protocol had at least one environment where a reference protocol substantially outperformed it.
 
-(**Visual Suggestion**: Show the full Fig. 4 heatmap, highlighting/zooming in on the top-left corner.)
+Look at BBR and CUBIC in the top-left corner of both heatmaps. Under both objectives, AdvNet finds environments with large performance gaps in both directions. This is not a contradiction: it shows that even under the same metric, both protocols have distinct blind spots under different network environments. (**Visual Suggestion**: Zoom in on the top-left corner of both heatmaps.)
 
-In the paper, the authors dug into several of the discovered scenarios to find the root causes. Let's look at what they found.
+However, a high score alone only tells us where a protocol struggles, not why. Next, let's look at how the authors diagnosed the root causes inside several discovered environments.
 
 ### 6.3 UC1 Case Study: TCP Acknowledgment Bug Triggered by a Sudden RTT Drop
 
