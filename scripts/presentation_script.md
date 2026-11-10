@@ -161,13 +161,11 @@ When the authors re-tested on a newer Linux kernel from Google's BBR team, this 
 
 ### 6.4 UC1 Case Study: Fairness Between Competing Flows
 
-Another application of UC1 is testing fairness between competing flows. Here, we set the reference score to be the throughput of a protocol flow running alone, and the target score to be the throughput of that same flow when competing head-to-head against another protocol. This measures how badly the competing flow hurts our reference flow.
+Another case study under UC1 is testing fairness between competing flows. Here, the authors define the reference score as the throughput of a reference protocol running alone on the link, and the target score as the throughput of that same reference flow when competing simultaneously against a target protocol. A score close to 1 means the competing flow severely starves the reference flow.
 
-(**Visual Suggestion**: Show the topology comparison between "Running Alone" and "Competing Flows".)
+While BBR is commonly believed to dominate loss-based protocols like CUBIC, AdvNet discovered environments where CUBIC consumes nearly 100% of the link bandwidth and starves BBR. When their roles were reversed, AdvNet also found environments where BBR starves CUBIC.
 
-While it is widely believed in the networking community that BBR tends to dominate CUBIC, AdvNet found environments where CUBIC grabs nearly 100% of the bandwidth and starves BBR. Conversely, when the authors swapped their roles, AdvNet also found environments where BBR starves CUBIC. Once again, which protocol is more aggressive depends heavily on the specific network conditions.
-
-Inspecting the logs, the authors noticed that the starved flow initially runs normally for 40 to 80 seconds, but then abruptly degrades into sending just a single packet at a time—waiting for an ACK before sending the next packet—for the rest of the experiment. The authors reported this issue to the BBR development team, who confirmed the environment was problematic.
+Digging into the logs, the authors found that the affected flow initially operates normally for 40 to 80 seconds, but then suddenly drops its sending rate to just a single packet at a time. It's waiting for an ACK before sending the next packet for the remaining 25 to 60 seconds of the test. The authors reported this environment to the BBR development team, who confirmed the issue.
 
 ### 6.5 UC2: Comparing Different Versions of BBR
 
