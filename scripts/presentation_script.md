@@ -144,17 +144,20 @@ However, a high score alone only tells us where a protocol struggles, not why. N
 
 ### 6.3 UC1 Case Study: TCP Acknowledgment Bug Triggered by a Sudden RTT Drop
 
-The first case study involves the Linux TCP implementation with BBR. AdvNet generated an adversarial environment that maintains a high RTT for about one second and then abruptly drops the RTT. As a result, packets sent later can arrive at the receiver before packets sent earlier.
+The authors further investigate why BBR scored so poorly under the throughput-only objective. By examining the logs, the authors found that AdvNet generated an environment that maintains a high RTT for about one second and then suddenly drops the RTT. As a result, packets sent earlier during the high-RTT phase are still in flight when packets sent later during the low-RTT phase arrive at the receiver first.
 
-Using tools like eBPF and Wireshark, the authors verified that this out-of-order arrival indeed happens. Seeing a gap in the sequence numbers, the receiver starts sending duplicate ACKs (dup ACKs). Once the sender receives three dup ACKs, it fast-retransmits the first delayed packet. However, before that retransmitted copy arrives, the original delayed packet finally reaches the receiver, which then sends an ACK advancing to the next expected packet in sequence. Right after that, the fast-retransmitted copy arrives—and this specific arrival order triggers a logic bug in how the receiver updates its acknowledgment number. Even after subsequent packets arrive normally, the receiver fails to advance the ACK number and keeps sending dup ACKs, eventually forcing the sender into a retransmission timeout (RTO).
+Using eBPF and Wireshark, the authors traced the exact sequence of events:
 
-(**TODO**: Draw a sequence diagram of this packet arrival order.)
+1. The receiver sends duplicate ACKs (dup ACKs) after seeing out-of-order packets. Duplicate ACKs quickly reach the sender during the low-RTT phase.
+2. Upon receiving three dup ACKs, the sender initiates a fast retransmit for the delayed packet.
+3. Crucially, the original delayed packet finally arrives at the receiver just before its fast-retransmitted copy. The receiver processes the original packet and advances its ACK number.
+4. Then, the fast-retransmitted copy arrives. This specific arrival order triggers a bug in the Linux kernel's ACK-update logic: even as subsequent packets arrive normally, the receiver fails to advance the acknowledgment number and keeps sending dup ACKs, eventually forcing the sender into a retransmission timeout (RTO).
 
-This case highlights why manual root-cause analysis and real-code emulation are both essential. On the surface, we just see a sharp drop in throughput, but the underlying root cause is an implementation bug in the Linux kernel's TCP receive logic—something we would never catch if we only tested simplified protocol models in a simulator.
+(**Visual Suggestion**: Draw a sequence diagram showing the timeline.)
 
-When the authors re-tested on a newer Linux kernel version, this bug no longer appeared. However, AdvNet uncovered another scenario where CUBIC ramps up its throughput quickly while BBR's throughput grows much more slowly. Fig. 6 shows the behavior over a short run, where BBR fails to utilize the available bandwidth.
+Why did this kernel TCP receive bug surface specifically when testing BBR? Unlike traditional window-based protocols that send bursts of packets, BBR paces packets smoothly to maintain a steady volume in flight. This allows AdvNet's RTT drop to space the packets into this exact arrival order. This also underscores the value of emulating real kernel code rather than testing simplified simulator models.
 
-(**Visual Suggestion**: Show Fig. 6.) (**TODO**: Consider analyzing this further.)
+When the authors re-tested on a newer Linux kernel from Google's BBR team, this ACK bug no longer appeared. Even so, AdvNet found another scenario (**Visual Suggestion**: Show Figure 6) where CUBIC quickly ramps up throughput while BBR v3 stays low during a short 5-second run. Extending the run showed that BBR v3 eventually ramps up. This indicates slow convergence of BBR v3 in this environment.
 
 ### 6.4 UC1 Case Study: Fairness Between Competing Flows
 
