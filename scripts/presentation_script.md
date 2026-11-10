@@ -70,19 +70,15 @@ $$
 T=(B,L,D,I).
 $$
 
-$B$ contains bandwidths, $L$ contains delays, and $D$ contains interval durations. $I$ contains parameters that stay fixed within the trace, such as queue capacity. For multipath tests, each link has its own bandwidth and delay sequence, with shared interval durations.
+$B$ contains bandwidths, $L$ contains one-way delays, and $D$ contains interval durations. $I$ contains parameters that stay fixed within the trace, such as queue capacity. For multipath tests, each link has its own bandwidth and delay sequence, with shared interval durations.
 
-Here is a teaching example. The first interval has twenty megabits per second and twenty milliseconds of one-way delay. Bandwidth then falls while delay rises. Finally, bandwidth recovers and delay falls. Each parameter has allowed bounds.
+Here is an example trace. The first interval has 20 Mbps and 20 ms of one-way delay. Bandwidth then falls while delay rises. Finally, bandwidth recovers and delay falls. Each parameter is constrained within user-specified bounds like the ones in Table 1.
 
-(**Visual Suggestion**: Show a step-function plot illustrating the 3-interval bandwidth/one-way delay teaching trace, alongside the parameter bounds in Table 1.)
+(**Visual Suggestion**: Show Table 1 and possibly a plot illustrating the example trace.)
 
-CC-Fuzz represents link service using packet delivery opportunities, or PDOs. Each PDO specifies a time when the link can transmit a packet.
+The paper chooses not to use CC-Fuzz's packet delivery opportunities (PDOs). A PDO specifies the exact timestamp when a packet can leave. The authors implemented the PDO representation inside AdvNet and compared both under matched genetic algorithm settings and a one-hour budget (**Visual Suggestion**: Show Table 2). Across all four protocols, AdvNet's interval representation achieves much higher scores. This means AdvNet can find larger throughput shortfalls relative to available capacity.
 
-The authors implemented that representation inside AdvNet and compared it with their interval representation under matched configurations (Table 2). For BBR, the scores were about seventy-nine percent and fourteen percent. Higher means a larger throughput shortfall relative to available capacity.
-
-The authors give two explanations. First, PDOs create a larger search space. For example, increasing from twenty-five to one hundred PDOs causes the score on BBR to drop from about fourteen percent to about six percent. Second, AdvNet directly exposes delay changes as search parameters.
-
-(**Visual Suggestion**: Show the comparison results in Table 2.)
+The authors point to two reasons. First, PDOs create a much higher-dimensional search space: when the number of PDOs is increased from 25 to 100, the search struggles even more, and the score on BBR drops from about 14% down to about 6%. Second, AdvNet directly exposes link delay changes as tunable parameters. In later use cases it turns out to be important for finding adversarial environments.
 
 ### 5.2 Generating the Next Batch of Environments
 
