@@ -239,9 +239,9 @@ When the authors re-tested on a newer Linux kernel from Google's BBR team, this 
 
 Another case study under UC1 is testing fairness between competing flows. Here, the authors define the reference score as the throughput of a reference protocol running alone on the link, and the target score as the throughput of that same reference flow when competing simultaneously against a target protocol. A score close to 1 means the competing flow severely starves the reference flow.
 
-(**Click**)
-
 While BBR is commonly believed to dominate loss-based protocols like CUBIC, AdvNet discovered environments where CUBIC consumes nearly 100% of the link bandwidth and starves BBR. When their roles were reversed, AdvNet also found environments where BBR starves CUBIC.
+
+(**Click**)
 
 Digging into the logs, the authors found that the affected flow initially operates normally for 40 to 80 seconds, but then suddenly drops its sending rate to just a single packet at a time. It's waiting for an ACK before sending the next packet for the remaining 25 to 60 seconds of the test. The authors reported this environment to the BBR development team, who confirmed the issue.
 

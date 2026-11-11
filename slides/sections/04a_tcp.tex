@@ -83,68 +83,49 @@ On kernel 6.13.7+, the earlier ACK bug was no longer observed.\par
 \end{itemize}
 \end{frame}
 
-% Blueprint 18: fairness is scored using the same flow in two conditions.
+% Blueprint 18: fairness outcomes and the observed sending behavior.
 \sectiontag{4}\source{}
 \begin{frame}[t]{UC1: Fairness Between Competing Flows}
 \compactfont
-\begin{columns}[T,onlytextwidth]
-\column{.48\textwidth}
-\lead{Reference: flow A alone}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-55) rectangle (415,75);
-\node[box,minimum width=95pt] (a) at (65,10) {Flow A};
-\node[box,minimum width=130pt] (q) at (325,10) {Bottleneck};
-\draw[flow] (a)--(q);
-\end{tikzpicture}
-\column{.48\textwidth}
-\lead{Target: flow A with a competitor}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-55) rectangle (415,75);
-\node[box,minimum width=95pt] (a) at (65,45) {Flow A};
-\node[box,fill=PaleTeal,minimum width=95pt] (b) at (65,-25) {Flow B};
-\node[box,minimum width=130pt] (q) at (325,10) {Bottleneck};
-\draw[flow] (a)--(q);\draw[ack] (b)--(q);
-\end{tikzpicture}
-\end{columns}
-Compare flow A's throughput alone ($R$) and with flow B ($T$).\par
-\vspace{12pt}
-\pause
+Compare the same flow's throughput alone ($R$) and with a competitor ($T$).\par
+\vspace{8pt}
 \begin{itemize}
-\compactfont\setlength{\itemsep}{10pt}
-\item In one trace, CUBIC takes nearly all bandwidth and starves BBR.\newline Other traces let BBR starve CUBIC.
-\item After 40--80~s of normal sending, a flow sends one packet per ACK for the remaining 25--60~s.
+\compactfont\setlength{\itemsep}{6pt}
+\item CUBIC can take nearly all bandwidth and starve BBR.
+\item In other environments, BBR can starve CUBIC.
 \end{itemize}
+\vspace{4pt}
+\pause
+\lead{Observed sending behavior}
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{20}{24}\selectfont,align=center},
+ data/.style={flow,draw=blue!75!black,line width=2.2pt},
+ feedback/.style={ack,draw=green!45!black,dashed,line width=2.2pt}]
+\path[use as bounding box] (0,-8) rectangle (890,205);
+\node[draw=SemBlue,line width=1.2pt,inner sep=9pt,text width=240pt] (normal) at (250,170) {Normal sending\\40--80 s};
+\node[draw=SemBlue,line width=1.2pt,inner sep=9pt,text width=420pt] (limited) at (660,170) {One packet, then wait for its ACK\\Remaining 25--60 s};
+\draw[flow,line width=2pt] (normal)--(limited);
+\node[anchor=east] at (100,100) {Sender};
+\node[anchor=east] at (100,10) {Receiver};
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (110,100)--(880,100);
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (110,10)--(880,10);
+% Multiple packets are in flight during normal sending.
+\foreach \send/\receive/\acktime in {145/200/250,180/235/285,215/270/320,250/305/355} {
+  \draw[data] (\send,100)--(\receive,10);
+  \draw[feedback] (\receive,10)--(\acktime,100);
+}
+\draw[SemGray,densely dotted,line width=1.2pt] (395,-3)--(395,120);
+% After the transition, each new packet follows the previous packet's ACK.
+\foreach \send/\receive/\acktime in {430/490/550,560/620/680,690/750/810} {
+  \draw[data] (\send,100)--(\receive,10);
+  \draw[feedback] (\receive,10)--(\acktime,100);
+}
+\node[text=blue!75!black,fill=white,inner sep=2pt] at (454,59) {Packet};
+\node[text=green!45!black,fill=white,inner sep=2pt] at (525,49) {ACK};
+\node[anchor=east,text=SemGray] at (880,55) {Time $\rightarrow$};
+\end{tikzpicture}\par
 \vspace{8pt}
 {\labelfont\color{SemGray}The BBR team confirmed that the reported environment was problematic.\par}
-\end{frame}
-
-% 22 — Script §6.4, fairness.
-\source{Topology and sending-pattern diagrams by presenters.}
-\begin{frame}[t]{Either protocol can starve the other}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.48\textwidth}\lead{Reference: flow runs alone}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box] (a) at (65,0) {Flow A};\node[box] (b) at (300,0) {Bottleneck};\draw[flow] (a)--(b);
-\end{tikzpicture}
-\column{.48\textwidth}\lead{Target: the same flow competes}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box] (a) at (65,20) {Flow A};\node[box,fill=PaleTeal] (c) at (65,-55) {Flow B};
-\node[box] (b) at (300,-15) {Bottleneck};\draw[flow] (a)--(b);\draw[ack] (c)--(b);
-\end{tikzpicture}
-\end{columns}
-\vspace{28pt}
-CUBIC can starve BBR; other environments let BBR starve CUBIC.
-\vspace{18pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box,text width=220pt] (n) at (130,0) {Normal sending\\for 40--80 seconds};
-\node[box,fill=PaleOrange,text width=170pt] (p) at (470,0) {One packet};
-\node[box,fill=PaleOrange,text width=170pt] (a) at (765,0) {Wait for ACK};
-\draw[flow] (n)--(p);\draw[flow] (p)--(a);
-\draw[flow] (a.south)--++(0,-35)-|(p.south);
-\end{tikzpicture}
-\end{center}
 \end{frame}
 
 % Blueprint 19: measure CUBIC to compare fairness across BBR versions.
