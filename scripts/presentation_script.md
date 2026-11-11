@@ -286,11 +286,11 @@ The authors confirm the root cause by manually reducing the HBP's RTT below 200 
 
 ### 6.7 UC3: Single-Path vs. Dual-Path in Kernel MPTCP
 
-Finally, the authors tested the same "do no harm" objective on the Linux kernel implementation of MPTCP across all four of its congestion control algorithms: LIA, OLIA, BALIA, and wVegas. For every single one of them, AdvNet found environments where two paths yield lower throughput than one path.
+Finally, the authors tested the same "do no harm" objective on Linux Multipath TCP (MPTCP), which allows one TCP connection to transmit over multiple paths. AdvNet found environments where two paths yield lower throughput than one path. For BALIA, dual-path throughput was 85.5% lower than single-path throughput.
 
 (**Click**)
 
-For BALIA, dual-path throughput was 85.5% lower than single-path throughput. Plotting cumulative bytes sent over time, `balia2` initially sends faster by using the high bandwidth of Link 1, but `balia1` overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate on both links—even though Link 1 still has plenty of available bandwidth.
+Plotting cumulative bytes sent over time, `balia2` initially sends faster by using the high bandwidth of Link 1, but `balia1` overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate on both links—even though Link 1 still has plenty of available bandwidth.
 
 (**Click**)
 

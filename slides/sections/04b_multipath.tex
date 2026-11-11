@@ -87,48 +87,42 @@ Default: $\alpha=0.75$.\par
 \end{itemize}
 \end{frame}
 
-% Blueprint 22: original Fig. 8 and the BALIA counterexample.
+% Blueprint 22: original Fig. 8 with slope guides for the BALIA counterexample.
 \sectiontag{4}\source{Fig. 8, AdvNet.}
 \begin{frame}[t]{UC3: Single-Path vs. Dual-Path in Kernel MPTCP}
 \compactfont
-AdvNet found two-path regressions for all four tested algorithms:\par
-LIA, OLIA, BALIA, and wVegas.\par
+AdvNet found two-path regressions in Linux Multipath TCP (MPTCP).\par
+{\labelfont\color{SemGray}Allows one TCP connection to transmit over multiple paths.\par}
 \vspace{14pt}
-\pause
 \begin{columns}[T,onlytextwidth]
 \column{.61\textwidth}
-\includegraphics[width=\linewidth,clip]{fig08_mptcp.pdf}
+\begin{tikzpicture}
+\node[anchor=south west,inner sep=0pt] (plot) at (0,0)
+{\includegraphics[width=\linewidth,clip]{fig08_mptcp.pdf}};
+\begin{scope}[x={(plot.south east)},y={(plot.north west)}]
+\uncover<2->{
+% Local slope guides follow the red curve before and after its flattening.
+\draw[violet!85!black,line width=2pt] (.150,.267)--(.250,.360);
+\draw[violet!85!black,line width=2pt] (.270,.350)--(.500,.358);
+\draw[SemGray,densely dashed,line width=1.2pt] (.240,.218)--(.240,.475);
+\node[anchor=south,font=\fontsize{18.5}{23}\selectfont,text=SemGray] at (.240,.475) {1.2 s};
+\node[font=\fontsize{20}{24}\selectfont,text=violet!85!black,align=center] at (.405,.485) {Rate\\reduction};
+\draw[-{Stealth[length=5pt]},violet!85!black,line width=1.2pt] (.405,.405)--(.380,.354);
+}
+\end{scope}
+\end{tikzpicture}
 \vspace{12pt}\par
 \labelfont \texttt{balia2}: dual path; \texttt{balia1}: single path.\par
 \column{.35\textwidth}
 \compactfont
 Dual-path throughput is 85.5\% lower in this environment.\par
+\uncover<2->{
 \vspace{14pt}
-\lead{First 0.5 seconds}
-Dual path leads using Link 1; single path then overtakes it.\par
+\lead{Around 0.5 seconds}
+Single path overtakes dual path.\par
 \vspace{12pt}
 \lead{Around 1.2 seconds}
-A receiver ACK delay of about 40 ms causes a sharp rate reduction on both links.\par
+A $\sim$40 ms ACK delay reduces both links' rates, despite available bandwidth on Link 1.\par
+}
 \end{columns}
 \end{frame}
-
-% 28 — Script §6.7, MPTCP and Fig. 8.
-\source{Fig. 8 (original).}
-\begin{frame}[t]{Kernel MPTCP also violates the two-path objective}
-\bodyfont
-Adversarial environments found for \textbf{LIA, OLIA, BALIA, and wVegas}.
-\vspace{10pt}
-\begin{columns}[T,onlytextwidth]
-\column{600pt}
-\includegraphics[width=600pt]{fig08_mptcp.pdf}
-\vspace{10pt}\par
-{\compactfont\textbf{BALIA: dual-path throughput is 85.5\% lower.}}
-\column{255pt}
-\lead{About 0.5 s}
-Single-path catches up and overtakes dual-path.
-\vspace{24pt}\par
-\lead{About 1.2 s}
-A roughly 40 ms ACK delay precedes a sharp reduction on both links.
-\end{columns}
-\end{frame}
-
