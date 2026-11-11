@@ -49,7 +49,7 @@ by Generating Adversarial Environments\par}
 \end{frame}
 
 \source{}
-\begin{frame}[t]{Why Is Congestion Control Hard to Test?}
+\begin{frame}[t]{Motivation: Congestion Control Is Hard to Test}
 \bodyfont
 \vspace{8pt}
 {\color{SemBlue}\textbf{Strict goals in dynamic networks}}\par
@@ -70,29 +70,57 @@ Cite from PCC Vivace: Online-Learning Congestion Control \S1\par}
 \end{points}
 \end{frame}
 
-% 04 — Script §2.
+% Revised slides 4--5: existing tests and prior adversarial testing.
 \source{}
-\begin{frame}[t]{Existing tests cover different parts of the problem}
+\begin{frame}[t]{Motivation: Existing Testing Approaches Fall Short}
 \bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}
-\lead{Where do test cases come from?}
-\textbf{Hand-designed tests}\par
-Easy to interpret; coverage follows the designer's expectations.
-\par\vspace{18pt}
-\textbf{Real network traces}\par
-Observed conditions; coverage follows collection sites and times.
-\column{.47\textwidth}
-\lead{What executes the test?}
-\textbf{Simulation}\par
-Protocol models under modeled network conditions.
-\par\vspace{18pt}
-\textbf{Emulation}\par
-Real protocol code under controlled conditions; runs cost time and vary.
-\end{columns}
-\vspace{20pt}
-\key{Earlier adversarial testing: CC-Fuzz}\par
-AdvNet emphasizes real implementations and efficient environment search.
+{\color{SemBlue}\textbf{Hand-designed tests}}\par
+\begin{itemize}\setlength{\itemsep}{7pt}
+\item Manually chosen bandwidth and latency ranges: easy to interpret\newline
+      and useful for checking suspected issues
+\item Coverage depends on the designer; protocol state makes the\newline
+      sequence space grow exponentially with sequence length.
+\end{itemize}
+\pause
+\vspace{16pt}
+{\color{SemBlue}\textbf{Real-world traces and testbeds}}\par
+\begin{itemize}\setlength{\itemsep}{7pt}
+\item Coverage is bounded by collection sites and times.
+\item No active search for worst cases; live anomalies are hard to reproduce.
+\end{itemize}
+\vspace{12pt}
+{\labelfont\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{}p{140pt} L@{}}
+\toprule
+Mahimahi & Record-and-replay link emulator\\
+Pantheon & Congestion-control benchmark across real and emulated paths\\
+Puffer & Live adaptive video streaming testbed\\
+\bottomrule
+\end{tabularx}}
+\end{frame}
+
+\source{}
+\begin{frame}[t]{Adversarial Testing: Simulation vs. Emulation}
+\bodyfont
+{\color{SemBlue}\textbf{Simulation vs. emulation}}\par
+\vspace{12pt}
+{\compactfont\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\linewidth}{@{}p{225pt} L@{}}
+\toprule
+Simulation (ns-3) & Simplified models: fast and deterministic, but behavior can differ from deployed code.\\
+\midrule
+Emulation (Mahimahi) & Real OS kernel stack: exposes implementation bugs, but execution is slow and noisy.\\
+\bottomrule
+\end{tabularx}}\par
+\pause
+\vspace{18pt}
+{\color{SemBlue}\textbf{Prior work: CC-Fuzz}\quad\normalfont (HotNets '22)}\par
+\begin{points}
+\item Uses a genetic algorithm (GA) in ns-3 simulation.
+\item Represents links as low-level Packet Delivery Opportunities (PDOs).
+\item This high-dimensional representation struggles to find strong\newline
+      adversarial examples within a limited emulation budget.
+\end{points}
 \end{frame}
 
 % 05 — Script §3.

@@ -32,11 +32,19 @@ How do developers test protocols today, and why isn't that enough?
 
 First, hand-designed tests run a protocol under manually chosen parameters, such as fixed bandwidth and latency ranges. They are easy to interpret and they can check suspected problems directly, but their coverage depends on what the designer thinks of testing. Another problem is that many protocols retain certain states from the past, so the actual behavior may depend on previous environments. Thus, the number of possible test cases grows exponentially with sequence length.
 
+(**Click**)
+
 Second, developers may replay captured traces in emulators like Mahimahi, or evaluate protocols on platforms like Pantheon and Puffer to test conditions that users actually experience. These are essential for benchmarking average real-world performance, but their coverage is bounded by where and when traces were collected. In addition, they do not actively search for unknown worst-case conditions. Reproducing real-world anomalies is also difficult due to uncontrolled background processes. (**Visual Suggestion**: Add visual-only notes that explain differences between Pantheon, Puffer, and Mahimahi.)
+
+(**Click**)
 
 Third, what about automated adversarial testing? Here we first need to distinguish between simulation and emulation. Simulation (such as ns-3) runs simplified models of the protocol and network; it is fast and deterministic, but the modeled behavior can differ from real deployed code. Emulation (such as Mahimahi) runs the real operating system kernel protocol stack under controlled virtual links. It can capture real implementation bugs, but at the cost of slow execution and runtime noise.
 
+(**Click**)
+
 An important piece of prior work, CC-Fuzz, used a genetic algorithm to generate adversarial environments, but only inside the ns-3 simulator, representing links via low-level Packet Delivery Opportunities. The problem is that its high-dimensional PDO representation struggles to find strong adversarial examples within a limited emulation budget.
+
+(**Click**)
 
 ## 3. How Does AdvNet Solve the Problem?
 
