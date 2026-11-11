@@ -86,7 +86,7 @@ Higher throughput increases the first term, while lower delay increases the seco
 
 (**Click**)
 
-A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. We compute this utility separately for the reference and target, using the same normalization benchmarks and weight. We then use their utilities as $R$ and $T$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
+A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. The authors compute this utility separately for the reference and target, using the same normalization benchmarks and weight. They then use their utilities as $R$ and $T$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
 
 (**Click**)
 
@@ -94,7 +94,7 @@ A throughput weight of $1$ considers only throughput, $0$ considers only delay, 
 
 Realizing this framework in emulation brings two main challenges:
 
-The first challenge is sample efficiency. Because every evaluation runs real protocol implementations over emulated links for several seconds, we can only afford a limited number of runs. Meanwhile, the space of parameters is huge, and emulation noise means a single run can be misleading. Simply repeating every trace many times would leave very little budget to explore new environments.
+The first challenge is sample efficiency. Because every evaluation runs real protocol implementations over emulated links for several seconds, the authors can only afford a limited number of runs. Meanwhile, the space of parameters is huge, and emulation noise means a single run can be misleading. Simply repeating every trace many times would leave very little budget to explore new environments.
 
 (**Click**)
 
@@ -124,7 +124,7 @@ The paper chooses not to use CC-Fuzz's packet delivery opportunities (PDOs). A P
 
 (**Click**)
 
-The authors point to two reasons. First, PDOs create a much higher-dimensional search space: when the number of PDOs is increased from 25 to 100, the search struggles even more, and the score on BBR drops from about 14% down to about 6%. Second, AdvNet directly exposes link delay changes as tunable parameters. In later use cases it turns out to be important for finding adversarial environments.
+The authors point to two reasons. First, PDOs create a much higher-dimensional search space: when the number of PDOs is increased from 25 to 100, the search struggles even more, and the score on BBR drops from about 14% down to about 6%. Second, AdvNet directly exposes link delay changes as tunable parameters. This delay control turns out to be important for finding adversarial environments in the later use cases.
 
 (**Click**)
 
@@ -160,7 +160,7 @@ In Figure 3a, GA consistently outperforms random generation across all three thr
 
 ### 5.3 Avoiding Lucky Outliers
 
-Finding high scores during search is only part of the problem; measurement noise can still mislead our final choice. The simplest rule, SimpleMax, outputs the trace that had the single highest observed score during search.
+Finding high scores during search is only part of the problem; measurement noise can still mislead the authors' final selection. The simplest rule, SimpleMax, outputs the trace that had the single highest observed score during search.
 
 However, when evaluating hundreds of traces, the single highest observation is often an outlier inflated by positive random noise. Its score can drop sharply when re-tested independently.
 
@@ -168,7 +168,7 @@ To mitigate noise, AdvNet runs each trace multiple times in parallel during sear
 
 (**Click**)
 
-How should we split the total runtime between search and PLS? In Figure 2, when $0\%$ of the time is used for PLS, which is just SimpleMax, noisy outliers leave the average re-tested score around $0.59$. Dedicating **$10\%$** of the runtime to PLS raises the average score to $0.80$, which yields the best performance.
+How should the authors split the total runtime between search and PLS? In Figure 2, when $0\%$ of the time is used for PLS, which is just SimpleMax, noisy outliers leave the average re-tested score around $0.59$. Dedicating **$10\%$** of the runtime to PLS raises the average score to $0.80$, which yields the best performance.
 
 (**Click**)
 
@@ -190,15 +190,13 @@ Now that we have seen how AdvNet searches efficiently, let's look at how develop
 * UC2 — Regression testing across versions
 * UC3 — Validating design objectives
 
-We will examine UC1 from two angles: suboptimal performance and fairness. For suboptimality, we compare a protocol against link capacity or another protocol. For fairness, we compare the same flow running alone and running alongside a competing flow.
+The authors examine UC1 from two angles: suboptimal performance and fairness. For suboptimality, they compare a protocol against link capacity or another protocol. For fairness, they compare the same flow running alone and running alongside a competing flow.
 
 Let's examine what AdvNet discovered in each of these three use cases.
 
 (**Click**)
 
 ### 6.2 UC1: Finding Suboptimal Performance and Comparing Protocol Weaknesses
-
-In the first use case, the target is the protocol under test, and it is compared against either theoretical link capacity or another protocol implementation to uncover severe underutilization or kernel bugs.
 
 Under UC1, comparing against theoretical link capacity can flag extreme underutilization. Comparing against another real protocol is more informative: if another protocol achieves much higher performance under the exact same trace, we know better performance is achievable.
 
@@ -272,7 +270,7 @@ The third use case is validating specific design objectives. For example, a basi
 
 They first evaluated **DChannel**, which combines a high-bandwidth path (HBP) and a low-latency path (LLP) in parallel while steering packets transparently below the transport layer. Here, the reference uses only the high-bandwidth path, the target uses DChannel over both paths, and the metric is flow completion time for downloading a 20 MB file. Although prior work saw no issues when running loss-based CUBIC over DChannel, AdvNet found an environment where the HBP has a 120 ms one-way delay and the LLP has only a 3 ms one-way delay.
 
-The root cause lies in DChannel's packet-steering heuristic. DChannel sends small control packets, such as TCP handshakes, over the fast LLP and large data packets over the slower HBP. Because the initial handshake completes over the 3 ms path, TCP estimates a tiny RTT and sets its retransmission timeout (RTO) to a small value. (**Click**) When large data packets subsequently take the 120 ms one-way HBP, their round-trip and queuing delay exceeds the small RTO before ACKs can return. (**Click**) This triggers spurious timeouts and rate reductions. In this environment, DChannel's throughput drops to one-third of that achieved using the HBP alone.
+The root cause lies in DChannel's packet-steering heuristic. DChannel sends small control packets, such as TCP handshakes, over the fast LLP and large data packets over the slower HBP. Because the initial handshake completes over the 3 ms path, TCP estimates a tiny RTT and sets its retransmission timeout (RTO) to the 200 ms minimum in Linux. (**Click**) When large data packets subsequently take the 120 ms one-way HBP, their round-trip and queuing delay exceeds the small RTO before ACKs can return. (**Click**) This triggers spurious timeouts and rate reductions. In this environment, DChannel's throughput drops to one-third of that achieved using the HBP alone.
 
 (**Click**)
 
@@ -286,7 +284,7 @@ The authors confirm the root cause by manually reducing the HBP's RTT below 200 
 
 ### 6.7 UC3: Single-Path vs. Dual-Path in Kernel MPTCP
 
-Finally, the authors tested the same "do no harm" objective on Linux Multipath TCP (MPTCP), which allows one TCP connection to transmit over multiple paths. AdvNet found environments where two paths yield lower throughput than one path. For BALIA, dual-path throughput was 85.5% lower than single-path throughput.
+Finally, the authors tested the same "do no harm" objective on four Linux Multipath TCP (MPTCP) CC algorithms. MPTCP allows one TCP connection to transmit over multiple paths. AdvNet found environments where two paths yield lower throughput than one path for all four algorithms. For one of them, BALIA, dual-path throughput was 85.5% lower than single-path throughput.
 
 (**Click**)
 
@@ -312,7 +310,7 @@ At the same time, AdvNet has clear boundaries. Its current environment model onl
 
 **Formal verification** checks whether a system satisfies specified properties, using techniques such as model checking and symbolic analysis. These techniques typically require precise models or specifications and can struggle to scale to complex kernel implementations and large spaces of time-varying network conditions. AdvNet instead uses execution feedback to search for performance weaknesses in real implementations.
 
-**Generative Adversarial Networks (GANs)** typically learn to generate data resembling an existing dataset. For AdvNet, the challenge is that we do not already have a dataset of challenging network environments to imitate. The search instead creates these environments using the observed performance gap as feedback.
+**Generative Adversarial Networks (GANs)** typically learn to generate data resembling an existing dataset. For AdvNet, the challenge is that a dataset of challenging network environments is not already available. The search instead creates these environments using the observed performance gap as feedback.
 
 (**Click**)
 
