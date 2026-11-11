@@ -304,8 +304,6 @@ The choice of optimizer could be a secondary factor, since GA achieves only a sl
 
 At the same time, AdvNet has clear boundaries. Its current environment model only covers link bandwidth, delay, and buffer size under simple workloads. In addition, it doesn't estimate how often a counterexample occurs in real deployments or automate root-cause diagnosis. Looking ahead, the framework could be extended to automatically simplify adversarial traces to speed up debugging, and applied to other dynamic systems such as adaptive bitrate video streaming.
 
-Discussion question: What important failure modes could this environment model miss?
-
 ## Backup Notes (For Q&A Only)
 
 (**Click**)

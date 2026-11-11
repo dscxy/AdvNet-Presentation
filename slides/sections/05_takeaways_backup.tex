@@ -1,66 +1,26 @@
-% Blueprint 23: conclusions, scope, and a discussion prompt.
+% Blueprint 23: conclusions, scope, and next steps.
 \sectiontag{5}\source{}
 \begin{frame}[t]{Conclusion and Takeaways}
 \begin{columns}[T,onlytextwidth]
 \column{.48\textwidth}
-\compactfont
+\bodyfont
 \lead{What AdvNet contributes}
 \begin{itemize}
-\compactfont\setlength{\itemsep}{14pt}
+\bodyfont\setlength{\itemsep}{14pt}
 \item Automated black-box search for performance failures in real kernel code.
 \item Custom references adapt the same pipeline to bugs, regressions, and design objectives.
 \item Compact representation and noise handling may matter more than optimizer choice: GA, BO, and EPS perform similarly.
 \end{itemize}
 \pause
 \column{.48\textwidth}
-\compactfont
+\bodyfont
 \lead{Scope and next steps}
 \begin{itemize}
-\compactfont\setlength{\itemsep}{14pt}
-\item Bandwidth, delay, and queue size under simple workloads; no explicit random-loss model or background cross-traffic.
+\bodyfont\setlength{\itemsep}{14pt}
+\item Limited to bandwidth, delay, and queue size under simple workloads.
 \item Root-cause diagnosis remains manual; real-world frequency is not estimated.
 \item Simplify traces automatically and extend to adaptive bitrate video streaming.
 \end{itemize}
-\end{columns}
-\vspace{22pt}
-{\compactfont Discussion: What important failure modes could this environment model miss?\par}
-\end{frame}
-
-% 29 — Script §6.8 and first conclusion paragraph.
-\sectiontag{5}\source{Use-case summary by presenters.}
-\begin{frame}[t]{One search pipeline supports three kinds of tests}
-\bodyfont
-{\compactfont\renewcommand{\arraystretch}{1.8}
-\begin{tabularx}{\linewidth}{@{}p{170pt} L L L@{}}
-\toprule
-Test & Reference & Target & What it reveals\\\midrule
-UC1: weakness & Capacity or another protocol & Protocol under test & Underutilization and implementation bugs\\
-UC2: regression & Older version & Newer version & Harmful effects of a change\\
-UC3: design goal & One path & Two paths & Violations of a multipath objective\\\bottomrule
-\end{tabularx}}
-\vspace{24pt}
-\takeaway{Choosing the reference turns a design question into an optimizable score.}
-\end{frame}
-
-% 30 — Script conclusion.
-\source{}
-\begin{frame}[t]{Turn hidden weaknesses into reproducible test cases}
-\bodyfont
-\key{AdvNet automates the search for performance problems in real protocol code.}
-\vspace{28pt}
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{Current scope}
-\begin{points}
-\item Limited network parameters and simple traffic workloads
-\item Manual root-cause investigation
-\item No estimate of deployment frequency
-\end{points}
-\column{.47\textwidth}\lead{Next steps}
-\begin{points}
-\item Richer environments and workloads
-\item Automatic trace simplification
-\item Other domains: adaptive bitrate streaming prototype
-\end{points}
 \end{columns}
 \end{frame}
 
