@@ -1,72 +1,85 @@
-% 07 — Script §5.1, trace representation and teaching example.
-\sectiontag{2}\source{Trace illustration by presenters; parameter bounds from Table 1.}
-\begin{frame}[t]{One candidate is a bounded network trace}
+% Definitions and bounds, followed by a separate trace example.
+\sectiontag{2}\source{Table 1, AdvNet.}
+\begin{frame}[t]{Network Environment Representation}
 \bodyfont
-{\eqfont $T=(B,L,D,I)$}\hspace{25pt}Bandwidth, delay, duration, fixed settings
-\vspace{12pt}
-\begin{columns}[T,onlytextwidth]
-\column{.64\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-30) rectangle (565,255);
-\node[anchor=west,font=\fontsize{20}{25}\selectfont] at (0,240) {Bandwidth (Mbps)};
-\node[anchor=west,font=\fontsize{20}{25}\selectfont] at (0,103) {One-way delay (ms)};
-\draw[SemGray,->] (55,132)--(550,132);
-\draw[SemGray,->] (55,15)--(550,15);
-\foreach \x in {175,415} {\draw[dotted,RuleGray,line width=1.2pt] (\x,15)--(\x,205);}
-\draw[SemBlue,line width=3pt] (55,192)--(175,192)--(175,147)--(415,147)--(415,192)--(535,192);
-\draw[SemTeal,line width=3pt] (55,30)--(175,30)--(175,75)--(415,75)--(415,22.5)--(535,22.5);
-\node[above,font=\fontsize{20}{25}\selectfont] at (115,192) {20};
-\node[above,font=\fontsize{20}{25}\selectfont] at (295,147) {5};
-\node[above,font=\fontsize{20}{25}\selectfont] at (475,192) {20};
-\node[above,font=\fontsize{20}{25}\selectfont] at (115,30) {20};
-\node[above,font=\fontsize{20}{25}\selectfont] at (295,75) {80};
-\node[above,font=\fontsize{20}{25}\selectfont] at (475,22.5) {10};
-\foreach \x/\v in {55/0,175/1,415/3,535/4}{\node[below,font=\fontsize{20}{25}\selectfont] at (\x,15) {\v};}
-\node[font=\fontsize{20}{25}\selectfont] at (295,-25) {Time (s)};
-\end{tikzpicture}
-\column{.32\textwidth}
-\lead{Three intervals}
-$D=(1,2,1)$ seconds
-\vspace{18pt}\par
-\textbf{Fixed within a trace}\par
-$I$: queue capacity
-\vspace{18pt}\par
-\textbf{Multipath}\par
-Each link has its own $B,L$; intervals share $D$.
-\end{columns}
-\vspace{16pt}
-{\compactfont\textbf{Search bounds:} 1--100 Mbps; 5--100 ms; 0.5--2.5 s per interval.}
+\vspace{8pt}
+{\fontsize{36}{44}\selectfont\centering $T=(B,L,D,I)$\par}
+\vspace{24pt}
+{\centering
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{@{}l@{\hspace{40pt}}l@{}}
+$B$: bandwidth sequence & $D$: interval durations\\
+$L$: one-way delay sequence & $I$: fixed settings, such as queue length
+\end{tabular}\par}
+\vspace{26pt}
+Multipath: separate $B,L$ for each link; shared interval durations $D$.\par
+\vspace{26pt}
+{\compactfont Each parameter is constrained by user-specified bounds.\par}
+\vspace{10pt}
+\begin{center}
+\includegraphics[page=11,trim=103bp 356bp 106bp 329bp,clip,width=700pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\end{center}
 \end{frame}
 
-% 08 — Script §5.1, PDO comparison.
-\source{Table 2 (reformatted); PDO dimension comparison from §4.2.1.}
-\begin{frame}[t]{A compact representation improves the search}
-\bodyfont
-\textbf{PDO:} a packet delivery opportunity specifies when a packet can leave.
-\vspace{18pt}
-\begin{columns}[T,onlytextwidth]
-\column{.60\textwidth}
-{\compactfont\renewcommand{\arraystretch}{1.45}
-\begin{tabularx}{\linewidth}{@{}l L L@{}}
-\toprule
-Target & Intervals & PDOs\\\midrule
-BBR & \textbf{79.11\%} & 14.31\%\\
-CUBIC & \textbf{46.24\%} & 29.78\%\\
-Vegas & \textbf{84.71\%} & 27.29\%\\
-Reno & \textbf{41.26\%} & 28.80\%\\\bottomrule
-\end{tabularx}}
-\vspace{10pt}\par
-{\labelfont Same AdvNet framework and matched configurations.}
-\column{.35\textwidth}
-\lead{More PDOs, harder search}
-BBR, 25 $\rightarrow$ 100 PDOs:\par\vspace{8pt}
-{\fontsize{30}{38}\selectfont 14.31\% $\rightarrow$ 5.91\%}
-\vspace{18pt}\par
-\lead{Why intervals help}
-Fewer dimensions\par\vspace{8pt}
-Direct control of delay changes
+\source{}
+\begin{frame}[t]{An Example Network Trace}
+\vspace{30pt}
+\begin{columns}[c,onlytextwidth]
+\column{600pt}
+\begin{tikzpicture}[x=1.2pt,y=1.2pt]
+\path[use as bounding box] (0,-42) rectangle (500,200);
+\node[anchor=west,font=\fontsize{22}{27}\selectfont] at (0,190) {Bandwidth (Mbps)};
+\node[anchor=west,font=\fontsize{22}{27}\selectfont] at (0,85) {One-way delay (ms)};
+\draw[SemGray,->] (45,105)--(485,105);
+\draw[SemGray,->] (45,0)--(485,0);
+\foreach \x in {150,360} {\draw[dotted,RuleGray,line width=1.2pt] (\x,0)--(\x,160);}
+\draw[SemBlue,line width=2.5pt] (45,150)--(150,150)--(150,116.25)--(360,116.25)--(360,150)--(465,150);
+\draw[SemTeal,line width=2.5pt] (45,13)--(150,13)--(150,52)--(360,52)--(360,6.5)--(465,6.5);
+\foreach \x/\y/\v in {98/150/20,255/116.25/5,412/150/20,98/13/20,255/52/80,412/6.5/10}
+{\node[above,font=\fontsize{22}{27}\selectfont] at (\x,\y) {\v};}
+\foreach \x/\v in {45/0,150/1,360/3,465/4}
+{\node[below,font=\fontsize{22}{27}\selectfont] at (\x,0) {\v};}
+\node[font=\fontsize{22}{27}\selectfont] at (255,-32) {Time (s)};
+\end{tikzpicture}
+\column{265pt}
+\compactfont
+$B=(20,5,20)$ Mbps\par
+\vspace{12pt}
+$L=(20,80,10)$ ms\par
+\vspace{12pt}
+$D=(1,2,1)$ seconds\par
+\vspace{26pt}
+In the middle interval, bandwidth drops while delay rises.\par
+\vspace{16pt}
+{\fontsize{18}{23}\selectfont\color{SemGray}
+All values satisfy the bounds on the previous slide.\par}
 \end{columns}
-\takeaway{Score: throughput shortfall relative to capacity. Higher is more adversarial.}
+\end{frame}
+
+\source{Table 2, AdvNet.}
+\begin{frame}[t]{Interval Representation vs. PDOs}
+\bodyfont
+PDO: a packet delivery opportunity specifies when a packet may leave.\par
+\vspace{16pt}
+\begin{columns}[c,onlytextwidth]
+\column{470pt}
+\includegraphics[page=11,trim=281bp 115bp 40bp 542bp,clip,width=470pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\column{395pt}
+\compactfont
+\begin{itemize}\compactfont\setlength{\itemsep}{12pt}
+\item AdvNet use interval representation; CC-Fuzz use PDO representation;
+\item Score: throughput shortfall relative to capacity;
+\item Higher means found more adversarial environment.
+\end{itemize}
+\end{columns}
+\pause
+\vspace{20pt}
+{\color{SemBlue}\textbf{Why intervals help}}\par
+\begin{itemize}\setlength{\itemsep}{10pt}
+\item Lower dimensionality: increasing 25 $\to$ 100 PDOs drops BBR's score\newline
+      from 14.31\% to 5.91\%.
+\item Explicit delay control: directly tunes link latency changes.
+\end{itemize}
 \end{frame}
 
 % 09 — Script §5.2, complete traces and GA loop.
