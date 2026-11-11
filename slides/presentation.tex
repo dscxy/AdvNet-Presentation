@@ -44,15 +44,13 @@
 \newcommand{\sectiontag}[1]{\renewcommand{\currentsection}{#1}}
 \newcommand{\source}[1]{\renewcommand{\currentsource}{#1}}
 \newcommand{\navitem}[2]{\ifnum\currentsection=#1\relax\textcolor{SemBlue}{\underline{\textbf{#2}}}\else#2\fi}
-% TODO: Once the full slide revision is complete, remind the user to review
-% the navigation labels and active sections against the final presentation structure.
 \setbeamertemplate{headline}{%
   \begin{beamercolorbox}[wd=\paperwidth,ht=28pt,dp=7pt]{headline}%
     \fontsize{18.5}{22}\selectfont\hspace*{.48in}%
     \hbox to \dimexpr\paperwidth-.96in\relax{%
-      \navitem{1}{Problem}\hfil\navitem{2}{Search design}\hfil
-      \navitem{3}{Objectives}\hfil\navitem{4}{Findings}\hfil
-      \navitem{5}{Takeaways}\hfil\navitem{6}{Backup}}%
+      \navitem{1}{Motivation}\hfil\navitem{2}{Overview}\hfil
+      \navitem{3}{Search Design}\hfil\navitem{4}{Use Cases}\hfil
+      \navitem{5}{Conclusion}\hfil\navitem{6}{Backup}}%
   \end{beamercolorbox}}
 \setbeamertemplate{frametitle}{%
   \vspace{6pt}\begin{beamercolorbox}[wd=\textwidth,sep=0pt]{frametitle}%
