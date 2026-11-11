@@ -1,160 +1,163 @@
-% 19 — Script §6.3, RTT drop through fast retransmission.
-\source{Sequence diagram by presenters, based on §4.4.1.}
-\begin{frame}[t]{A sudden RTT drop reorders packets}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.61\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,0) rectangle (540,365);
-\node at (90,345) {BBR sender};\node at (450,345) {Receiver};
-\draw[SemGray] (90,320)--(90,10);\draw[SemGray] (450,320)--(450,10);
-\draw[-{Stealth[length=7pt]},SemGray,dashed,line width=1.6pt] (90,305)--(450,35);
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (255,285) {Earlier packet $P$: delayed};
-\foreach \y in {245,200,155} {
-  \draw[flow] (90,\y)--(450,{\y-10});
-  \draw[ack] (450,{\y-17})--(90,{\y-32});
+% Script section 6.3: ACK bug and slow convergence on a newer kernel.
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC1: Linux Kernel TCP ACK Bug}
+\definecolor{PacketBlue}{HTML}{0047CC}
+\definecolor{OriginalPurple}{HTML}{7820A0}
+\definecolor{AckGreen}{HTML}{007A35}
+\definecolor{RetransmitRed}{HTML}{D02020}
+\centering
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{20}{24}\selectfont\bfseries\boldmath,align=center},
+ packet/.style={flow,draw=PacketBlue,line width=2.6pt},
+ reply/.style={ack,draw=AckGreen,dashed,line width=2.6pt}]
+\path[use as bounding box] (0,0) rectangle (890,285);
+\node[anchor=east] at (108,210) {Sender};
+\node[anchor=east] at (108,60) {Receiver};
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (115,210)--(880,210);
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (115,60)--(880,60);
+\node[anchor=east,text=SemGray] at (880,135) {Time $\rightarrow$};
+\draw[SemGray,densely dotted,line width=1.2pt] (220,230)--(220,42);
+\node[text=SemGray] at (220,20) {RTT drop};
+\node[anchor=south,text=OriginalPurple] at (145,245) {Original $P$};
+\draw[OriginalPurple,line width=1.4pt] (145,244)--(140,214);
+\draw[packet,draw=OriginalPurple,dashed] (140,210)--(550,60);
+\node[text=OriginalPurple,fill=white,inner sep=3pt] at (195,163) {Delayed};
+\node[anchor=south,text=PacketBlue] at (300,245) {Later packets};
+\foreach \start/\finish in {245/295,280/330,315/365} {
+  \draw[packet] (\start,210)--(\finish,60);
 }
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (265,260) {Later packets take the faster path};
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (270,95) {Three duplicate ACKs return};
-\node[anchor=north west,font=\fontsize{20}{25}\selectfont,text=SemOrange,align=left] at (105,66) {Fast retransmit $P$};
-\end{tikzpicture}
-\column{.34\textwidth}
-\lead{1. High RTT, then a sharp drop}
-Later packets overtake the earlier packet.
-\vspace{12pt}\par
-\lead{2. A gap in sequence numbers}
-The receiver sends duplicate ACKs.
-\vspace{12pt}\par
-\lead{3. Three dup ACKs}
-The sender retransmits the delayed packet.
-\end{columns}
+\uncover<2->{
+\foreach \start/\finish in {295/345,330/380,365/415} {
+  \draw[reply] (\start,60)--(\finish,210);
+}
+\node[text=AckGreen,anchor=north] at (330,44) {3 dup ACKs};
+\node[anchor=south,text=RetransmitRed] at (460,245) {Fast retransmit $P$};
+\draw[RetransmitRed,line width=1.4pt] (460,244)--(425,214);
+\draw[packet,draw=RetransmitRed] (425,210)--(580,60);
+}
+\uncover<3->{
+\fill[OriginalPurple] (550,60) circle (3pt);
+\fill[RetransmitRed] (580,60) circle (3pt);
+\node[anchor=north,text=OriginalPurple] at (545,44) {$P$};
+\node[anchor=north,text=RetransmitRed] at (590,44) {Copy};
+\draw[reply] (550,60)--(600,210);
+\node[text=AckGreen,fill=white,inner sep=2pt,align=left] at (620,143) {ACK\\advances};
+}
+\uncover<4->{
+\node[anchor=south,text=PacketBlue] at (705,245) {Further data};
+\draw[packet] (640,210)--(690,60);
+\draw[packet] (710,210)--(760,60);
+\draw[reply] (690,60)--(740,210);
+\draw[reply] (760,60)--(810,210);
+\node[text=AckGreen,anchor=north] at (725,44) {ACK stays fixed};
+\draw[RetransmitRed,line width=2.6pt] (850,202)--(850,218);
+\node[anchor=south,text=RetransmitRed] at (850,232) {RTO};
+}
+\end{tikzpicture}\par
+\vspace{8pt}
+\raggedright
+\begin{overlayarea}{\textwidth}{100pt}
+\compactfont
+\only<1>{High RTT for $\sim$1 s, then a sharp drop: later packets overtake $P$.\par}
+\only<2>{Three duplicate ACKs trigger fast retransmit while the original $P$ is still in flight.\par}
+\only<3>{The original $P$ arrives first and advances the ACK number. Its retransmitted copy then triggers the ACK-update bug.\par}
+\only<4>{Further packets arrive, but the ACK number stays fixed; the sender eventually enters RTO.\par
+\vspace{7pt}
+{\labelfont Why BBR? Smooth pacing makes this arrival order easier to trigger.\par
+\color{SemGray}Authors verified using eBPF and Wireshark.\par}}
+\end{overlayarea}
 \end{frame}
 
-% 20 — Script §6.3, arrival order, bug, diagnosis.
-\source{Sequence diagram by presenters, based on §4.4.1.}
-\begin{frame}[t]{The arrival order triggers a receiver ACK bug}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.56\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,0) rectangle (490,350);
-\node at (70,330) {Sender};\node at (420,330) {Receiver};
-\draw[SemGray] (70,305)--(70,15);\draw[SemGray] (420,305)--(420,15);
-\draw[flow] (70,305)--(420,245);
-\node[above,font=\fontsize{20}{25}\selectfont,fill=white] at (240,280) {Original $P$ arrives};
-% The fast retransmission is sent before the original reaches the receiver.
-\draw[flow,draw=SemOrange] (70,255)--(420,205);
-\node[above,font=\fontsize{20}{25}\selectfont,fill=white] at (250,234) {Retransmitted $P$ arrives};
-\draw[ack] (420,232)--(70,200);
-\node[below,font=\fontsize{20}{25}\selectfont,fill=white] at (250,201) {ACK advances};
-\draw[flow] (70,155)--(420,120);
-\node[above,font=\fontsize{20}{25}\selectfont,fill=white] at (240,140) {Subsequent data};
-\draw[ack,draw=SemOrange] (420,100)--(70,65);
-\node[below,font=\fontsize{20}{25}\selectfont,fill=white,text=SemOrange] at (250,82) {ACK remains stuck};
-\end{tikzpicture}
-\column{.39\textwidth}
-\lead{Original first, retransmission second}
-This order triggers the receiver's ACK-update logic bug.
-\vspace{20pt}\par
-Further data arrives, but the ACK number fails to advance.
-\vspace{20pt}\par
-\key{Repeated dup ACKs eventually force a retransmission timeout (RTO).}
-\end{columns}
-\vspace{5pt}
-{\compactfont Diagnosis: eBPF confirmed the timeout; Wireshark confirmed packet arrival.}
-\end{frame}
-
-% 21 — Script §6.3, newer kernel and Fig. 6.
-\source{Fig. 6 (original throughput panel).}
-\begin{frame}[t]{A newer kernel still exposes slow BBR growth}
-\bodyfont
-The earlier ACK bug was no longer observed on the newer kernel.
-\vspace{26pt}
-\includegraphics[width=\linewidth]{fig06_throughput.png}
-\begin{center}{\labelfont Time (seconds)}\end{center}
-\begin{points}
-\item CUBIC ramps up quickly in this discovered environment.
-\item BBR v3 underutilizes the path during the short run.
-\end{points}
-\end{frame}
-
-% 22 — Script §6.4, fairness.
-\source{Topology and sending-pattern diagrams by presenters.}
-\begin{frame}[t]{Either protocol can starve the other}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.48\textwidth}\lead{Reference: flow runs alone}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box] (a) at (65,0) {Flow A};\node[box] (b) at (300,0) {Bottleneck};\draw[flow] (a)--(b);
-\end{tikzpicture}
-\column{.48\textwidth}\lead{Target: the same flow competes}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box] (a) at (65,20) {Flow A};\node[box,fill=PaleTeal] (c) at (65,-55) {Flow B};
-\node[box] (b) at (300,-15) {Bottleneck};\draw[flow] (a)--(b);\draw[ack] (c)--(b);
-\end{tikzpicture}
-\end{columns}
-\vspace{28pt}
-CUBIC can starve BBR; other environments let BBR starve CUBIC.
+\sectiontag{4}\source{Fig. 6 (throughput panel), AdvNet.}
+\begin{frame}[t]{UC1: BBR v3 Slow Convergence on a Newer Kernel}
+\compactfont
+On kernel 6.13.7+, the earlier ACK bug was no longer observed.\par
 \vspace{18pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box,text width=220pt] (n) at (130,0) {Normal sending\\for 40--80 seconds};
-\node[box,fill=PaleOrange,text width=170pt] (p) at (470,0) {One packet};
-\node[box,fill=PaleOrange,text width=170pt] (a) at (765,0) {Wait for ACK};
-\draw[flow] (n)--(p);\draw[flow] (p)--(a);
-\draw[flow] (a.south)--++(0,-35)-|(p.south);
-\end{tikzpicture}
-\end{center}
+\includegraphics[width=\linewidth]{fig06_throughput.png}
+\begin{center}\labelfont Time (seconds)\end{center}
+\begin{itemize}
+\setlength{\itemsep}{12pt}
+\item CUBIC ramps up quickly; BBR v3 stays low over the 5-second run.
+\pause
+\item In a longer run, BBR v3 eventually ramps up: slow convergence, rather than a permanent stall.
+\end{itemize}
 \end{frame}
 
-% 23 — Script §6.5, regression experiment design.
-\source{Experiment diagram by presenters, based on §4.4.5.}
-\begin{frame}[t]{Regression testing measures the effect of a new version}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{Reference measurement}
-\textbf{CUBIC throughput}\par
-while competing with BBR v1
-\column{.47\textwidth}\lead{Target measurement}
-\textbf{CUBIC throughput}\par
-while competing with BBR v3
-\end{columns}
-\vspace{38pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-75) rectangle (880,125);
-\filldraw[fill=PaleBlue,draw=SemBlue] (0,0) rectangle (260,70);
-\filldraw[fill=PaleTeal,draw=SemTeal] (260,0) rectangle (870,70);
-\filldraw[fill=SemTeal,draw=SemTeal] (768,0) rectangle (870,70);
-\node at (130,35) {Dynamic changes};
-\node at (510,35) {Fixed network conditions};
-\node[text=white,font=\fontsize{20}{25}\selectfont] at (819,35) {Measure};
-\draw[decorate,decoration={brace,amplitude=8pt},SemTeal,line width=1.2pt] (260,88)--(870,88);
-\node[above] at (565,98) {60 seconds};
-\node[below,font=\fontsize{20}{25}\selectfont] at (800,-10) {Final 10 s};
-\end{tikzpicture}
-\end{center}
-\key{The final ten seconds are measured within the fixed one-minute period.}
+% Blueprint 18: fairness outcomes and the observed sending behavior.
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC1: Fairness Between Competing Flows}
+\compactfont
+Compare the same flow's throughput alone ($R$) and with a competitor ($T$).\par
+\vspace{8pt}
+\begin{itemize}
+\compactfont\setlength{\itemsep}{6pt}
+\item CUBIC can take nearly all bandwidth and starve BBR.
+\item In other environments, BBR can starve CUBIC.
+\end{itemize}
+\vspace{4pt}
+\pause
+\lead{Observed sending behavior}
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{20}{24}\selectfont,align=center},
+ data/.style={flow,draw=blue!75!black,line width=2.2pt},
+ feedback/.style={ack,draw=green!45!black,dashed,line width=2.2pt}]
+\path[use as bounding box] (0,-8) rectangle (890,205);
+\node[draw=SemBlue,line width=1.2pt,inner sep=9pt,text width=240pt] (normal) at (250,170) {Normal sending\\40--80 s};
+\node[draw=SemBlue,line width=1.2pt,inner sep=9pt,text width=420pt] (limited) at (660,170) {One packet, then wait for its ACK\\Remaining 25--60 s};
+\draw[flow,line width=2pt] (normal)--(limited);
+\node[anchor=east] at (100,100) {Sender};
+\node[anchor=east] at (100,10) {Receiver};
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (110,100)--(880,100);
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (110,10)--(880,10);
+% Multiple packets are in flight during normal sending.
+\foreach \send/\receive/\acktime in {145/200/250,180/235/285,215/270/320,250/305/355} {
+  \draw[data] (\send,100)--(\receive,10);
+  \draw[feedback] (\receive,10)--(\acktime,100);
+}
+\draw[SemGray,densely dotted,line width=1.2pt] (395,-3)--(395,120);
+% After the transition, each new packet follows the previous packet's ACK.
+\foreach \send/\receive/\acktime in {430/490/550,560/620/680,690/750/810} {
+  \draw[data] (\send,100)--(\receive,10);
+  \draw[feedback] (\receive,10)--(\acktime,100);
+}
+\node[text=blue!75!black,fill=white,inner sep=2pt] at (454,59) {Packet};
+\node[text=green!45!black,fill=white,inner sep=2pt] at (525,49) {ACK};
+\node[anchor=east,text=SemGray] at (880,55) {Time $\rightarrow$};
+\end{tikzpicture}\par
+\vspace{8pt}
+{\labelfont\color{SemGray}The BBR team confirmed that the reported environment was problematic.\par}
 \end{frame}
 
-% 24 — Script §6.5, results.
-\source{Results from §4.4.5 and §1, arranged by presenters.}
-\begin{frame}[t]{A version change can reverse the fairness outcome}
-\bodyfont
-\vspace{12pt}
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{CUBIC with BBR v1}
-{\fontsize{42}{50}\selectfont\color{SemBlue}\textbf{12$\times$}}\par\vspace{12pt}
-CUBIC's throughput\par
-relative to BBR v1
-\column{.47\textwidth}\lead{CUBIC with BBR v3}
-{\fontsize{42}{50}\selectfont\color{SemOrange}\textbf{11.6$\times$}}\par\vspace{12pt}
-BBR v3's throughput\par
-relative to CUBIC
-\end{columns}
-\vspace{40pt}
-\key{Single-flow throughput regressions also appear.}\par\vspace{12pt}
-In another discovered environment, BBR v1 achieves \textbf{more than 5$\times$}\par
-the throughput of BBR v3.
+% Blueprint 19: distinguish fairness measurements from single-flow tests.
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC2: Regression Testing Across BBR Versions}
+\compactfont
+\lead{Fairness regression (same trace)}
+Reference ($R$): CUBIC throughput when competing with BBR v1.\par
+Target ($T$): CUBIC throughput when competing with BBR v3.\par
+\vspace{8pt}
+{\centering
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{20}{24}\selectfont,align=center}]
+\path[use as bounding box] (0,-28) rectangle (870,75);
+\filldraw[fill=PaleBlue,draw=SemBlue] (0,0) rectangle (240,34);
+\filldraw[fill=PaleTeal,draw=SemTeal] (240,0) rectangle (860,34);
+\filldraw[fill=white,draw=SemTeal,line width=2pt] (757,0) rectangle (860,34);
+\node at (120,17) {Dynamic trace};
+\node at (485,17) {Fixed network conditions};
+\node[font=\fontsize{18.5}{23}\selectfont] at (809,17) {Measure};
+\draw[decorate,decoration={brace,amplitude=6pt},line width=1.2pt] (240,44)--(860,44);
+\node at (550,65) {60 seconds};
+\node[anchor=north] at (795,-3) {Final 10 s};
+\end{tikzpicture}\par}
+\vspace{8pt}
+\pause
+\begin{itemize}
+\compactfont\setlength{\itemsep}{5pt}
+\item With BBR v1: CUBIC gets $12\times$ BBR v1's throughput.
+\item With BBR v3: BBR v3 gets $11.6\times$ CUBIC's throughput.
+\end{itemize}
+\vspace{10pt}
+\lead{Separate single-flow test}
+Without a competing CUBIC flow, AdvNet also finds traces where BBR v1 achieves more than $5\times$ BBR v3's throughput.\par
 \end{frame}
-

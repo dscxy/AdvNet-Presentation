@@ -1,83 +1,128 @@
-% 25 — Script §6.6, design objective and DChannel paths.
-\source{Path diagram by presenters, based on §4.4.3.}
-\begin{frame}[t]{Can adding a path make performance worse?}
+% Blueprint 20: handshake-based timeout estimation, then the data-path failure.
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC3: DChannel Sets Up an RTT Mismatch}
 \bodyfont
-\textbf{Reference:} high-bandwidth path alone\qquad\textbf{Target:} DChannel, two paths
+Discovered environment:\par
+\begin{itemize}
+\setlength{\itemsep}{8pt}
+\item HBP: high-bandwidth path, 120 ms one-way delay.
+\item LLP: low-latency path, 3 ms one-way delay.
+\end{itemize}
+\vspace{10pt}
+Reference: HBP alone.\qquad Target: DChannel over both paths.\par
+\vspace{14pt}
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{24}{30}\selectfont,align=center}]
+\path[use as bounding box] (0,15) rectangle (890,235);
+\node[anchor=east] at (115,150) {Sender};
+\node[anchor=east] at (115,40) {Receiver};
+\draw[-{Stealth[length=8pt]},SemGray,line width=1.4pt] (130,150)--(880,150);
+\draw[-{Stealth[length=8pt]},SemGray,line width=1.4pt] (130,40)--(880,40);
+\node[text=green!45!black,font=\fontsize{24}{30}\selectfont\bfseries] at (270,210) {Handshake on LLP};
+\draw[flow,draw=green!45!black,line width=2.6pt] (170,150)--(235,40);
+\draw[ack,draw=green!45!black,dashed,line width=2.6pt] (235,40)--(300,150);
+\draw[flow,draw=green!45!black,line width=2.6pt] (300,150)--(365,40);
+\node[text=SemBlue,text width=420pt] at (650,95) {TCP uses the LLP handshake RTT\\to set a short RTO\\(Linux minimum $\approx$200 ms)};
+\node[anchor=east,text=SemGray] at (880,190) {Time $\rightarrow$};
+\end{tikzpicture}\par
+\end{frame}
+
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC3: Slow-Path Data Outlasts the RTO}
+\bodyfont
+The RTO was set using the fast LLP handshake.\par
+\vspace{4pt}
+\begin{tikzpicture}[x=1pt,y=0.96pt,
+ every node/.style={font=\fontsize{24}{30}\selectfont,align=center}]
+\path[use as bounding box] (0,-20) rectangle (890,240);
+\node[anchor=east] at (115,165) {Sender};
+\node[anchor=east] at (115,40) {Receiver};
+\draw[-{Stealth[length=8pt]},SemGray,line width=1.4pt] (130,165)--(880,165);
+\draw[-{Stealth[length=8pt]},SemGray,line width=1.4pt] (130,40)--(880,40);
+\node[text=blue!75!black,font=\fontsize{24}{30}\selectfont\bfseries] at (310,215) {Large data on HBP\\120 ms one-way};
+\draw[flow,draw=blue!75!black,line width=2.6pt] (180,165)--(460,40);
+\draw[ack,draw=green!45!black,dashed,line width=2.6pt] (460,40)--(825,165);
+\node[text=green!45!black,fill=white,inner sep=3pt] at (620,95) {ACK};
+\node[anchor=east,text=SemGray] at (880,95) {Time $\rightarrow$};
+\uncover<2->{
+\draw[red!80!black,line width=3pt] (705,150)--(705,180);
+\node[text=red!80!black,font=\fontsize{24}{30}\selectfont\bfseries] at (705,215) {RTO expires};
+\draw[red!80!black,densely dotted,line width=1.3pt] (180,149)--(180,13);
+\draw[red!80!black,densely dotted,line width=1.3pt] (705,149)--(705,13);
+\draw[<->,red!80!black,line width=1.5pt] (180,15)--(705,15);
+\node[text=red!80!black] at (443,-5) {$\sim$200 ms after data send};
+}
+\end{tikzpicture}\par
+\begin{overlayarea}{\textwidth}{100pt}
+\bodyfont
+\only<1>{The data round-trip and queueing delay can exceed this short RTO.\par}
+\only<2>{The RTO expires before the data ACK returns, causing spurious retransmission and a sending-rate reduction.\par
 \vspace{8pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-42) rectangle (880,242);
-\node[box,minimum width=140pt] (s) at (80,100) {Sender};
-\node[box,minimum width=140pt] (r) at (800,100) {Receiver};
-\draw[flow] (s.north)--(80,180)--(800,180)--(r.north);
-\draw[ack] (s.south)--(80,20)--(800,20)--(r.south);
-\node[anchor=south,font=\fontsize{20}{25}\selectfont] at (440,185) {High-bandwidth path (HBP)\\\textbf{120 ms one-way delay}};
-\node[anchor=north,font=\fontsize{20}{25}\selectfont] at (440,15) {Low-latency path (LLP)\\\textbf{3 ms one-way delay}};
-\node[text=SemBlue] at (440,140) {Large data packets};
-\node[text=SemTeal] at (440,65) {Small control packets / handshake};
-\end{tikzpicture}
-\end{center}
-\takeaway{Discovered case: DChannel throughput falls to about one-third of HBP alone.}
+Throughput falls to about $1/3$ of HBP alone (DChannel + CUBIC).\par}
+\end{overlayarea}
 \end{frame}
 
-% 26 — Script §6.6, timeout mechanism.
-\source{Timing illustration by presenters, based on §4.4.3.}
-\begin{frame}[t]{The handshake sets a timeout that data cannot meet}
-\bodyfont
-Handshake on the LLP $\rightarrow$ short RTT estimate $\rightarrow$ short RTO
-\vspace{30pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-65) rectangle (880,165);
-\draw[->,SemGray,line width=1.5pt] (45,30)--(870,30);
-\draw[SemBlue,line width=2pt] (80,15)--(80,95);
-\draw[SemOrange,line width=2.5pt] (520,15)--(520,105);
-\draw[SemTeal,line width=2pt] (785,15)--(785,95);
-\node[above,text width=220pt] at (120,105) {Send large data\\on the HBP};
-\node[above,text width=240pt,text=SemOrange] at (520,105) {RTO expires\\roughly 200 ms};
-\node[above,text width=160pt] at (785,105) {Data ACK\\arrives later};
-\node[below,text width=360pt,text=SemOrange] at (520,0) {Spurious retransmission\\and sending-rate reduction};
-\end{tikzpicture}
-\end{center}
-\end{frame}
-
-% 27 — Script §6.6, Fig. 7 and completion time.
-\source{Fig. 7 (original).}
-\begin{frame}[t]{The single path finishes the transfer sooner}
-\bodyfont
+% Blueprint 21: original Fig. 7 and the steering threshold.
+\sectiontag{4}\source{Fig. 7, AdvNet.}
+\begin{frame}[t]{UC3: DChannel Evaluation Results}
 \begin{columns}[T,onlytextwidth]
-\column{550pt}
-\includegraphics[width=550pt]{fig07_dchannel.pdf}
-\column{305pt}
+\column{.56\textwidth}
+\centering\includegraphics[width=400pt,clip]{fig07_dchannel.pdf}
+\column{.40\textwidth}
 \compactfont
 \lead{20 MB download}
-Earlier curve end = shorter completion time.
-\vspace{16pt}\par
-\lead{only eMBB: single HBP}
-Finishes before all tested DChannel $\alpha$ settings.
-\vspace{16pt}\par
-\lead{Reduce HBP RTT below 200 ms}
-DChannel regains its advantage over the single path.
+Earlier curve end means shorter flow completion time.\par
+\vspace{14pt}
+\lead{Packet-steering threshold}
+Send to LLP when reward $R>\alpha C$, where $C$ is cost.\par
+\vspace{7pt}
+Default: $\alpha=0.75$.\par
 \end{columns}
+\vspace{12pt}
+\begin{itemize}
+\compactfont\setlength{\itemsep}{10pt}
+\item All tested $\alpha$ values finish later than the single HBP (``only eMBB'').
+\pause
+\item Reducing HBP RTT below 200 ms restores DChannel's advantage over a single path, supporting the timeout diagnosis.
+\end{itemize}
 \end{frame}
 
-% 28 — Script §6.7, MPTCP and Fig. 8.
-\source{Fig. 8 (original).}
-\begin{frame}[t]{Kernel MPTCP also violates the two-path objective}
-\bodyfont
-Adversarial environments found for \textbf{LIA, OLIA, BALIA, and wVegas}.
-\vspace{10pt}
+% Blueprint 22: original Fig. 8 with slope guides for the BALIA counterexample.
+\sectiontag{4}\source{Fig. 8, AdvNet.}
+\begin{frame}[t]{UC3: Single-Path vs. Dual-Path in Kernel MPTCP}
+\compactfont
+AdvNet found two-path regressions in Linux Multipath TCP (MPTCP).\par
+{\labelfont\color{SemGray}Allows one TCP connection to transmit over multiple paths.\par}
+\vspace{14pt}
 \begin{columns}[T,onlytextwidth]
-\column{600pt}
-\includegraphics[width=600pt]{fig08_mptcp.pdf}
-\vspace{10pt}\par
-{\compactfont\textbf{BALIA: dual-path throughput is 85.5\% lower.}}
-\column{255pt}
-\lead{About 0.5 s}
-Single-path catches up and overtakes dual-path.
-\vspace{24pt}\par
-\lead{About 1.2 s}
-A roughly 40 ms ACK delay precedes a sharp reduction on both links.
+\column{.61\textwidth}
+\begin{tikzpicture}
+\node[anchor=south west,inner sep=0pt] (plot) at (0,0)
+{\includegraphics[width=\linewidth,clip]{fig08_mptcp.pdf}};
+\begin{scope}[x={(plot.south east)},y={(plot.north west)}]
+\uncover<2->{
+% Local slope guides follow the red curve before and after its flattening.
+\draw[violet!85!black,line width=2pt] (.150,.267)--(.250,.360);
+\draw[violet!85!black,line width=2pt] (.270,.350)--(.500,.358);
+\draw[SemGray,densely dashed,line width=1.2pt] (.240,.218)--(.240,.475);
+\node[anchor=south,font=\fontsize{18.5}{23}\selectfont,text=SemGray] at (.240,.475) {1.2 s};
+\node[font=\fontsize{20}{24}\selectfont,text=violet!85!black,align=center] at (.405,.485) {Rate\\reduction};
+\draw[-{Stealth[length=5pt]},violet!85!black,line width=1.2pt] (.405,.405)--(.380,.354);
+}
+\end{scope}
+\end{tikzpicture}
+\vspace{12pt}\par
+\labelfont \texttt{balia2}: dual path; \texttt{balia1}: single path.\par
+\column{.35\textwidth}
+\compactfont
+Dual-path throughput is 85.5\% lower in this environment.\par
+\uncover<2->{
+\vspace{14pt}
+\lead{Around 0.5 seconds}
+Single path overtakes dual path.\par
+\vspace{12pt}
+\lead{Around 1.2 seconds}
+A $\sim$40 ms ACK delay reduces both links' rates, despite available bandwidth on Link 1.\par
+}
 \end{columns}
 \end{frame}
-

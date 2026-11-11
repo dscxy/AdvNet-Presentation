@@ -1,107 +1,145 @@
-% 29 — Script §6.8 and first conclusion paragraph.
-\sectiontag{5}\source{Use-case summary by presenters.}
-\begin{frame}[t]{One search pipeline supports three kinds of tests}
-\bodyfont
-{\compactfont\renewcommand{\arraystretch}{1.8}
-\begin{tabularx}{\linewidth}{@{}p{170pt} L L L@{}}
-\toprule
-Test & Reference & Target & What it reveals\\\midrule
-UC1: weakness & Capacity or another protocol & Protocol under test & Underutilization and implementation bugs\\
-UC2: regression & Older version & Newer version & Harmful effects of a change\\
-UC3: design goal & One path & Two paths & Violations of a multipath objective\\\bottomrule
-\end{tabularx}}
-\vspace{24pt}
-\takeaway{Choosing the reference turns a design question into an optimizable score.}
-\end{frame}
-
-% 30 — Script conclusion.
-\source{}
-\begin{frame}[t]{Turn hidden weaknesses into reproducible test cases}
-\bodyfont
-\key{AdvNet automates the search for performance problems in real protocol code.}
-\vspace{28pt}
+% Blueprint 23: conclusions, scope, and next steps.
+\sectiontag{5}\source{}
+\begin{frame}[t]{Conclusion and Takeaways}
 \begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{Current scope}
-\begin{points}
-\item Limited network parameters and simple traffic workloads
-\item Manual root-cause investigation
-\item No estimate of deployment frequency
-\end{points}
-\column{.47\textwidth}\lead{Next steps}
-\begin{points}
-\item Richer environments and workloads
-\item Automatic trace simplification
-\item Other domains: adaptive bitrate streaming prototype
-\end{points}
+\column{.48\textwidth}
+\bodyfont
+\lead{What AdvNet contributes}
+\begin{itemize}
+\bodyfont\setlength{\itemsep}{14pt}
+\item Automated black-box search for performance failures in real kernel code.
+\item Custom references adapt the same pipeline to bugs, regressions, and design objectives.
+\item Compact representation and noise handling may matter more than optimizer choice: GA, BO, and EPS perform similarly.
+\end{itemize}
+\pause
+\column{.48\textwidth}
+\bodyfont
+\lead{Scope and next steps}
+\begin{itemize}
+\bodyfont\setlength{\itemsep}{14pt}
+\item Limited to bandwidth, delay, and queue size under simple workloads.
+\item Root-cause diagnosis remains manual; real-world frequency is not estimated.
+\item Simplify traces automatically and extend to adaptive bitrate video streaming.
+\end{itemize}
 \end{columns}
 \end{frame}
 
-% B1 — Script backup notes: related approaches.
+% Blueprint B1: background for questions about alternative approaches.
 \sectiontag{6}\source{}
-\begin{frame}[t]{Related approaches: formal verification and GANs}
-\bodyfont
+\begin{frame}[t]{Backup: Formal Verification and GANs}
 \begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{Formal verification}
-Checks specified properties using methods such as model checking and symbolic analysis.
-\vspace{18pt}\par
-Requires a precise model or specification; complex kernel code and changing networks create scale challenges.
-\column{.47\textwidth}\lead{Generative adversarial networks}
-Learn to generate data resembling a training dataset.
-\vspace{18pt}\par
-For AdvNet, a dataset of challenging environments is not already available.
+\column{.47\textwidth}
+\compactfont
+\lead{Formal verification}
+\begin{itemize}
+\compactfont\setlength{\itemsep}{16pt}
+\item Checks specified properties using model checking or symbolic analysis.
+\item Requires a precise model or specification; complex kernel code and changing networks create scaling challenges.
+\item AdvNet searches executions for counterexamples; it does not prove their absence.
+\end{itemize}
+\column{.47\textwidth}
+\compactfont
+\lead{Generative adversarial networks}
+\begin{itemize}
+\compactfont\setlength{\itemsep}{16pt}
+\item Typically learn a data distribution from existing examples.
+\item A dataset of challenging environments is not already available here.
+\item AdvNet uses measured target/reference performance gaps as search feedback.
+\end{itemize}
 \end{columns}
-\vspace{28pt}
-\takeaway{AdvNet generates candidates using measured performance gaps as feedback.}
 \end{frame}
 
-% B2 — Script backup notes: RoundRobin and OCBA.
-\source{PLS comparison arranged by presenters, based on §3.3.}
-\begin{frame}[t]{Alternative post-learning selection methods}
-\bodyfont
-{\compactfont\renewcommand{\arraystretch}{1.6}
-\begin{tabularx}{\linewidth}{@{}p{170pt} L L@{}}
-\toprule
-Method & Allocation rule & Selection idea\\\midrule
-RoundRobin & Equal budget per candidate & Return the highest observed mean\\
-OCBA & More runs for uncertain candidates and close contenders & Increase the probability of selecting the best true mean\\
-MRE & Remove roughly the lower half each round; stop at $\leq 5$ & Concentrate measurements on promising candidates\\\bottomrule
-\end{tabularx}}
-\vspace{22pt}
-\textbf{OCBA:} Optimal Computing Budget Allocation
-\end{frame}
-
-% B3 — Script backup notes: GA operator equations.
-\source{Operators from §3.2.2; notation by presenters.}
-\begin{frame}[t]{GA operators in equations}
-\bodyfont
-Parents $a,b$; gene index $i$; cut points $k_1<k_2$; per-gene bounds $[l_i,u_i]$.
+% Blueprint B2: selection policies and the original simulation results.
+\sectiontag{6}\source{Fig. 11, AdvNet.}
+\begin{frame}[t]{Backup: Alternative PLS Methods}
+\begin{columns}[T,onlytextwidth]
+\column{.53\textwidth}
+\centering
+\includegraphics[width=450pt,clip]{fig11_selection.pdf}
+\vspace{12pt}\par
+\raggedright\labelfont
+50 Gaussian alternatives; true means uniform on $[0,100]$.\par
+\vspace{6pt}
+True mean of the selected alternative, averaged over 2,000 trials.\par
+\column{.43\textwidth}
+\compactfont
+\begin{itemize}
+\compactfont\setlength{\itemsep}{12pt}
+\item RoundRobin: equal budget per candidate; return highest mean.
+\item OCBA: more runs for uncertain candidates and close contenders.
+\item MRE: discard weaker candidates in rounds, then select by mean.
+\end{itemize}
 \vspace{12pt}
-\lead{Two-point crossover}
-{\fontsize{28}{35}\selectfont
-\[c_i=\begin{cases}b_i & k_1<i\leq k_2,\\a_i & \text{otherwise.}\end{cases}\]}
-\lead{Uniform integer mutation}
-{\fontsize{28}{35}\selectfont
-\[m_i=\begin{cases}U_i & \text{with probability }p,\\c_i & \text{with probability }1-p,\end{cases}
-\quad U_i\sim\operatorname{UniformInteger}(l_i,u_i).\]}
+MRE performs best; OCBA struggles below 100 samples.\par
+\vspace{10pt}
+{\labelfont\color{SemGray} OCBA: Optimal Computing Budget Allocation.\par}
+\end{columns}
 \end{frame}
 
-% B4 — Script backup notes: Fig. 11.
-\source{Fig. 11 (original).}
-\begin{frame}[t]{Selection methods in a statistical simulation}
-\bodyfont
-Vertical axis: true mean of the selected alternative.
-\par\vspace{10pt}
+% Blueprint B3: parameter-aligned crossover and bounded integer mutation.
+\sectiontag{6}\source{}
+\begin{frame}[t]{Backup: GA Operators in Equations}
+\compactfont
+Parents $a,b$; gene index $i$; cut points $k_1<k_2$; bounds $[l_i,u_i]$.\par
+\vspace{6pt}
+\lead{Two-point crossover}
+{\fontsize{28}{35}\selectfont\setlength{\abovedisplayskip}{8pt}\setlength{\belowdisplayskip}{8pt}
+\[
+ c_i=\begin{cases}b_i & k_1<i\leq k_2,\\a_i & \text{otherwise,}\end{cases}
+ \qquad
+ d_i=\begin{cases}a_i & k_1<i\leq k_2,\\b_i & \text{otherwise.}\end{cases}
+\]}
+Aligned coordinates keep each parameter within its own bounds.\par
+\vspace{6pt}
+\pause
+\lead{Uniform integer mutation}
+{\fontsize{28}{35}\selectfont\setlength{\abovedisplayskip}{8pt}\setlength{\belowdisplayskip}{8pt}
+\[
+ m_i=\begin{cases}U_i & \text{with probability }p,\\c_i & \text{with probability }1-p,\end{cases}
+ \quad U_i\sim\operatorname{UniformInteger}(l_i,u_i).
+\]}
+Each selected gene is resampled as an integer accepted by Mahimahi.\par
+\end{frame}
+
+% Blueprint B4: separate measurement interference from optimizer performance.
+\sectiontag{6}\source{Fig. 9 (throughput panels), AdvNet.}
+\begin{frame}[t]{Backup: Parallel Execution and Measurement Interference}
+\compactfont
+Each instance pins 3 CPU cores: emulator, \texttt{iperf} client, and \texttt{iperf} server.\par
+\vspace{10pt}
+{\labelfont Controlled test: 1 Gbps bandwidth, 5 ms one-way delay, 30-core server.\par}
+\vspace{14pt}
+\begin{center}
+\includegraphics[width=790pt]{fig09_parallelism.png}
+\end{center}
+\pause
+\begin{itemize}
+\compactfont\setlength{\itemsep}{9pt}
+\item Mean throughput falls as contention grows; variance rises sharply at 9--10 runs.
+\item The authors cap parallelism at 8 to avoid the high-variance region.
+\end{itemize}
+\end{frame}
+
+\sectiontag{6}\source{Fig. 10, AdvNet.}
+\begin{frame}[t]{Backup: Choosing the Level of Parallelism}
 \begin{columns}[T,onlytextwidth]
-\column{555pt}\includegraphics[width=555pt]{fig11_selection.pdf}
-\column{300pt}
-\lead{50 Gaussian alternatives}
-True means drawn uniformly from 0 to 100.
-\vspace{16pt}\par
-Results averaged over 2,000 trials.
-\vspace{16pt}\par
-\key{MRE performs best.}
-\vspace{16pt}\par
-{\compactfont Below 100 samples, OCBA has too few observations to estimate variance reliably.}
+\column{.53\textwidth}
+\includegraphics[width=\linewidth]{fig10_parallelism.png}
+\column{.43\textwidth}
+\compactfont
+250 GA iterations; average across four target protocols.\par
+\vspace{8pt}
+{\labelfont\color{SemGray}Parallel runs evaluate the same candidate environment.\par}
+\vspace{8pt}
+\begin{itemize}
+\compactfont\setlength{\itemsep}{8pt}
+\item From 1 to 2 runs, contention distorts throughput and lowers the final score.
+\pause
+\item More samples reduce noise; 5-way parallelism gives the best result.
+\item Improvement over 1 run is small; a single run saves CPU resources.
+\end{itemize}
 \end{columns}
+\vspace{16pt}
+{\labelfont Final output scores are always evaluated using a single isolated instance.\par}
 \end{frame}
 

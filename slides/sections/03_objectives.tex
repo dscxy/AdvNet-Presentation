@@ -1,67 +1,61 @@
-% 15 — Script §6.1, Xiaoyang starts; score definition and example.
-\sectiontag{3}\source{Score definition: Eq. 1. Example by presenters.}
-\begin{frame}[t]{A relative gap makes the objective useful}
-\bodyfont
-For a higher-is-better metric, with reference $R$ and target $T$:
+% Developer use cases and the original all-pairs comparison.
+\sectiontag{4}\source{}
+\begin{frame}[t]{Mapping Developer Tasks to Three Use Cases}
+\vspace{14pt}
+{\compactfont\renewcommand{\arraystretch}{1.25}\setlength{\tabcolsep}{9pt}
+\begin{tabularx}{\linewidth}{|>{\raggedright\arraybackslash}p{185pt}|>{\raggedright\arraybackslash}p{200pt}|>{\raggedright\arraybackslash}p{200pt}|L|}
+\hline
+Use case & Reference ($R$) & Target ($T$) & What it reveals\\[8pt]\hline
+UC1:\newline Suboptimality & Capacity or another protocol & Protocol under test & Underutilization and implementation bugs\\[14pt]\hline
+UC1:\newline Fairness & A flow running alone & The same flow with a competing flow & Unfair bandwidth sharing and starvation\\[14pt]\hline
+UC2:\newline Regression testing & Older version, e.g., BBR v1 & Newer version, e.g., BBR v3 & Performance or fairness regressions\\[14pt]\hline
+UC3:\newline Design objectives & Single-path transport & Dual-path transport & Violations of the multipath ``do no harm'' goal\\[14pt]\hline
+\end{tabularx}\par}
+\end{frame}
+
+\sectiontag{4}\source{Fig. 4a--b, AdvNet.}
+\begin{frame}[t]{UC1: All-Pairs Comparison of 17 Kernel TCPs}
+\compactfont
+\begin{overlayarea}{\textwidth}{54pt}
+$17\times16=272$ directed pairs $\times$ 2 objectives ($t_{\mathrm{coeff}}=0.5,1$) = 544 scenarios.\par
+Adversarial environments (score $>0$) found in 448 of 544 scenarios.\par
+\end{overlayarea}
+{\centering
+\includegraphics[width=710pt]{fig04_original.pdf}\par}
+\end{frame}
+
+\sectiontag{4}\source{Fig. 4a--b (cropped), AdvNet.}
+\begin{frame}[t]{UC1: BBR and CUBIC Under Different Environments}
+\compactfont
+Rows: reference protocol; columns: target protocol.\par
 \vspace{12pt}
-{\eqfont\[s=\frac{R-T}{\max(R,T)}\]}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\node[box,text width=205pt] (r) at (120,0) {Reference\\\textbf{10 Mbps}};
-\node[box,text width=205pt] (t) at (440,0) {Target\\\textbf{2 Mbps}};
-\node[text width=220pt,font=\fontsize{30}{38}\selectfont] at (770,0) {$\displaystyle\frac{10-2}{10}=\key{0.8}$};
-\end{tikzpicture}
-\end{center}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\centering
+Equal throughput/delay weight ($t_{\mathrm{coeff}}=0.5$)\par
 \vspace{12pt}
-For a lower-is-better metric such as completion time, use $T-R$.
-\takeaway{Higher score = larger target disadvantage. The score lies in $[-1,1]$.}
+\resizebox{300pt}{!}{%
+\begin{tikzpicture}[x=1bp,y=1bp]
+\clip (0,0) -- (41.3,0) -- (41.3,19) -- (46,19) -- (46,28) -- (0,28) -- cycle;
+\node[anchor=south west,inner sep=0pt] at (0,0)
+{\includegraphics[trim=7bp 145.5bp 340bp 10.5bp,clip]{fig04_original.pdf}};
+\end{tikzpicture}}
+\end{column}
+\begin{column}{0.48\textwidth}
+\centering
+Throughput only ($t_{\mathrm{coeff}}=1$)\par
+\vspace{12pt}
+\resizebox{300pt}{!}{%
+\begin{tikzpicture}[x=1bp,y=1bp]
+\clip (0,0) -- (41.3,0) -- (41.3,19) -- (46,19) -- (46,27.2) -- (0,27.2) -- cycle;
+\node[anchor=south west,inner sep=0pt] at (0,0)
+{\includegraphics[trim=212bp 146.3bp 135bp 10.5bp,clip]{fig04_original.pdf}};
+\end{tikzpicture}}
+\end{column}
+\end{columns}
+\vspace{18pt}
+\begin{itemize}
+\item Large performance gaps occur in both directions under both objectives.
+\item Each cell is a separate search under a different environment.
+\end{itemize}
 \end{frame}
-
-% 16 — Script §6.1, weighted utility and three use cases.
-\source{}
-\begin{frame}[t]{Choose which performance tradeoff to test}
-\bodyfont
-Normalize throughput $\tau$ and delay $d$ so both terms are higher-is-better.
-\vspace{8pt}
-{\eqfont\[u=w\,\frac{\tau}{\tau_{\max}}+(1-w)\,\frac{d_{\min}}{d}\]}
-{\labelfont $\tau_{\max}$: throughput bound\quad $d_{\min}$: minimum delay\quad $w$: throughput weight}
-\par\vspace{22pt}
-{\renewcommand{\arraystretch}{1.45}
-\begin{tabularx}{\linewidth}{@{}L L L@{}}
-\toprule
-$w=0$ & $w=0.5$ & $w=1$\\\midrule
-Delay only & Equal weighting & Throughput only\\\bottomrule
-\end{tabularx}}
-\par\vspace{20pt}
-Compute the relative gap between reference and target utilities.
-\takeaway{Change the reference to study weaknesses, regressions, or design goals.}
-\end{frame}
-
-% 17 — Script §6.2, references and all-pairs comparison.
-\sectiontag{4}\source{Fig. 4a--b (original vector figure).}
-\begin{frame}[t]{Every tested protocol has a vulnerable environment}
-\bodyfont
-{\compactfont 17 protocols $\times$ 16 references $\times$ 2 objectives = 544 scenarios.\par
-\key{Adversarial environments found in 448 scenarios.}\par}
-\vspace{4pt}
-\hfill\includegraphics[width=710pt]{fig04_original.pdf}\hfill\null
-\end{frame}
-
-% 18 — Script §6.2, BBR/CUBIC close-up.
-\source{BBR/CUBIC entries from Fig. 4a--b (reformatted).}
-\begin{frame}[t]{BBR and CUBIC expose each other's blind spots}
-\bodyfont
-\vspace{16pt}
-{\renewcommand{\arraystretch}{1.8}
-\begin{tabularx}{\linewidth}{@{}L L L L@{}}
-\toprule
-Reference & Target & 50/50 utility & Throughput\\\midrule
-BBR & CUBIC & \textcolor{SemTeal}{\textbf{0.94}} & \textcolor{SemTeal}{\textbf{0.85}}\\
-CUBIC & BBR & \textcolor{SemTeal}{\textbf{0.70}} & \textcolor{SemTeal}{\textbf{0.86}}\\\bottomrule
-\end{tabularx}}
-\vspace{28pt}
-\takeaway{Both directions reveal substantial gaps, in different environments.}
-\vspace{10pt}
-The next step is to inspect the discovered traces and find the cause.
-\end{frame}
-

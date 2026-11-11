@@ -1,214 +1,234 @@
-% 07 — Script §5.1, trace representation and teaching example.
-\sectiontag{2}\source{Trace illustration by presenters; parameter bounds from Table 1.}
-\begin{frame}[t]{One candidate is a bounded network trace}
+% Definitions and bounds, followed by a separate trace example.
+\sectiontag{3}\source{Table 1, AdvNet.}
+\begin{frame}[t]{Network Environment Representation}
 \bodyfont
-{\eqfont $T=(B,L,D,I)$}\hspace{25pt}Bandwidth, delay, duration, fixed settings
+\vspace{8pt}
+{\fontsize{36}{44}\selectfont\centering $T=(B,L,D,I)$\par}
+\vspace{24pt}
+{\centering
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{@{}l@{\hspace{40pt}}l@{}}
+$B$: bandwidth sequence & $D$: interval durations\\
+$L$: one-way delay sequence & $I$: fixed settings, such as queue length
+\end{tabular}\par}
+\vspace{26pt}
+Multipath: separate $B,L$ for each link; shared interval durations $D$.\par
+\vspace{26pt}
+{\compactfont Each parameter is constrained by user-specified bounds.\par}
+\vspace{10pt}
+\begin{center}
+\includegraphics[page=11,trim=103bp 356bp 106bp 329bp,clip,width=700pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\end{center}
+\end{frame}
+
+\source{}
+\begin{frame}[t]{An Example Network Trace}
+\vspace{30pt}
+\begin{columns}[c,onlytextwidth]
+\column{600pt}
+\begin{tikzpicture}[x=1.2pt,y=1.2pt]
+\path[use as bounding box] (0,-42) rectangle (500,200);
+\node[anchor=west,font=\fontsize{22}{27}\selectfont] at (0,190) {Bandwidth (Mbps)};
+\node[anchor=west,font=\fontsize{22}{27}\selectfont] at (0,85) {One-way delay (ms)};
+\draw[SemGray,->] (45,105)--(485,105);
+\draw[SemGray,->] (45,0)--(485,0);
+\foreach \x in {150,360} {\draw[dotted,RuleGray,line width=1.2pt] (\x,0)--(\x,160);}
+\draw[SemBlue,line width=2.5pt] (45,150)--(150,150)--(150,116.25)--(360,116.25)--(360,150)--(465,150);
+\draw[SemTeal,line width=2.5pt] (45,13)--(150,13)--(150,52)--(360,52)--(360,6.5)--(465,6.5);
+\foreach \x/\y/\v in {98/150/20,255/116.25/5,412/150/20,98/13/20,255/52/80,412/6.5/10}
+{\node[above,font=\fontsize{22}{27}\selectfont] at (\x,\y) {\v};}
+\foreach \x/\v in {45/0,150/1,360/3,465/4}
+{\node[below,font=\fontsize{22}{27}\selectfont] at (\x,0) {\v};}
+\node[font=\fontsize{22}{27}\selectfont] at (255,-32) {Time (s)};
+\end{tikzpicture}
+\column{265pt}
+\compactfont
+$B=(20,5,20)$ Mbps\par
+\vspace{12pt}
+$L=(20,80,10)$ ms\par
+\vspace{12pt}
+$D=(1,2,1)$ seconds\par
+\vspace{26pt}
+In the middle interval, bandwidth drops while delay rises.\par
+\vspace{16pt}
+{\fontsize{18}{23}\selectfont\color{SemGray}
+All values satisfy the bounds on the previous slide.\par}
+\end{columns}
+\end{frame}
+
+\source{Table 2, AdvNet.}
+\begin{frame}[t]{Interval Representation vs. PDOs}
+\bodyfont
+PDO: a packet delivery opportunity specifies when a packet may leave.\par
+\vspace{16pt}
+\begin{columns}[c,onlytextwidth]
+\column{470pt}
+\includegraphics[page=11,trim=281bp 115bp 40bp 542bp,clip,width=470pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\column{395pt}
+\compactfont
+\begin{itemize}\compactfont\setlength{\itemsep}{12pt}
+\item AdvNet uses interval representation; CC-Fuzz uses PDO representation.
+\item Score: throughput shortfall relative to capacity.
+\item A higher score means a more adversarial environment was found.
+\end{itemize}
+\end{columns}
+\pause
+\vspace{20pt}
+{\color{SemBlue}\textbf{Why intervals help}}\par
+\begin{itemize}\setlength{\itemsep}{10pt}
+\item Lower dimensionality: increasing 25 $\to$ 100 PDOs drops BBR's score\newline
+      from 14.31\% to 5.91\%.
+\item Explicit delay control: directly tunes link latency changes.
+\end{itemize}
+\end{frame}
+
+% Separate the search-method rationale from the operator example.
+\source{}
+\begin{frame}[t]{Trace-Based Genetic Algorithm}
+\bodyfont
 \vspace{12pt}
 \begin{columns}[T,onlytextwidth]
-\column{.64\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-30) rectangle (565,255);
-\node[anchor=west,font=\fontsize{20}{25}\selectfont] at (0,240) {Bandwidth (Mbps)};
-\node[anchor=west,font=\fontsize{20}{25}\selectfont] at (0,103) {One-way delay (ms)};
-\draw[SemGray,->] (55,132)--(550,132);
-\draw[SemGray,->] (55,15)--(550,15);
-\foreach \x in {175,415} {\draw[dotted,RuleGray,line width=1.2pt] (\x,15)--(\x,205);}
-\draw[SemBlue,line width=3pt] (55,192)--(175,192)--(175,147)--(415,147)--(415,192)--(535,192);
-\draw[SemTeal,line width=3pt] (55,30)--(175,30)--(175,75)--(415,75)--(415,22.5)--(535,22.5);
-\node[above,font=\fontsize{20}{25}\selectfont] at (115,192) {20};
-\node[above,font=\fontsize{20}{25}\selectfont] at (295,147) {5};
-\node[above,font=\fontsize{20}{25}\selectfont] at (475,192) {20};
-\node[above,font=\fontsize{20}{25}\selectfont] at (115,30) {20};
-\node[above,font=\fontsize{20}{25}\selectfont] at (295,75) {80};
-\node[above,font=\fontsize{20}{25}\selectfont] at (475,22.5) {10};
-\foreach \x/\v in {55/0,175/1,415/3,535/4}{\node[below,font=\fontsize{20}{25}\selectfont] at (\x,15) {\v};}
-\node[font=\fontsize{20}{25}\selectfont] at (295,-25) {Time (s)};
-\end{tikzpicture}
-\column{.32\textwidth}
-\lead{Three intervals}
-$D=(1,2,1)$ seconds
-\vspace{18pt}\par
-\textbf{Fixed within a trace}\par
-$I$: queue capacity
-\vspace{18pt}\par
-\textbf{Multipath}\par
-Each link has its own $B,L$; intervals share $D$.
-\end{columns}
-\vspace{16pt}
-{\compactfont\textbf{Search bounds:} 1--100 Mbps; 5--100 ms; 0.5--2.5 s per interval.}
-\end{frame}
-
-% 08 — Script §5.1, PDO comparison.
-\source{Table 2 (reformatted); PDO dimension comparison from §4.2.1.}
-\begin{frame}[t]{A compact representation improves the search}
-\bodyfont
-\textbf{PDO:} a packet delivery opportunity specifies when a packet can leave.
-\vspace{18pt}
-\begin{columns}[T,onlytextwidth]
-\column{.60\textwidth}
-{\compactfont\renewcommand{\arraystretch}{1.45}
-\begin{tabularx}{\linewidth}{@{}l L L@{}}
-\toprule
-Target & Intervals & PDOs\\\midrule
-BBR & \textbf{79.11\%} & 14.31\%\\
-CUBIC & \textbf{46.24\%} & 29.78\%\\
-Vegas & \textbf{84.71\%} & 27.29\%\\
-Reno & \textbf{41.26\%} & 28.80\%\\\bottomrule
-\end{tabularx}}
-\vspace{10pt}\par
-{\labelfont Same AdvNet framework and matched configurations.}
-\column{.35\textwidth}
-\lead{More PDOs, harder search}
-BBR, 25 $\rightarrow$ 100 PDOs:\par\vspace{8pt}
-{\fontsize{30}{38}\selectfont 14.31\% $\rightarrow$ 5.91\%}
-\vspace{18pt}\par
-\lead{Why intervals help}
-Fewer dimensions\par\vspace{8pt}
-Direct control of delay changes
-\end{columns}
-\takeaway{Score: throughput shortfall relative to capacity. Higher is more adversarial.}
-\end{frame}
-
-% 09 — Script §5.2, complete traces and GA loop.
-\source{GA diagram by presenters.}
-\begin{frame}[t]{GA evolves a population of complete traces}
-\bodyfont
-\textbf{Generate first, then replay:} avoids synchronizing an online adversary\par
-with both target and reference during execution.
-\vspace{28pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-25) rectangle (880,185);
-\node[box,text width=155pt,minimum height=90pt] (p) at (95,115) {Population\\of traces};
-\node[box,text width=160pt,minimum height=90pt] (e) at (325,115) {Evaluate\\protocols};
-\node[box,text width=155pt,minimum height=90pt] (s) at (550,115) {Select promising\\candidates};
-\node[box,text width=160pt,minimum height=90pt] (o) at (785,115) {Crossover\\and mutation};
-\draw[flow] (p)--(e);\draw[flow] (e)--(s);\draw[flow] (s)--(o);
-\draw[flow] (o.south)--(785,0)--(95,0)--(p.south);
-\node[fill=white] at (440,0) {Next generation, until the budget ends};
-\end{tikzpicture}
-\end{center}
-\textbf{Genes:} bandwidths, delays, durations, and fixed parameters.\par\vspace{10pt}
-\key{Fitness = measured performance-gap score.}
-\end{frame}
-
-% 10 — Script §5.2, operator example.
-\source{Teaching example by presenters.}
-\begin{frame}[t]{Crossover recombines; mutation introduces new values}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.50\textwidth}
-\raggedright
-\lead{Two-point crossover}
-Exchange the middle segment.
-\vspace{15pt}
-{\renewcommand{\arraystretch}{1.65}\setlength{\tabcolsep}{13pt}
-\begin{tabular}{@{}lc|cc|c@{}}
-& 1 & 2 & 3 & 4\\
-Parent A & \cellcolor{PaleBlue}20 & \cellcolor{PaleBlue}5 & \cellcolor{PaleBlue}40 & \cellcolor{PaleBlue}10\\
-Parent B & \cellcolor{PaleTeal}60 & \cellcolor{PaleTeal}30 & \cellcolor{PaleTeal}15 & \cellcolor{PaleTeal}80\\\addlinespace[10pt]
-Child A & \cellcolor{PaleBlue}20 & \cellcolor{PaleTeal}30 & \cellcolor{PaleTeal}15 & \cellcolor{PaleBlue}10\\
-Child B & \cellcolor{PaleTeal}60 & \cellcolor{PaleBlue}5 & \cellcolor{PaleBlue}40 & \cellcolor{PaleTeal}80\\
-\end{tabular}}
-\column{.50\textwidth}
-\raggedright
-\lead{Uniform integer mutation}
-Each gene changes with probability $p$.
-\vspace{24pt}\par
-{\fontsize{38}{45}\selectfont\color{SemTeal}15 $\rightarrow$ 73}
-\vspace{20pt}\par
-Sample an integer from that gene's allowed range.\par\vspace{10pt}
-Here: 1--100.
-\end{columns}
-\end{frame}
-
-% 11 — Script §5.2, Fig. 3a and 3b.
-\source{Fig. 3a--b (redrawn).}
-\begin{frame}[t]{Genetic search improves on random generation}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.49\textwidth}\key{One-hour budget: GA vs. random}
-\column{.49\textwidth}\key{Two-hour budget: GA, BO, EPS}
-\end{columns}
-\vspace{4pt}
-\includegraphics[width=\linewidth]{fig03_search_redrawn.pdf}
-{\labelfont RG: random generation\quad BO: Bayesian optimization\quad EPS: epsilon-greedy}
-\end{frame}
-
-% 12 — Script §5.3, SimpleMax and noisy observations.
-\source{Measurement illustration by presenters.}
-\begin{frame}[t]{The highest observation can be a lucky outlier}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.61\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-45) rectangle (540,330);
-\draw[->,SemGray,line width=1.2pt] (65,30)--(65,310) node[above] {Score};
-\draw[->,SemGray,line width=1.2pt] (65,30)--(535,30);
-\foreach \x/\y in {170/216,195/224,220/220,245/228,270/212}{\fill[SemBlue] (\x,\y) circle (5pt);}
-\foreach \x/\y in {355/100,380/120,405/140,430/160}{\fill[SemOrange] (\x,\y) circle (5pt);}
-\fill[SemOrange] (455,290) circle (7pt);
-\draw[dashed,SemBlue,line width=1.5pt] (150,220)--(285,220);
-\draw[dashed,SemOrange,line width=1.5pt] (335,162)--(475,162);
-\node[below,text width=180pt] at (220,20) {Environment A\\Higher mean};
-\node[below,text width=180pt] at (410,20) {Environment B\\Lower mean};
-\draw[SemOrange,line width=1.4pt] (455,290) circle (14pt);
-\end{tikzpicture}
-\column{.34\textwidth}
-\lead{SimpleMax}
-Return the trace with the largest score observed during search.
-\vspace{24pt}\par
-One unusually high run can make B look best.
-\vspace{24pt}\par
-\key{Re-evaluation tests whether the high score persists.}
-\end{columns}
-\end{frame}
-
-% 13 — Script §5.3, MRE.
-\source{Selection diagram by presenters.}
-\begin{frame}[t]{Post-learning selection focuses runs on strong candidates}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.38\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-10) rectangle (330,275);
-\filldraw[fill=PaleBlue,draw=SemBlue,line width=1.3pt] (10,260)--(320,260)--(275,170)--(55,170)--cycle;
-\node at (165,218) {Top 25 environments};
-\filldraw[fill=PaleTeal,draw=SemTeal,line width=1.3pt] (55,145)--(275,145)--(230,60)--(100,60)--cycle;
-\node at (165,105) {Keep the\\upper half};
-\draw[flow] (165,170)--(165,145);
-\draw[flow] (165,60)--(165,22);
-\node[below] at (165,22) {$\leq 5$ candidates};
-\end{tikzpicture}
-\column{.57\textwidth}
-\lead{Multi-round elimination (MRE)}
+\column{425pt}
+{\color{SemBlue}\textbf{Why not online RL?}}\par
 \begin{points}
-\item Run each remaining candidate once per round.
-\item Rank by the mean observed so far; remove roughly half.
-\item At five or fewer, keep measuring until time is up; return the highest mean.
+\item Requires fine-grained monitoring and live control of network conditions.
+\item Timing differences and execution noise make target/reference synchronization difficult.
+\item Stale or mismatched observations can make learning unstable.
+\end{points}
+\column{425pt}
+\pause
+{\color{SemBlue}\textbf{Genetic algorithm (GA)}}\par
+\begin{points}
+\item Maintain a population of candidate traces $T$; each trace's numerical parameters are its genes.
+\item Fitness: the measured performance-gap score.
+\item Select promising parents; apply crossover and mutation to form the next generation.
+\item Repeat evaluation and selection until the budget expires.
 \end{points}
 \end{columns}
-\vspace{15pt}
-{\compactfont\key{During search: medians}\quad$\rightarrow$\quad\key{PLS: means}\quad$\rightarrow$\quad\key{Independent evaluation}}
 \end{frame}
 
-% 14 — Script §5.3, Fig. 2, wrap-up and speaker handoff.
-\source{Fig. 2 (original).}
-\begin{frame}[t]{Reserve a small part of the budget for selection}
+\source{}
+\begin{frame}[t]{GA Example: Crossover and Mutation}
 \bodyfont
+{\color{SemBlue}\textbf{Two-point crossover}}\par
+\vspace{12pt}
+\begin{columns}[c,onlytextwidth]
+\column{445pt}
+{\compactfont\renewcommand{\arraystretch}{1.15}\setlength{\tabcolsep}{10pt}
+\begin{tabular}{@{}l c|cc|c@{}}
+\toprule
+& Gene 1 & Gene 2 & Gene 3 & Gene 4\\\midrule
+Parent A & 20 & \cellcolor{blue!70!black}\textcolor{white}{5} & \cellcolor{blue!70!black}\textcolor{white}{40} & 10\\
+Parent B & 60 & \cellcolor{orange!65}30 & \cellcolor{orange!65}15 & 80\\\midrule
+Child A & 20 & \cellcolor{orange!65}30 & \cellcolor{orange!65}15 & 10\\
+Child B & 60 & \cellcolor{blue!70!black}\textcolor{white}{5} & \cellcolor{blue!70!black}\textcolor{white}{40} & 80\\\bottomrule
+\end{tabular}\par}
+\vspace{10pt}
+{\fontsize{18}{22}\selectfont\color{SemGray}e.g., Genes 1--2: bandwidth; Genes 3--4: one-way delay.\par}
+\column{420pt}\compactfont
+The vertical lines mark two cut points.\par
+\vspace{12pt}
+Swap genes 2 and 3; keep the outer genes from the original parent.\par
+\vspace{12pt}
+Aligned columns represent the same parameter, so crossover preserves bounds.
+\end{columns}
+\pause
+\vspace{14pt}
+{\color{SemBlue}\textbf{Uniform integer mutation}}\par
+\vspace{12pt}
 \begin{columns}[T,onlytextwidth]
-\column{.68\textwidth}
-\includegraphics[width=\linewidth]{fig02_budget.png}
-\column{.28\textwidth}
-{\fontsize{38}{44}\selectfont\color{SemBlue}\textbf{90\%}}\par
-Search for environments
-\vspace{20pt}\par
-{\fontsize{38}{44}\selectfont\color{SemTeal}\textbf{10\%}}\par
-Post-learning selection
-\vspace{24pt}\par
-{\compactfont Best split in this experiment.}
-\vspace{18pt}\par
-{\compactfont Compact traces + GA + PLS}
+\column{445pt}\compactfont
+Child A:\par
+\vspace{10pt}
+$[20,30,\textcolor{red}{15},10]\;\to\;[20,30,\textcolor{red}{73},10]$
+\column{420pt}\labelfont
+With probability $p$, replace each gene by an integer sampled uniformly from its allowed range.\par
 \end{columns}
 \end{frame}
 
+% Revised comparison using original Figure 3 panels.
+\source{Fig. 3a--b, AdvNet.}
+\begin{frame}[t]{Comparing Optimization Algorithms}
+\compactfont
+GA: genetic algorithm\qquad RG: random generation\par
+\vspace{6pt}
+BO: Bayesian optimization (random forest)\qquad EPS: $\epsilon$-greedy search\par
+\vspace{8pt}
+\begin{columns}[T,onlytextwidth]
+\column{425pt}
+{\color{SemBlue}\textbf{Fig. 3a: one-hour budget}}\par
+\vspace{4pt}
+\includegraphics[page=13,trim=74bp 555bp 279bp 84bp,clip,width=380pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\column{425pt}
+{\color{SemBlue}\textbf{Fig. 3b: two-hour budget}}\par
+\vspace{4pt}
+\includegraphics[page=13,trim=279bp 555bp 73bp 84bp,clip,width=380pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\end{columns}
+\pause
+\vspace{8pt}
+\begin{columns}[T,onlytextwidth]
+\column{425pt}\compactfont
+GA beats RG across all three weights; execution feedback helps.
+\column{425pt}\compactfont
+No clear winner across settings; GA has a slightly higher average.
+\end{columns}
+\end{frame}
+
+% Separate noise handling and budget allocation from the MRE procedure.
+\source{Fig. 2, AdvNet.}
+\begin{frame}[t]{Post-Learning Selection and Noise Handling}
+\compactfont
+SimpleMax selects the highest observed score; noise can inflate the winner.\par
+\vspace{18pt}
+\begin{columns}[c,onlytextwidth]
+\column{410pt}
+\includegraphics[page=12,trim=300bp 234bp 44bp 400bp,clip,width=410pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\column{455pt}
+\begin{itemize}\compactfont\setlength{\itemsep}{14pt}
+\item During search: repeat each trace. Take median reference and target performance separately, then compute the score.
+\item PLS: reserve part of the budget to re-test promising traces and compare their mean scores.
+\item After selection: independently re-evaluate the chosen trace in a single instance.
+\end{itemize}
+\end{columns}
+\pause
+\vspace{20pt}
+\compactfont
+0\% PLS: score $\approx0.59$\quad$\to$\quad 10\% PLS: score $\approx0.80$ (best).\par
+\vspace{10pt}
+Allocating more time to PLS leaves less time to explore new environments.
+\end{frame}
+
+\source{}
+\begin{frame}[t]{Multi-Round Elimination (MRE)}
+\compactfont
+AdvNet uses MRE for its Post-Learning Selection (PLS) stage.\par
+\vspace{6pt}
+\begin{tikzpicture}[x=1pt,y=.85pt,
+  every node/.style={font=\fontsize{20}{25}\selectfont,align=center},
+  process/.style={draw=SemBlue,line width=1.4pt,fill=white,text width=210pt,minimum height=48pt,inner sep=7pt},
+  decision/.style={diamond,aspect=2.5,draw=SemBlue,line width=1.4pt,fill=white,inner sep=4pt},
+  label/.style={fill=white,inner sep=3pt,font=\fontsize{18}{22}\selectfont}]
+\path[use as bounding box] (0,-10) rectangle (880,355);
+\node[process] (start) at (210,325) {Top 25 candidates};
+\node[decision] (count) at (210,245) {More than 5?};
+\node[process] (evaluate) at (210,150) {Evaluate each candidate\\once this round};
+\node[process] (discard) at (210,45) {Rank by mean score;\\discard the bottom half};
+\draw[flow] (start) -- (count);
+\draw[flow] (count) -- node[label,right] {Yes} (evaluate);
+\draw[flow] (evaluate) -- (discard);
+\draw[flow] (discard.west) -- (40,45) -- (40,245) -- (count.west);
+\node[label,rotate=90] at (40,145) {Next round};
+\uncover<2->{
+\node[process] (repeat) at (625,245) {Evaluate all remaining\\candidates ($\leq 5$)};
+\node[decision] (budget) at (625,140) {Budget left?};
+\node[process,text width=240pt] (result) at (625,35) {Return the candidate with\\the highest mean score};
+\draw[flow] (count.east) -- node[label,above] {No: stop eliminating} (repeat.west);
+\draw[flow] (repeat) -- (budget);
+\draw[flow] (budget.east) -- (845,140) -- (845,245) -- (repeat.east);
+\node[label] at (810,140) {Yes};
+\draw[flow] (budget) -- node[label,right] {No} (result);
+}
+\end{tikzpicture}
+\vspace{12pt}
+{\compactfont Mean scores use all evaluations collected so far during PLS.\par}
+\end{frame}
