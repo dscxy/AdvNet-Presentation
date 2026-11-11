@@ -239,9 +239,13 @@ When the authors re-tested on a newer Linux kernel from Google's BBR team, this 
 
 Another case study under UC1 is testing fairness between competing flows. Here, the authors define the reference score as the throughput of a reference protocol running alone on the link, and the target score as the throughput of that same reference flow when competing simultaneously against a target protocol. A score close to 1 means the competing flow severely starves the reference flow.
 
+(**Click**)
+
 While BBR is commonly believed to dominate loss-based protocols like CUBIC, AdvNet discovered environments where CUBIC consumes nearly 100% of the link bandwidth and starves BBR. When their roles were reversed, AdvNet also found environments where BBR starves CUBIC.
 
 Digging into the logs, the authors found that the affected flow initially operates normally for 40 to 80 seconds, but then suddenly drops its sending rate to just a single packet at a time. It's waiting for an ACK before sending the next packet for the remaining 25 to 60 seconds of the test. The authors reported this environment to the BBR development team, who confirmed the issue.
+
+(**Click**)
 
 ### 6.5 UC2: Comparing Different Versions of BBR
 
@@ -254,9 +258,13 @@ As an example, the authors used AdvNet for regression testing between BBR v1 and
 
 To measure steady-state impact rather than transient jitter, AdvNet first varies bandwidth and latency, then holds the network conditions fixed for one minute, and measures throughput over the final ten seconds.
 
+(**Click**)
+
 In one adversarial environment discovered by AdvNet, when CUBIC competes with BBR v1, CUBIC achieves 12 times the throughput of BBR v1; yet when BBR v1 is replaced by BBR v3 under the exact same trace, BBR v3 achieves 11.6 times the throughput of CUBIC. In single-flow tests, AdvNet also found scenarios where BBR v1 achieves more than five times the throughput of BBR v3.
 
 Even though BBR v3 was designed to improve fairness in typical settings, adversarial testing reveals specific conditions where version changes trigger severe regressions.
+
+(**Click**)
 
 ### 6.6 UC3: Does Adding a Path Hurt Performance? — DChannel
 
@@ -264,31 +272,45 @@ The third use case is validating specific design objectives. For example, a basi
 
 They first evaluated **DChannel**, which combines a high-bandwidth path (HBP) and a low-latency path (LLP) in parallel while steering packets transparently below the transport layer. Here, the reference uses only the high-bandwidth path, the target uses DChannel over both paths, and the metric is flow completion time (FCT) for downloading a 20 MB file. Although prior work saw no issues when running loss-based CUBIC over DChannel, AdvNet found an environment where the HBP has a 120 ms one-way delay and the LLP has only a 3 ms one-way delay. In this environment, DChannel's throughput drops to one-third of that achieved using the HBP alone.
 
+(**Click**)
+
 The root cause lies in DChannel's packet-steering heuristic. DChannel sends small control packets, such as TCP handshakes, over the fast LLP and large data packets over the slower HBP. Because the initial handshake completes over the 3 ms path, TCP estimates a tiny RTT and sets its retransmission timeout (RTO) to a small value. When large data packets subsequently take the 120 ms one-way HBP, their round-trip and queuing delay exceeds the small RTO before ACKs can return. This triggers spurious timeouts and rate reductions.
 
-Figure 7 shows the download bitrate over time. Curves ending earlier mean the download finished faster. DChannel steers a packet to the LLP only when its estimated reward exceeds $\alpha$ times its cost (**Visual Suggestion**: Show $R > \alpha \times C$, with default $\alpha = 0.75$). As Fig. 7 shows, across all tested values of $\alpha$, DChannel takes longer to finish than using the single high-bandwidth path marked as `only eMBB`.
+(**Click**)
+
+Figure 7 shows the download bitrate over time. Curves ending earlier mean the download finished faster. DChannel steers a packet to the LLP only when its estimated reward exceeds $\alpha$ times its cost (default $\alpha = 0.75$). As Fig. 7 shows, across all tested values of $\alpha$, DChannel takes longer to finish than using the single high-bandwidth path marked as `only eMBB`.
+
+(**Click**)
 
 The authors confirm the root cause by manually reducing the HBP's RTT below 200 ms. In this case, DChannel once again outperformed the single path.
 
-(**Visual Suggestion**: Show Fig. 7.)
+(**Click**)
 
 ### 6.7 UC3: Single-Path vs. Dual-Path in Kernel MPTCP
 
 Finally, the authors tested the same "do no harm" objective on the Linux kernel implementation of MPTCP across all four of its congestion control algorithms: LIA, OLIA, BALIA, and wVegas. For every single one of them, AdvNet found environments where two paths yield lower throughput than one path.
 
+(**Click**)
+
 For BALIA, dual-path throughput was 85.5% lower than single-path throughput. Plotting cumulative bytes sent over time, `balia2` initially sends faster by using the high bandwidth of Link 1, but `balia1` overtakes it after about 0.5 seconds. Around 1.2 seconds, after the receiver delays an ACK by roughly 40 ms, `balia2` sharply reduces its sending rate on both links—even though Link 1 still has plenty of available bandwidth.
 
-(**Visual Suggestion**: Show Fig. 8. Mark balia2 as dual-path and balia1 as single-path.)
+(**Click**)
 
 ## Conclusion and Takeaways
 
 To wrap up, AdvNet turns worst-case protocol testing into an automated black-box search over real code in emulation. Its search pipeline can uncover kernel bugs, catch version regressions, and validate design goals by pairing a compact interval representation and Post-Learning Selection with customizable reference comparisons.
 
-The choice of optimizer could be a secondary factor, since GA achieves only a slightly better average score compared with the other optimization algorithms the authors tested. Formulating a compact domain representation and handling system execution noise may matter more. (**Visual Suggestion**: Consider showing Fig. 3b again.)
+The choice of optimizer could be a secondary factor, since GA achieves only a slightly better average score compared with the other optimization algorithms the authors tested. Formulating a compact domain representation and handling system execution noise may matter more.
+
+(**Click**)
 
 At the same time, AdvNet has clear boundaries. Its current environment model only covers link bandwidth, delay, and buffer size under simple workloads. In addition, it doesn't estimate how often a counterexample occurs in real deployments or automate root-cause diagnosis. Looking ahead, the framework could be extended to automatically simplify adversarial traces to speed up debugging, and applied to other dynamic systems such as adaptive bitrate video streaming.
 
+Discussion question: What important failure modes could this environment model miss?
+
 ## Backup Notes (For Q&A Only)
+
+(**Click**)
 
 ### Related Approaches — Formal Verification and GANs
 
@@ -296,24 +318,32 @@ At the same time, AdvNet has clear boundaries. Its current environment model onl
 
 **Generative Adversarial Networks (GANs)** typically learn to generate data resembling an existing dataset. For AdvNet, the challenge is that we do not already have a dataset of challenging network environments to imitate. The search instead creates these environments using the observed performance gap as feedback.
 
+(**Click**)
+
 ### Alternative PLS Methods — RoundRobin and OCBA
 
 **RoundRobin** divides the evaluation budget equally among the candidate environments, then selects the one with the highest observed mean score.
 
 **Optimal Computing Budget Allocation (OCBA)** distributes evaluations adaptively to increase the probability of selecting the candidate with the highest true mean. It prioritizes candidates with greater uncertainty or scores close to the current best. Compared with RoundRobin, it focuses measurements where they can most help distinguish the leading candidates. Figure 11 compares these methods with MRE.
 
-### Backup 1 — GA Operators in Equations
-
-Here, $a$ and $b$ are the parent parameter vectors, and $i$ is a gene index. The cut points determine which coordinates the child takes from each parent. Mutation replaces each selected coordinate with a uniform integer sample from that coordinate's bounds.
-
-### Backup 2 — Statistical Simulation of Selection (Fig. 11)
-
 This experiment (Appendix B, Fig. 11) uses fifty Gaussian alternatives, with their true means sampled uniformly between zero and one hundred. The vertical axis is the true mean of the alternative selected by each method, averaged over two thousand trials. The oracle knows those true means. MRE performs best among the tested selection methods under this model, whereas OCBA struggles at small budgets (< 100 samples) because there are not enough samples per candidate to estimate variance reliably. Note that these values use a different scale from the normalized protocol-gap score.
 
-### Backup 3 — Parallel Execution and Measurement Interference (Fig. 9 & Fig. 10)
+(**Click**)
+
+### GA Operators in Equations
+
+Here, $a$ and $b$ are the parent parameter vectors, and $i$ is a gene index. The cut points determine which coordinates the child takes from each parent. (**Click**) Mutation replaces each selected coordinate with a uniform integer sample from that coordinate's bounds.
+
+(**Click**)
+
+### Parallel Execution and Measurement Interference (Fig. 9 & Fig. 10)
 
 To evaluate each candidate environment multiple times without increasing wall-clock time, AdvNet runs multiple Mahimahi instances in parallel, pinning 3 dedicated CPU cores per instance (one each for the emulator, `iperf` client, and `iperf` server).
 
+(**Click**)
+
 In Appendix A (Fig. 9), testing fixed network parameters (1 Gbps bandwidth, 5 ms one-way delay) on a 30-core server showed that mean throughput gradually drops as parallelism increases due to hardware contention, and variance spikes sharply at 9 and 10 concurrent runs (where $9 \times 3 = 27$ cores approaches the 30-core limit). The authors therefore capped parallelism at 8.
 
-In Fig. 10 (250 GA iterations), moving from 1 to 2 parallel runs initially lowers the final score because emulator contention distorts throughput during search (while the final output is always evaluated using a single isolated instance). Increasing parallelism further provides more samples to combat noise, peaking at 5-way parallelism—though the gain over a single evaluation per environment is marginal, so 1-way evaluation remains a practical low-CPU alternative.
+(**Click**)
+
+In Fig. 10 (250 GA iterations), moving from 1 to 2 parallel runs initially lowers the final score because emulator contention distorts throughput during search (while the final output is always evaluated using a single isolated instance). (**Click**) Increasing parallelism further provides more samples to combat noise, peaking at 5-way parallelism—though the gain over a single evaluation per environment is marginal, so 1-way evaluation remains a practical low-CPU alternative.

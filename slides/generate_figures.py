@@ -43,6 +43,16 @@ crop_pdf(15, (300.0, 273.0, 427.0, 360.0), "fig07_dchannel.pdf")
 crop_pdf(15, (296.0, 490.0, 440.0, 552.0), "fig08_mptcp.pdf")
 crop_pdf(21, (245.0, 82.0, 437.0, 198.0), "fig11_selection.pdf")
 
+# Appendix figures: retain the paper's plots, cropped at 400 dpi.
+# Fig. 9 uses the throughput panels; the lower delay panels are not discussed.
+for page, rect, filename in [
+    (19, (107.0, 467.0, 380.0, 548.0), "fig09_parallelism.png"),
+    (20, (300.0, 255.0, 435.0, 355.0), "fig10_parallelism.png"),
+]:
+    doc[page].get_pixmap(
+        matrix=pymupdf.Matrix(400 / 72, 400 / 72), clip=pymupdf.Rect(rect)
+    ).save(OUT / filename)
+
 # Digitize the plotted marker centers in Fig. 3a. Coordinates refer to the
 # original 1000 x 600 embedded image, not the lower-resolution Markdown parse.
 im3a = np.asarray(embedded(12, 0)).astype(float)

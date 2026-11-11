@@ -1,3 +1,32 @@
+% Blueprint 20: DChannel's steering creates an RTT-estimation mismatch.
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC3: DChannel and the Multipath Design Goal}
+\compactfont
+``Do no harm'': two paths ($T$) should not perform worse than one path ($R$).\par
+\vspace{6pt}
+\begin{center}
+\begin{tikzpicture}[x=1pt,y=1pt]
+\path[use as bounding box] (0,-32) rectangle (870,163);
+\node[box,minimum width=115pt] (s) at (65,65) {Sender};
+\node[box,minimum width=115pt] (r) at (805,65) {Receiver};
+\draw[flow] (s.north)--(65,126)--(805,126)--(r.north);
+\draw[ack] (s.south)--(65,4)--(805,4)--(r.south);
+\node[anchor=south,font=\fontsize{20}{25}\selectfont] at (435,130) {High-bandwidth path (HBP): 120 ms one-way};
+\node[text=SemBlue,font=\fontsize{20}{25}\selectfont] at (435,100) {Large data packets};
+\node[text=SemTeal,font=\fontsize{20}{25}\selectfont] at (435,30) {Handshake / small control packets};
+\node[anchor=north,font=\fontsize{20}{25}\selectfont] at (435,0) {Low-latency path (LLP): 3 ms one-way};
+\end{tikzpicture}
+\end{center}
+DChannel + CUBIC achieves about $1/3$ of the throughput of HBP alone.\par
+\vspace{10pt}
+\pause
+\begin{itemize}
+\compactfont\setlength{\itemsep}{8pt}
+\item Handshake on the fast LLP $\rightarrow$ small RTT estimate and low RTO.
+\item Data on the slow HBP $\rightarrow$ round-trip and queueing delay exceeds RTO, causing spurious timeouts and rate reductions.
+\end{itemize}
+\end{frame}
+
 % 25 — Script §6.6, design objective and DChannel paths.
 \source{Path diagram by presenters, based on §4.4.3.}
 \begin{frame}[t]{Can adding a path make performance worse?}
@@ -41,6 +70,31 @@ Handshake on the LLP $\rightarrow$ short RTT estimate $\rightarrow$ short RTO
 \end{center}
 \end{frame}
 
+% Blueprint 21: original Fig. 7 and the steering threshold.
+\sectiontag{4}\source{Fig. 7, AdvNet.}
+\begin{frame}[t]{UC3: DChannel Evaluation Results}
+\begin{columns}[T,onlytextwidth]
+\column{.56\textwidth}
+\centering\includegraphics[width=400pt,clip]{fig07_dchannel.pdf}
+\column{.40\textwidth}
+\compactfont
+\lead{20 MB download}
+Earlier curve end means shorter flow completion time (FCT).\par
+\vspace{14pt}
+\lead{Packet-steering threshold}
+Send to LLP when reward $R>\alpha C$, where $C$ is cost.\par
+\vspace{7pt}
+Default: $\alpha=0.75$.\par
+\end{columns}
+\vspace{12pt}
+\begin{itemize}
+\compactfont\setlength{\itemsep}{10pt}
+\item All tested $\alpha$ values finish later than the single HBP (``only eMBB'').
+\pause
+\item Reducing HBP RTT below 200 ms restores DChannel's advantage over a single path, supporting the timeout diagnosis.
+\end{itemize}
+\end{frame}
+
 % 27 — Script §6.6, Fig. 7 and completion time.
 \source{Fig. 7 (original).}
 \begin{frame}[t]{The single path finishes the transfer sooner}
@@ -58,6 +112,31 @@ Finishes before all tested DChannel $\alpha$ settings.
 \vspace{16pt}\par
 \lead{Reduce HBP RTT below 200 ms}
 DChannel regains its advantage over the single path.
+\end{columns}
+\end{frame}
+
+% Blueprint 22: original Fig. 8 and the BALIA counterexample.
+\sectiontag{4}\source{Fig. 8, AdvNet.}
+\begin{frame}[t]{UC3: Single-Path vs. Dual-Path in Kernel MPTCP}
+\compactfont
+AdvNet found two-path regressions for all four tested algorithms:\par
+LIA, OLIA, BALIA, and wVegas.\par
+\vspace{14pt}
+\pause
+\begin{columns}[T,onlytextwidth]
+\column{.61\textwidth}
+\includegraphics[width=\linewidth,clip]{fig08_mptcp.pdf}
+\vspace{12pt}\par
+\labelfont \texttt{balia2}: dual path; \texttt{balia1}: single path.\par
+\column{.35\textwidth}
+\compactfont
+Dual-path throughput is 85.5\% lower in this environment.\par
+\vspace{14pt}
+\lead{First 0.5 seconds}
+Dual path leads using Link 1; single path then overtakes it.\par
+\vspace{12pt}
+\lead{Around 1.2 seconds}
+A receiver ACK delay of about 40 ms causes a sharp rate reduction on both links.\par
 \end{columns}
 \end{frame}
 
