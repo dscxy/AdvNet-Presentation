@@ -82,6 +82,8 @@ $$
 
 (**Visual Suggestion**: The formula is for display only.)
 
+Higher throughput increases the first term, while lower delay increases the second, so higher utility is always better.
+
 (**Click**)
 
 A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. We compute this utility separately for the reference and target, using the same normalization benchmarks and weight. We then use their utilities as $R$ and $T$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
