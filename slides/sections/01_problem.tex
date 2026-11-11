@@ -33,7 +33,7 @@ by Generating Adversarial Environments\par}
 \end{tikzpicture}
 \end{center}
 \vspace{-4pt}
-{\color{SemBlue}\textbf{Unknown link capacity}}\par
+{\color{SemBlue}\textbf{Unknown available bandwidth}}\par
 \begin{itemize}\setlength{\itemsep}{5pt}
 \item Send too slowly $\to$ underutilize bandwidth
 \item Send too fast $\to$ queue buildup, higher round-trip time (RTT), packet loss
@@ -58,15 +58,15 @@ by Generating Adversarial Environments\par}
 \item Fast convergence to stable, fair rates when flows compete
 \end{points}
 {\fontsize{18.5}{22}\selectfont\color{SemGray}
-Cite from PCC Vivace: Online-Learning Congestion Control \S1\par}
+Adapted from PCC Vivace: Online-Learning Congestion Control \S1\par}
 \pause
 \vspace{24pt}
 {\color{SemBlue}\textbf{Consequences for testing}}\par
 \begin{points}
 \item A large parameter space makes thorough testing difficult.
-\item Protocol updates and new designs (e.g., BBR v1 $\to$ v3, multipath)
-      may pass standard tests yet hide severe regressions.
-\item Goal: automatically find environments that expose these regressions.
+\item Protocol updates and new designs may pass standard tests\newline
+      yet hide severe regressions.
+\item Goal: automatically find environments that expose performance problems.
 \end{points}
 \end{frame}
 
@@ -102,7 +102,6 @@ Puffer & Live adaptive video streaming testbed\\
 \source{}
 \begin{frame}[t]{Adversarial Testing: Simulation vs. Emulation}
 \bodyfont
-{\color{SemBlue}\textbf{Simulation vs. emulation}}\par
 \vspace{12pt}
 {\compactfont\renewcommand{\arraystretch}{1.3}
 \begin{tabularx}{\linewidth}{@{}p{225pt} L@{}}
@@ -118,9 +117,10 @@ Emulation (Mahimahi) & Real OS kernel stack: exposes implementation bugs, but ex
 \begin{points}
 \item Uses a genetic algorithm (GA) in ns-3 simulation.
 \item Represents links as low-level Packet Delivery Opportunities (PDOs).
-\item This high-dimensional representation struggles to find strong\newline
-      adversarial examples within a limited emulation budget.
+\item Struggles to find strong adversarial examples within a limited emulation budget
 \end{points}
+\vspace{8pt}
+{\fontsize{18}{22}\selectfont\color{SemGray}Will explain later\par}
 \end{frame}
 
 % 05 — Script §3.
