@@ -49,24 +49,6 @@
 \end{columns}
 \end{frame}
 
-% B1 — Script backup notes: related approaches.
-\sectiontag{6}\source{}
-\begin{frame}[t]{Related approaches: formal verification and GANs}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{Formal verification}
-Checks specified properties using methods such as model checking and symbolic analysis.
-\vspace{18pt}\par
-Requires a precise model or specification; complex kernel code and changing networks create scale challenges.
-\column{.47\textwidth}\lead{Generative adversarial networks}
-Learn to generate data resembling a training dataset.
-\vspace{18pt}\par
-For AdvNet, a dataset of challenging environments is not already available.
-\end{columns}
-\vspace{28pt}
-\takeaway{AdvNet generates candidates using measured performance gaps as feedback.}
-\end{frame}
-
 % Blueprint B2: selection policies and the original simulation results.
 \sectiontag{6}\source{Fig. 11, AdvNet.}
 \begin{frame}[t]{Backup: Alternative PLS Methods}
@@ -90,24 +72,8 @@ True mean of the selected alternative, averaged over 2,000 trials.\par
 \vspace{12pt}
 MRE performs best; OCBA struggles below 100 samples.\par
 \vspace{10pt}
-{\labelfont OCBA: Optimal Computing Budget Allocation.\par}
+{\labelfont\color{SemGray} OCBA: Optimal Computing Budget Allocation.\par}
 \end{columns}
-\end{frame}
-
-% B2 — Script backup notes: RoundRobin and OCBA.
-\source{PLS comparison arranged by presenters, based on §3.3.}
-\begin{frame}[t]{Alternative post-learning selection methods}
-\bodyfont
-{\compactfont\renewcommand{\arraystretch}{1.6}
-\begin{tabularx}{\linewidth}{@{}p{170pt} L L@{}}
-\toprule
-Method & Allocation rule & Selection idea\\\midrule
-RoundRobin & Equal budget per candidate & Return the highest observed mean\\
-OCBA & More runs for uncertain candidates and close contenders & Increase the probability of selecting the best true mean\\
-MRE & Remove roughly the lower half each round; stop at $\leq 5$ & Concentrate measurements on promising candidates\\\bottomrule
-\end{tabularx}}
-\vspace{22pt}
-\textbf{OCBA:} Optimal Computing Budget Allocation
 \end{frame}
 
 % Blueprint B3: parameter-aligned crossover and bounded integer mutation.
@@ -134,42 +100,6 @@ Aligned coordinates keep each parameter within its own bounds.\par
 \]}
 Each selected gene is resampled as an integer accepted by Mahimahi.\par
 \end{frame}
-
-% B3 — Script backup notes: GA operator equations.
-\source{Operators from §3.2.2; notation by presenters.}
-\begin{frame}[t]{GA operators in equations}
-\bodyfont
-Parents $a,b$; gene index $i$; cut points $k_1<k_2$; per-gene bounds $[l_i,u_i]$.
-\vspace{12pt}
-\lead{Two-point crossover}
-{\fontsize{28}{35}\selectfont
-\[c_i=\begin{cases}b_i & k_1<i\leq k_2,\\a_i & \text{otherwise.}\end{cases}\]}
-\lead{Uniform integer mutation}
-{\fontsize{28}{35}\selectfont
-\[m_i=\begin{cases}U_i & \text{with probability }p,\\c_i & \text{with probability }1-p,\end{cases}
-\quad U_i\sim\operatorname{UniformInteger}(l_i,u_i).\]}
-\end{frame}
-
-% B4 — Script backup notes: Fig. 11.
-\source{Fig. 11 (original).}
-\begin{frame}[t]{Selection methods in a statistical simulation}
-\bodyfont
-Vertical axis: true mean of the selected alternative.
-\par\vspace{10pt}
-\begin{columns}[T,onlytextwidth]
-\column{555pt}\includegraphics[width=555pt]{fig11_selection.pdf}
-\column{300pt}
-\lead{50 Gaussian alternatives}
-True means drawn uniformly from 0 to 100.
-\vspace{16pt}\par
-Results averaged over 2,000 trials.
-\vspace{16pt}\par
-\key{MRE performs best.}
-\vspace{16pt}\par
-{\compactfont Below 100 samples, OCBA has too few observations to estimate variance reliably.}
-\end{columns}
-\end{frame}
-
 
 % Blueprint B4: separate measurement interference from optimizer performance.
 \sectiontag{6}\source{Fig. 9 (throughput panels), AdvNet.}
@@ -198,9 +128,11 @@ Each instance pins 3 CPU cores: emulator, \texttt{iperf} client, and \texttt{ipe
 \column{.43\textwidth}
 \compactfont
 250 GA iterations; average across four target protocols.\par
-\vspace{14pt}
+\vspace{8pt}
+{\labelfont\color{SemGray}Parallel runs evaluate the same candidate environment.\par}
+\vspace{8pt}
 \begin{itemize}
-\compactfont\setlength{\itemsep}{13pt}
+\compactfont\setlength{\itemsep}{8pt}
 \item From 1 to 2 runs, contention distorts throughput and lowers the final score.
 \pause
 \item More samples reduce noise; 5-way parallelism gives the best result.
