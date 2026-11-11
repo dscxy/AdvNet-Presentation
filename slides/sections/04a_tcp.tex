@@ -128,85 +128,36 @@ Compare the same flow's throughput alone ($R$) and with a competitor ($T$).\par
 {\labelfont\color{SemGray}The BBR team confirmed that the reported environment was problematic.\par}
 \end{frame}
 
-% Blueprint 19: measure CUBIC to compare fairness across BBR versions.
+% Blueprint 19: distinguish fairness measurements from single-flow tests.
 \sectiontag{4}\source{}
 \begin{frame}[t]{UC2: Regression Testing Across BBR Versions}
 \compactfont
-Same trace, two tests: CUBIC with BBR v1 ($R$) vs. CUBIC with BBR v3 ($T$).\par
-{\labelfont\color{SemGray}$R$ and $T$ are CUBIC throughput in the respective tests.\par}
-\vspace{16pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-45) rectangle (870,102);
-\filldraw[fill=PaleBlue,draw=SemBlue] (0,0) rectangle (240,48);
-\filldraw[fill=PaleTeal,draw=SemTeal] (240,0) rectangle (860,48);
-\filldraw[fill=white,draw=SemTeal,line width=2pt] (757,0) rectangle (860,48);
-\node at (120,24) {Dynamic trace};
-\node at (485,24) {Fixed network conditions};
-\node[font=\fontsize{18.5}{23}\selectfont] at (809,24) {Measure};
-\draw[decorate,decoration={brace,amplitude=7pt},line width=1.2pt] (240,64)--(860,64);
-\node at (550,88) {60 seconds};
-\node[anchor=north,font=\fontsize{20}{25}\selectfont] at (795,-8) {Final 10 s};
-\end{tikzpicture}
-\end{center}
+\lead{Fairness regression (same trace)}
+Reference ($R$): CUBIC throughput when competing with BBR v1.\par
+Target ($T$): CUBIC throughput when competing with BBR v3.\par
+\vspace{8pt}
+{\centering
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{20}{24}\selectfont,align=center}]
+\path[use as bounding box] (0,-28) rectangle (870,75);
+\filldraw[fill=PaleBlue,draw=SemBlue] (0,0) rectangle (240,34);
+\filldraw[fill=PaleTeal,draw=SemTeal] (240,0) rectangle (860,34);
+\filldraw[fill=white,draw=SemTeal,line width=2pt] (757,0) rectangle (860,34);
+\node at (120,17) {Dynamic trace};
+\node at (485,17) {Fixed network conditions};
+\node[font=\fontsize{18.5}{23}\selectfont] at (809,17) {Measure};
+\draw[decorate,decoration={brace,amplitude=6pt},line width=1.2pt] (240,44)--(860,44);
+\node at (550,65) {60 seconds};
+\node[anchor=north] at (795,-3) {Final 10 s};
+\end{tikzpicture}\par}
+\vspace{8pt}
 \pause
 \begin{itemize}
-\compactfont\setlength{\itemsep}{12pt}
-\item Fairness reversal: CUBIC gets $12\times$ BBR v1's throughput; replacing v1 with v3 lets BBR v3 get $11.6\times$ CUBIC's throughput.
-\item Single-flow regression: BBR v1 can achieve more than $5\times$ BBR v3's throughput.
+\compactfont\setlength{\itemsep}{5pt}
+\item With BBR v1: CUBIC gets $12\times$ BBR v1's throughput.
+\item With BBR v3: BBR v3 gets $11.6\times$ CUBIC's throughput.
 \end{itemize}
-\vspace{8pt}
-{\labelfont These are corner cases despite v3's improvements in typical settings.\par}
+\vspace{10pt}
+\lead{Separate single-flow test}
+Without a competing CUBIC flow, AdvNet also finds traces where BBR v1 achieves more than $5\times$ BBR v3's throughput.\par
 \end{frame}
-
-% 23 — Script §6.5, regression experiment design.
-\source{Experiment diagram by presenters, based on §4.4.5.}
-\begin{frame}[t]{Regression testing measures the effect of a new version}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{Reference measurement}
-\textbf{CUBIC throughput}\par
-while competing with BBR v1
-\column{.47\textwidth}\lead{Target measurement}
-\textbf{CUBIC throughput}\par
-while competing with BBR v3
-\end{columns}
-\vspace{38pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-75) rectangle (880,125);
-\filldraw[fill=PaleBlue,draw=SemBlue] (0,0) rectangle (260,70);
-\filldraw[fill=PaleTeal,draw=SemTeal] (260,0) rectangle (870,70);
-\filldraw[fill=SemTeal,draw=SemTeal] (768,0) rectangle (870,70);
-\node at (130,35) {Dynamic changes};
-\node at (510,35) {Fixed network conditions};
-\node[text=white,font=\fontsize{20}{25}\selectfont] at (819,35) {Measure};
-\draw[decorate,decoration={brace,amplitude=8pt},SemTeal,line width=1.2pt] (260,88)--(870,88);
-\node[above] at (565,98) {60 seconds};
-\node[below,font=\fontsize{20}{25}\selectfont] at (800,-10) {Final 10 s};
-\end{tikzpicture}
-\end{center}
-\key{The final ten seconds are measured within the fixed one-minute period.}
-\end{frame}
-
-% 24 — Script §6.5, results.
-\source{Results from §4.4.5 and §1, arranged by presenters.}
-\begin{frame}[t]{A version change can reverse the fairness outcome}
-\bodyfont
-\vspace{12pt}
-\begin{columns}[T,onlytextwidth]
-\column{.47\textwidth}\lead{CUBIC with BBR v1}
-{\fontsize{42}{50}\selectfont\color{SemBlue}\textbf{12$\times$}}\par\vspace{12pt}
-CUBIC's throughput\par
-relative to BBR v1
-\column{.47\textwidth}\lead{CUBIC with BBR v3}
-{\fontsize{42}{50}\selectfont\color{SemOrange}\textbf{11.6$\times$}}\par\vspace{12pt}
-BBR v3's throughput\par
-relative to CUBIC
-\end{columns}
-\vspace{40pt}
-\key{Single-flow throughput regressions also appear.}\par\vspace{12pt}
-In another discovered environment, BBR v1 achieves \textbf{more than 5$\times$}\par
-the throughput of BBR v3.
-\end{frame}
-

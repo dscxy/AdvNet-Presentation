@@ -260,7 +260,7 @@ To measure steady-state impact rather than transient jitter, AdvNet first varies
 
 (**Click**)
 
-In one adversarial environment discovered by AdvNet, when CUBIC competes with BBR v1, CUBIC achieves 12 times the throughput of BBR v1; yet when BBR v1 is replaced by BBR v3 under the exact same trace, BBR v3 achieves 11.6 times the throughput of CUBIC. In single-flow tests, AdvNet also found scenarios where BBR v1 achieves more than five times the throughput of BBR v3.
+In one adversarial environment discovered by AdvNet, when CUBIC competes with BBR v1, CUBIC achieves 12 times the throughput of BBR v1; yet when BBR v1 is replaced by BBR v3 under the exact same trace, BBR v3 achieves 11.6 times the throughput of CUBIC. In separate single-flow tests, without a competing CUBIC flow, AdvNet also found scenarios where BBR v1 achieves more than five times the throughput of BBR v3.
 
 Even though BBR v3 was designed to improve fairness in typical settings, adversarial testing reveals specific conditions where version changes trigger severe regressions.
 
