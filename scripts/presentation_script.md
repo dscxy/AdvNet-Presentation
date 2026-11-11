@@ -138,7 +138,7 @@ However, it requires fine-grained observation of protocol behavior and control o
 
 (**Click**)
 
-AdvNet's main search method is a genetic algorithm, or GA. Each candidate is a complete network trace, and its genes are the numerical parameters in $T$. (**Visual Suggestion**: Show $T$ again?) GA maintains a population of traces, evaluates their fitness using the performance-gap score, selects promising parents, and applies crossover and mutation to produce the next generation until the budget expires. (**Visual Suggestion**: Consider GA cycle diagram.)
+AdvNet's main search method is a genetic algorithm, or GA. Each candidate is a complete network trace, and its genes are the numerical parameters in $T$. GA maintains a population of traces, evaluates their fitness using the performance-gap score, selects promising parents, and applies crossover and mutation to produce the next generation until the budget expires.
 
 (**Click**)
 
@@ -148,8 +148,6 @@ Let us look at the two operators. In two-point crossover, we choose two cut poin
 
 Uniform integer mutation replaces each gene with probability $p$ by sampling a new integer uniformly from that gene's allowed range. For example, it might change 15 to 73. Both operators preserve the integer format required by Mahimahi, and every newly generated trace is evaluated by running the protocols.
 
-(**Visual Suggestion**: Show parents [20, 5, 40, 10] and [60, 30, 15, 80], with cuts around the middle two genes. Show children [20, 30, 15, 10] and [60, 5, 40, 80], then mutate 15 → 73 within an illustrative range of 1–100. Consider explaining "aligned positions" using visual elements.)
-
 (**Click**)
 
 The authors also compared GA against three other trace-based methods: Random Generation (RG), which samples traces uniformly at random as a baseline; Bayesian Optimization (BO) with a random forest surrogate model; and Epsilon-Greedy Search (EPS), which mutates top-performing traces with probability $1-\epsilon$ and explores randomly with probability $\epsilon$.
@@ -157,8 +155,6 @@ The authors also compared GA against three other trace-based methods: Random Gen
 (**Click**)
 
 In Figure 3a, GA consistently outperforms random generation across all three throughput weights. This confirms that learning from execution feedback helps. In Figure 3b, under a two-hour budget, GA, Bayesian optimization, and epsilon-greedy search achieve fairly similar performance, with GA having a slightly higher average, so the authors adopt GA as the default.
-
-(**Visual Suggestion**: Show Fig. 3a and Fig. 3b from the paper.)
 
 (**Click**)
 
@@ -168,13 +164,17 @@ Finding high scores during search is only part of the problem; measurement noise
 
 However, when evaluating hundreds of traces, the single highest observation is often an outlier inflated by positive random noise. Its score can drop sharply when re-tested independently.
 
-To mitigate noise, AdvNet runs each trace multiple times in parallel during search. It then takes the median performance for the reference and target separately, and then computes the score. After search finishes, Post-Learning Selection takes the top 25 candidate environments and allocates a dedicated evaluation budget using Multi-Round Elimination (MRE). In each round, MRE evaluates every remaining candidate once and discards the bottom half based on their observed mean scores so far. Once 5 or fewer candidates remain, elimination stops and they are repeatedly evaluated until the budget is spent, returning the one with the highest mean score.
+To mitigate noise, AdvNet runs each trace multiple times in parallel during search. It then takes the median performance for the reference and target separately, and then computes the score. Post-Learning Selection reserves part of the budget to re-test promising traces and compare their mean scores. The selected trace is then independently re-evaluated in a single instance.
 
 (**Click**)
 
 How should we split the total runtime between search and PLS? In Figure 2, when $0\%$ of the time is used for PLS, which is just SimpleMax, noisy outliers leave the average re-tested score around $0.59$. Dedicating **$10\%$** of the runtime to PLS raises the average score to $0.80$, which yields the best performance.
 
-(**Visual Suggestion**: Show Figure 2.)
+(**Click**)
+
+After search finishes, Post-Learning Selection takes the top 25 candidate environments and allocates a dedicated evaluation budget using Multi-Round Elimination (MRE). In each round, MRE evaluates every remaining candidate once and discards the bottom half based on their observed mean scores so far. (**Click**)
+
+Once 5 or fewer candidates remain, elimination stops and they are repeatedly evaluated until the budget is spent, returning the one with the highest mean score.
 
 Together, the compact interval representation, genetic search, and post-learning selection allow AdvNet to find reliably adversarial environments within a limited emulation budget. With that, I will hand over to Xiaoyang, who will show how AdvNet uses these environments across concrete protocol testing use cases.
 

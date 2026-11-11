@@ -174,32 +174,61 @@ No clear winner across settings; GA has a slightly higher average.
 \end{columns}
 \end{frame}
 
-% Revised noise handling and PLS page.
-\source{Fig. 2 and \S3.3, AdvNet.}
+% Separate noise handling and budget allocation from the MRE procedure.
+\source{Fig. 2, AdvNet.}
 \begin{frame}[t]{Post-Learning Selection and Noise Handling}
 \compactfont
-SimpleMax selects the single highest observed score, which may be a noisy outlier.\par
-\vspace{8pt}
+SimpleMax selects the highest observed score; noise can inflate the winner.\par
+\vspace{18pt}
 \begin{columns}[c,onlytextwidth]
 \column{410pt}
 \includegraphics[page=12,trim=300bp 234bp 44bp 400bp,clip,width=410pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
-\column{455pt}\labelfont
-\begin{enumerate}\labelfont\setlength{\itemsep}{4pt}
-\item During search: median reference and target performance across repeated runs, then score.
-\item PLS: re-test candidates and compare mean scores.
-\item After selection: independent single-instance re-evaluation.
-\end{enumerate}
-\vspace{12pt}
-{\color{SemBlue}\textbf{Multi-Round Elimination (MRE)}}\par
-\vspace{7pt}
-Top 25 candidates\par
-$\downarrow$\quad Re-test; discard the bottom half by mean\par
-$\leq 5$ remain: repeat until the budget ends\par
-$\downarrow$\quad Return the highest mean score\par
+\column{455pt}
+\begin{itemize}\compactfont\setlength{\itemsep}{14pt}
+\item During search: repeat each trace. Take median reference and target performance separately, then compute the score.
+\item PLS: reserve part of the budget to re-test promising traces and compare their mean scores.
+\item After selection: independently re-evaluate the chosen trace in a single instance.
+\end{itemize}
 \end{columns}
 \pause
-\vspace{8pt}\compactfont
+\vspace{20pt}
+\compactfont
 0\% PLS: score $\approx0.59$\quad$\to$\quad 10\% PLS: score $\approx0.80$ (best).\par
-\vspace{8pt}
-More time for PLS leaves less time to explore new environments.
+\vspace{10pt}
+Allocating more time to PLS leaves less time to explore new environments.
+\end{frame}
+
+\source{}
+\begin{frame}[t]{Multi-Round Elimination (MRE)}
+\compactfont
+AdvNet uses MRE for its Post-Learning Selection (PLS) stage.\par
+\vspace{6pt}
+\begin{tikzpicture}[x=1pt,y=.85pt,
+  every node/.style={font=\fontsize{20}{25}\selectfont,align=center},
+  process/.style={draw=SemBlue,line width=1.4pt,fill=white,text width=210pt,minimum height=48pt,inner sep=7pt},
+  decision/.style={diamond,aspect=2.5,draw=SemBlue,line width=1.4pt,fill=white,inner sep=4pt},
+  label/.style={fill=white,inner sep=3pt,font=\fontsize{18}{22}\selectfont}]
+\path[use as bounding box] (0,-10) rectangle (880,355);
+\node[process] (start) at (210,325) {Top 25 candidates};
+\node[decision] (count) at (210,245) {More than 5?};
+\node[process] (evaluate) at (210,150) {Evaluate each candidate\\once this round};
+\node[process] (discard) at (210,45) {Rank by mean score;\\discard the bottom half};
+\draw[flow] (start) -- (count);
+\draw[flow] (count) -- node[label,right] {Yes} (evaluate);
+\draw[flow] (evaluate) -- (discard);
+\draw[flow] (discard.west) -- (40,45) -- (40,245) -- (count.west);
+\node[label,rotate=90] at (40,145) {Next round};
+\uncover<2->{
+\node[process] (repeat) at (625,245) {Evaluate all remaining\\candidates ($\leq 5$)};
+\node[decision] (budget) at (625,140) {Budget left?};
+\node[process,text width=240pt] (result) at (625,35) {Return the candidate with\\the highest mean score};
+\draw[flow] (count.east) -- node[label,above] {No: stop eliminating} (repeat.west);
+\draw[flow] (repeat) -- (budget);
+\draw[flow] (budget.east) -- (845,140) -- (845,245) -- (repeat.east);
+\node[label] at (810,140) {Yes};
+\draw[flow] (budget) -- node[label,right] {No} (result);
+}
+\end{tikzpicture}
+\vspace{12pt}
+{\compactfont Mean scores use all evaluations collected so far during PLS.\par}
 \end{frame}
