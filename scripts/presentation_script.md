@@ -34,7 +34,7 @@ First, hand-designed tests run a protocol under manually chosen parameters, such
 
 (**Click**)
 
-Second, developers may replay captured traces in emulators like Mahimahi, or evaluate protocols on platforms like Pantheon and Puffer to test conditions that users actually experience. These are essential for benchmarking average real-world performance, but their coverage is bounded by where and when traces were collected. In addition, they do not actively search for unknown worst-case conditions. Reproducing real-world anomalies is also difficult due to uncontrolled background processes. (**Visual Suggestion**: Add visual-only notes that explain differences between Pantheon, Puffer, and Mahimahi.)
+Second, developers may replay captured traces in emulators like Mahimahi, or evaluate protocols on platforms like Pantheon and Puffer to test conditions that users actually experience. These are essential for benchmarking average real-world performance, but their coverage is bounded by where and when traces were collected. In addition, they do not actively search for unknown worst-case conditions. Reproducing real-world anomalies is also difficult due to uncontrolled background processes. (**Visual Suggestion**: Notes that explain differences between Pantheon, Puffer, and Mahimahi are visual only.)
 
 (**Click**)
 
@@ -48,17 +48,31 @@ An important piece of prior work, CC-Fuzz, used a genetic algorithm to generate 
 
 ## 3. How Does AdvNet Solve the Problem?
 
-AdvNet addresses these gaps by formulating environment generation as a black-box search over real protocol executions. The user provides parameter bounds, a target protocol under test, and a reference baseline. The different baselines shown in the paper include another protocol, an older version of the same protocol, a single-path configuration, or a calculated capacity benchmark. (**Visual Suggestion**: Show Fig. 1.)
+AdvNet addresses these gaps by formulating environment generation as a black-box search over real protocol executions. The user provides parameter bounds, a target protocol under test, and a reference baseline. The different baselines shown in the paper include another protocol, an older version of the same protocol, a single-path configuration, or a calculated capacity benchmark.
 
-In each iteration, the generator outputs a candidate network trace, and the execution module runs both the target and reference inside an extended Mahimahi emulator (**Visual Suggestion**: Could add a note about the modifications that support time-varying one-way delay and dual paths). The scoring module then quantifies their relative performance gap as a score:
+(**Click**)
+
+In each iteration, the generator outputs a candidate network trace, and the execution module runs both the target and reference inside an extended Mahimahi emulator.
+
+(**Click**)
+
+Finally, because emulation has random variance, AdvNet reserves part of its time budget for Post-Learning Selection to pick the candidate with the most reliably high average score, followed by an independent re-evaluation.
+
+(**Click**)
+
+The scoring module then quantifies their relative performance gap as a score:
 
 $$
 \text{score} = \frac{R - T}{\max(R, T)} \quad (\text{when a higher metric value is better}).
 $$
 
-(**Visual Suggestion**: The formula is for display only. Also show a version that plugs in the numbers. Don't read the formula out. Add a note explaining R is for reference and T is for target.)
+(**Visual Suggestion**: The formula is for display only.)
+
+(**Click**)
 
 For example, if the reference achieves 10 Mbps and the target gets only 2 Mbps, the score is 0.8. If a lower metric value is better—such as flow completion time—we reverse the numerator to T minus R. Dividing by the maximum normalizes the score between $-1$ and $1$, so a larger positive score always means a larger relative weakness in the target. The generator uses these scores as feedback to search for environments that expose larger performance gaps.
+
+(**Click**)
 
 We can also combine throughput $\tau$ and average packet delay $d$ into a single utility metric using a throughput weight $t_{\mathrm{coeff}} \in [0, 1]$:
 
@@ -66,11 +80,13 @@ $$
 U = t_{\mathrm{coeff}} \frac{\tau}{\tau_{\max}} + (1 - t_{\mathrm{coeff}}) \frac{d_{\min}}{d},
 $$
 
-(**Visual Suggestion**: The formula is for display only. Label $\tau_{\max}$ as the maximum-throughput benchmark and $d_{\min}$ as the minimum-delay benchmark used for normalization.)
+(**Visual Suggestion**: The formula is for display only.)
+
+(**Click**)
 
 A throughput weight of $1$ considers only throughput, $0$ considers only delay, and $0.5$ weights both normalized components equally. We compute this utility separately for the reference and target, using the same normalization benchmarks and weight. We then use their utilities as $R$ and $T$ in the earlier score formula. Since higher utility is better, a positive score means the target performs worse under the chosen throughput–delay tradeoff.
 
-Finally, because emulation has random variance, AdvNet reserves part of its time budget for Post-Learning Selection to pick the candidate with the most reliably high average score, followed by an independent re-evaluation.
+(**Click**)
 
 ## 4. What Are the Key Challenges?
 
@@ -78,7 +94,11 @@ Realizing this framework in emulation brings two main challenges:
 
 The first challenge is sample efficiency. Because every evaluation runs real protocol implementations over emulated links for several seconds, we can only afford a limited number of runs. Meanwhile, the space of parameters is huge, and emulation noise means a single run can be misleading. Simply repeating every trace many times would leave very little budget to explore new environments.
 
+(**Click**)
+
 The second challenge is practical usefulness. Setting link bandwidth to zero makes every protocol get zero throughput, which is useless for diagnosis. Similarly, if bandwidth jumps instantaneously, any protocol needs time to adapt, so falling short of link capacity right after a spike is expected. Using a suitable reference is essential to uncover actionable flaws.
+
+(**Click**)
 
 ## 5. How Does AdvNet Address Sample Efficiency?
 

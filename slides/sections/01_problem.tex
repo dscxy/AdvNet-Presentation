@@ -123,51 +123,159 @@ Emulation (Mahimahi) & Real OS kernel stack: exposes implementation bugs, but ex
 {\fontsize{18}{22}\selectfont\color{SemGray}Will explain later\par}
 \end{frame}
 
-% 05 — Script §3.
-\source{Architecture redrawn from Fig. 1.}
-\begin{frame}[t]{AdvNet searches over the environment}
-\bodyfont
-\textbf{User inputs:} parameter bounds, target, reference, performance metric
+% Revised Part 2: architecture, scoring, and design challenges.
+% Three-stage architecture walkthrough using the original Figure 1.
+\newcommand{\architecturefocus}[1]{%
+\begin{tikzpicture}
+\node[anchor=south west,inner sep=0pt] (architecture) at (0,0)
+{\includegraphics[page=2,trim=251bp 131bp 46bp 486bp,clip,width=620pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}};
+\begin{scope}[x={(architecture.south east)},y={(architecture.north west)}]
+#1
+\end{scope}
+\end{tikzpicture}}
+
+\source{Fig. 1, AdvNet.}
+\begin{frame}[t]{AdvNet: Inputs and Reference}
+\vspace{24pt}
+\begin{columns}[c,onlytextwidth]
+\column{250pt}
+\compactfont
+{\color{SemBlue}\textbf{Inputs}}\par
+\begin{itemize}\setlength{\itemsep}{7pt}
+\item Parameter bounds
+\item Target protocol
+\item Reference baseline
+\end{itemize}
+\vspace{22pt}
+{\color{SemBlue}\textbf{Reference options}}\par
 \vspace{12pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-18) rectangle (880,280);
-\node[box,text width=190pt,minimum height=75pt] (gen) at (120,220) {Generate a\\complete trace};
-\node[box,text width=235pt,minimum height=75pt] (run) at (450,220) {Run target and reference\\in the same environment};
-\node[box,text width=170pt,minimum height=75pt] (score) at (775,220) {Score the\\performance gap};
-\draw[flow] (gen) -- (run);
-\draw[flow] (run) -- (score);
-\draw[flow] (score.south) -- (775,135) -- (120,135) -- (gen.south);
-\node[fill=white] at (450,135) {Feedback guides the next candidates};
-\node[box,text width=250pt,fill=PaleTeal,draw=SemTeal] (pls) at (450,45) {Post-learning\\selection (PLS)};
-\node[text width=205pt] (out) at (785,45) {Returned trace\\\textcolor{SemGray}{Independent evaluation}};
-\draw[flow] (120,135) -- (120,45) -- node[above,font=\fontsize{20}{25}\selectfont] {Candidates} (pls);
-\draw[flow] (pls) -- (out);
-\end{tikzpicture}
-\end{center}
-\key{A larger score means a larger relative weakness in the target.}
-\end{frame}
-
-% 06 — Script §4.
-\source{}
-\begin{frame}[t]{Two challenges shape the design}
-\bodyfont
-\vspace{20pt}
-\begin{columns}[T,onlytextwidth]
-\column{.46\textwidth}
-\lead{1. Sample efficiency}
-\begin{points}
-\item Each evaluation runs a real protocol.
-\item Long traces and repeated measurements consume the search budget.
-\end{points}
-\column{.46\textwidth}
-\lead{2. Practical usefulness}
-\begin{points}
-\item Very low capacity can make every protocol perform poorly.
-\item A reference exposes a gap worth investigating.
-\end{points}
+{\labelfont
+$\left\{\begin{aligned}
+&\text{Another protocol}\\
+&\text{An older version}\\
+&\text{A single-path configuration}\\
+&\text{A capacity benchmark}
+\end{aligned}\right.$\par}
+\column{620pt}
+\architecturefocus{
+\draw[red,line width=3pt] (.09,.625) ellipse [x radius=.085,y radius=.10];
+\draw[red,line width=3pt] (.68,.405) ellipse [x radius=.15,y radius=.035];
+}
 \end{columns}
-\vspace{34pt}
-\takeaway{Find strong candidates with few runs; make the comparison meaningful.}
 \end{frame}
 
+\source{Fig. 1, AdvNet.}
+\begin{frame}[t]{AdvNet: Execution Loop}
+\vspace{24pt}
+\begin{columns}[c,onlytextwidth]
+\column{250pt}
+\compactfont
+\begin{enumerate}\setlength{\itemsep}{16pt}
+\item Generate a candidate trace.
+\item Run target and reference in the same environment.
+\item Score their performance gap and feed it back to the generator.
+\end{enumerate}
+\vspace{20pt}
+{\fontsize{18}{23}\selectfont\color{SemGray}
+Mahimahi is extended to support time-varying delay and dual paths.\par}
+\column{620pt}
+\architecturefocus{
+\draw[red,line width=3pt] (.39,.68) ellipse [x radius=.135,y radius=.12];
+\draw[red,line width=3pt] (.68,.29) ellipse [x radius=.18,y radius=.26];
+\draw[red,line width=3pt] (.14,.39) ellipse [x radius=.075,y radius=.085];
+}
+\end{columns}
+\end{frame}
+
+\source{Fig. 1, AdvNet.}
+\begin{frame}[t]{AdvNet: Output Stage}
+\vspace{24pt}
+\begin{columns}[c,onlytextwidth]
+\column{250pt}
+\compactfont
+{\color{SemBlue}\textbf{Post-Learning Selection}}\par
+\vspace{12pt}
+\begin{enumerate}\setlength{\itemsep}{16pt}
+\item Reserve part of the budget to re-test candidates.
+\item Select the trace with the most reliably high average score.
+\item Independently re-evaluate the selected trace.
+\end{enumerate}
+\column{620pt}
+\architecturefocus{
+\draw[red,line width=3pt] (.68,.88) ellipse [x radius=.12,y radius=.105];
+\draw[red,line width=3pt] (.89,.74) ellipse [x radius=.105,y radius=.12];
+}
+\end{columns}
+\end{frame}
+
+% Scoring and utility definitions.
+\source{}
+\begin{frame}[t]{Scoring the Performance Gap}
+\bodyfont
+$R$: reference performance\qquad $T$: target performance\par
+\vspace{18pt}
+{\fontsize{36}{44}\selectfont\centering
+$\displaystyle\mathrm{score}=\frac{R-T}{\max(R,T)}$\par}
+\vspace{16pt}
+\begin{center}
+\compactfont Higher metric values are better (e.g., throughput).
+\end{center}
+\pause
+\vspace{14pt}
+Reference: 10 Mbps\qquad Target: 2 Mbps\par
+\vspace{12pt}
+{\fontsize{36}{44}\selectfont\centering
+$\displaystyle\mathrm{score}=\frac{10-2}{10}=0.8$\par}
+\vspace{18pt}
+\begin{itemize}\setlength{\itemsep}{10pt}
+\item Lower is better (e.g., completion time): use $T-R$ in the numerator.
+\item Score lies in $[-1,1]$; positive scores mean the target underperforms.
+\end{itemize}
+\end{frame}
+
+\source{}
+\begin{frame}[t]{Combining Throughput and Delay}
+\bodyfont
+\vspace{10pt}
+{\fontsize{32}{40}\selectfont\centering
+$\displaystyle U=t_{\mathrm{coeff}}\frac{\tau}{\tau_{\max}}
++(1-t_{\mathrm{coeff}})\frac{d_{\min}}{d}$\par}
+\vspace{22pt}
+{\compactfont
+$\tau$: throughput\qquad $d$: average packet delay\par
+\vspace{8pt}
+$\tau_{\max}$: maximum-throughput benchmark\par
+$d_{\min}$: minimum-delay benchmark\par}
+\pause
+\vspace{22pt}
+Throughput weight $t_{\mathrm{coeff}}\in[0,1]$:\par
+\vspace{12pt}
+{\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}L L L@{}}
+\toprule
+$1$: throughput only & $0$: delay only & $0.5$: equal weight\\
+\bottomrule
+\end{tabularx}\par}
+\vspace{24pt}
+Compute reference and target utilities using the same benchmarks and weight,\newline
+then use them as $R$ and $T$ in the performance-gap score.
+\end{frame}
+
+\source{}
+\begin{frame}[t]{Two Core Design Challenges}
+\bodyfont
+{\color{SemBlue}\textbf{Sample efficiency}}\par
+\begin{points}
+\item Real protocol executions take seconds per evaluation.
+\item A large trace space and emulation noise limit the search.
+\item Repeating every trace leaves less budget for exploring new ones.
+\end{points}
+\pause
+\vspace{22pt}
+{\color{SemBlue}\textbf{Practical usefulness}}\par
+\begin{points}
+\item Zero bandwidth makes every protocol get zero throughput.
+\item Sudden bandwidth increases naturally cause brief underutilization.
+\item Meaningful reference comparisons must match the developer's task.
+\end{points}
+\end{frame}
