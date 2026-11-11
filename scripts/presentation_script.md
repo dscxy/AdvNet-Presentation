@@ -190,9 +190,11 @@ Now that we have seen how AdvNet searches efficiently, let's look at how develop
 * UC2 — Regression testing across versions
 * UC3 — Validating design objectives
 
-(**Visual Suggestion**: Show a table of 3 UCs.)
+We will examine UC1 from two angles: suboptimal performance and fairness. For suboptimality, we compare a protocol against link capacity or another protocol. For fairness, we compare the same flow running alone and running alongside a competing flow.
 
 Let's examine what AdvNet discovered in each of these three use cases.
+
+(**Click**)
 
 ### 6.2 UC1: Finding Suboptimal Performance and Comparing Protocol Weaknesses
 
@@ -202,9 +204,13 @@ Under UC1, comparing against theoretical link capacity can flag extreme underuti
 
 The authors ran an all-pairs comparison across 17 TCP congestion control algorithms in the Linux kernel (**Visual Suggestion**: Show Figure 4 heatmaps). That gives 272 directed pairs (**Visual Suggestion**: $17\times16=272$). These pairs are tested under two utility definitions: an equal split between throughput and delay, and throughput only. So the total number of scenarios is doubled. AdvNet found positive scores, which indicate adversarial environments, in 448 of 544 scenarios. Every single protocol had at least one environment where a reference protocol substantially outperformed it.
 
+(**Click**)
+
 Look at BBR and CUBIC in the top-left corner of both heatmaps. Under both objectives, AdvNet finds environments with large performance gaps in both directions. This is not a contradiction: it shows that even under the same metric, both protocols have distinct blind spots under different network environments. (**Visual Suggestion**: Zoom in on the top-left corner of both heatmaps.)
 
 However, a high score alone only tells us where a protocol struggles, not why. Next, let's look at how the authors diagnosed the root causes inside several discovered environments.
+
+(**Click**)
 
 ### 6.3 UC1 Case Study: TCP Acknowledgment Bug Triggered by a Sudden RTT Drop
 
