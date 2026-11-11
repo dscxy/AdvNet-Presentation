@@ -2,6 +2,7 @@
 \sectiontag{4}\source{}
 \begin{frame}[t]{UC3: DChannel Sets Up an RTT Mismatch}
 \bodyfont
+Discovered environment:\par
 \begin{itemize}
 \setlength{\itemsep}{8pt}
 \item HBP: high-bandwidth path, 120 ms one-way delay.
@@ -21,7 +22,7 @@ Reference: HBP alone.\qquad Target: DChannel over both paths.\par
 \draw[flow,draw=green!45!black,line width=2.6pt] (170,150)--(235,40);
 \draw[ack,draw=green!45!black,dashed,line width=2.6pt] (235,40)--(300,150);
 \draw[flow,draw=green!45!black,line width=2.6pt] (300,150)--(365,40);
-\node[text=SemBlue,text width=420pt] at (650,95) {TCP uses the LLP handshake RTT\\to set a short RTO\\(minimum $\approx$200 ms)};
+\node[text=SemBlue,text width=420pt] at (650,95) {TCP uses the LLP handshake RTT\\to set a short RTO\\(Linux minimum $\approx$200 ms)};
 \node[anchor=east,text=SemGray] at (880,190) {Time $\rightarrow$};
 \end{tikzpicture}\par
 \end{frame}
