@@ -6,15 +6,25 @@ Today, we will introduce AdvNet, a system for adversarially testing network prot
 
 I'll start with the motivation and how AdvNet works.
 
+(**Click**)
+
 First, let's start with some background. Bandwidth describes the capacity of a link, while throughput describes the rate that the protocol actually achieves.
 
 In a network, a sender typically does not know how much bandwidth it can use. If it sends too slowly, throughput can be much lower than available bandwidth. If it sends too fast, packets will build up in router queues. This leads to higher round-trip time and eventually packet loss.
 
-Creating a robust congestion control algorithm is hard. First, available resources and network conditions can change over time. So CC algorithms need to be optimized for throughput, loss, and latency in lots of environments. Second, they need to guarantee quick convergence to stable and fair rates when multiple senders compete. (**Adapted from PCC Vivace: Online-Learning Congestion Control §1**)
+(**Click**)
 
 To adapt, congestion control algorithms use feedback like ACKs, delay, and loss to adjust their congestion window and packet pacing, while TCP relies on duplicate ACKs and retransmission timeouts (RTO) to recover from lost packets.
 
+(**Click**)
+
+Creating a robust congestion control algorithm is hard. First, available resources and network conditions can change over time. So CC algorithms need to be optimized for throughput, loss, and latency in lots of environments. Second, they need to guarantee quick convergence to stable and fair rates when multiple senders compete. (**Adapted from PCC Vivace: Online-Learning Congestion Control §1**)
+
+(**Click**)
+
 These requirements also make it difficult for the protocols to be thoroughly tested. Therefore, new protocols or an upgrade to an existing protocol may perform better in test suites, but they could introduce hidden performance regressions. How to find these scenarios is the main focus of this paper.
+
+(**Click**)
 
 ## 2. What Are the Existing Solutions, and Why Do They Fall Short?
 

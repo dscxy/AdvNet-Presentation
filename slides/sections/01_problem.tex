@@ -14,56 +14,60 @@ by Generating Adversarial Environments\par}
 \end{frame}
 \endgroup
 
-% 02 — Script §1, bandwidth, throughput, cwnd, pacing, ACKs.
-\source{Diagram by presenters.}
-\begin{frame}[t]{Congestion control balances throughput and delay}
-\bodyfont
-Sending too slowly wastes capacity; sending too quickly builds queues.
-\vspace{12pt}
+% Revised slides 2--3 follow the slide blueprint and updated script order.
+\source{}
+\begin{frame}[t]{Background: Congestion Control}
+\compactfont
 \begin{center}
 \begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-55) rectangle (880,135);
-\node[box,minimum width=150pt,minimum height=60pt] (s) at (100,60) {Sender};
-\node[box,minimum width=220pt,minimum height=60pt] (q) at (375,60) {Bottleneck queue};
-\node[box,minimum width=150pt,minimum height=60pt] (r) at (780,60) {Receiver};
+\path[use as bounding box] (0,-12) rectangle (880,119);
+\node[draw=SemBlue,minimum width=145pt,minimum height=40pt] (s) at (80,66) {Sender};
+\node[draw=SemBlue,minimum width=220pt,minimum height=40pt] (q) at (340,66) {Bottleneck queue};
+\node[draw=SemBlue,minimum width=145pt,minimum height=40pt] (r) at (800,66) {Receiver};
 \draw[flow] (s) -- (q);
-\draw[flow] (q) -- node[above=10pt,font=\fontsize{20}{25}\selectfont] {Bandwidth: capacity} (r);
-\node[font=\fontsize{20}{25}\selectfont,anchor=south] at (440,108) {Throughput: achieved delivery rate};
-\draw[ack] (r.south) -- ++(0,-55) -| (s.south);
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (440,-25) {ACK return path \quad\textbullet\quad RTT: round-trip time};
+\draw[flow] (q) -- node[above=5pt,font=\fontsize{20}{25}\selectfont] {Throughput: achieved rate}
+  node[below=5pt,font=\fontsize{20}{25}\selectfont] {Bandwidth: link capacity} (r);
+\draw[ack] (r.south) -- (800,0) -- (80,0) -- (s.south);
+\node[fill=white,font=\fontsize{20}{25}\selectfont] at (440,0)
+  {ACK (acknowledgement) return path};
 \end{tikzpicture}
 \end{center}
-\begin{columns}[T,onlytextwidth]
-\column{.48\textwidth}\lead{Congestion window}
-Limits unacknowledged data in flight.
-\column{.48\textwidth}\lead{Pacing}
-Controls when packets leave the sender.
-\end{columns}
-\takeaway{Long RTT + high bandwidth requires enough data in flight.}
+\vspace{-4pt}
+{\color{SemBlue}\textbf{Unknown link capacity}}\par
+\begin{itemize}\setlength{\itemsep}{5pt}
+\item Send too slowly $\to$ underutilize bandwidth
+\item Send too fast $\to$ queue buildup, higher round-trip time (RTT), packet loss
+\end{itemize}
+\pause
+\vspace{8pt}
+{\color{SemBlue}\textbf{Feedback-driven adaptation}}\par
+\begin{itemize}\setlength{\itemsep}{5pt}
+\item Signals: ACKs, delay, packet loss
+\item Controls: congestion window (in-flight limit) and pacing (send timing)
+\item Loss recovery: duplicate ACKs and retransmission timeouts (RTO)
+\end{itemize}
 \end{frame}
 
-% 03 — Script §1, state and changing conditions.
-\source{Trace illustration by presenters.}
-\begin{frame}[t]{The order of network changes matters}
+\source{}
+\begin{frame}[t]{Why Is Congestion Control Hard to Test?}
 \bodyfont
-Protocols retain state while bandwidth and delay change.
-\vspace{14pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-35) rectangle (880,190);
-\foreach \x/\label in {50/Trace A,510/Trace B} {
-  \draw[->,SemGray,line width=1pt] (\x,10) -- ++(320,0) node[right,font=\fontsize{20}{25}\selectfont] {Time};
-  \draw[->,SemGray,line width=1pt] (\x,10) -- ++(0,145);
-  \node[anchor=west,font=\fontsize{20}{25}\selectfont] at (\x,175) {\label: bandwidth};
-}
-\draw[SemBlue,line width=3pt] (50,125)--(150,125)--(150,45)--(250,45)--(250,125)--(350,125);
-\draw[SemTeal,line width=3pt] (510,45)--(610,45)--(610,125)--(810,125);
-\node at (440,-22) {Same average; different transitions};
-\end{tikzpicture}
-\end{center}
-\takeaway{17 / 17 tested TCP algorithms had a vulnerable environment.}
 \vspace{8pt}
-The task: search for these environments and investigate the resulting gaps.
+{\color{SemBlue}\textbf{Strict goals in dynamic networks}}\par
+\begin{points}
+\item High throughput, low delay, and low loss under changing links
+\item Fast convergence to stable, fair rates when flows compete
+\end{points}
+{\fontsize{18.5}{22}\selectfont\color{SemGray}
+Cite from PCC Vivace: Online-Learning Congestion Control \S1\par}
+\pause
+\vspace{24pt}
+{\color{SemBlue}\textbf{Consequences for testing}}\par
+\begin{points}
+\item A large parameter space makes thorough testing difficult.
+\item Protocol updates and new designs (e.g., BBR v1 $\to$ v3, multipath)
+      may pass standard tests yet hide severe regressions.
+\item Goal: automatically find environments that expose these regressions.
+\end{points}
 \end{frame}
 
 % 04 — Script §2.
