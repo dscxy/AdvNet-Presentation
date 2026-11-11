@@ -202,11 +202,11 @@ In the first use case, the target is the protocol under test, and it is compared
 
 Under UC1, comparing against theoretical link capacity can flag extreme underutilization. Comparing against another real protocol is more informative: if another protocol achieves much higher performance under the exact same trace, we know better performance is achievable.
 
-The authors ran an all-pairs comparison across 17 TCP congestion control algorithms in the Linux kernel (**Visual Suggestion**: Show Figure 4 heatmaps). That gives 272 directed pairs (**Visual Suggestion**: $17\times16=272$). These pairs are tested under two utility definitions: an equal split between throughput and delay, and throughput only. So the total number of scenarios is doubled. AdvNet found positive scores, which indicate adversarial environments, in 448 of 544 scenarios. Every single protocol had at least one environment where a reference protocol substantially outperformed it.
+The authors ran an all-pairs comparison across 17 TCP congestion control algorithms in the Linux kernel. That gives 272 directed pairs. These pairs are tested under two utility definitions: an equal split between throughput and delay, and throughput only. So the total number of scenarios is doubled. AdvNet found positive scores, which indicate adversarial environments, in 448 of 544 scenarios. Every single protocol had at least one environment where a reference protocol substantially outperformed it.
 
 (**Click**)
 
-Look at BBR and CUBIC in the top-left corner of both heatmaps. Under both objectives, AdvNet finds environments with large performance gaps in both directions. This is not a contradiction: it shows that even under the same metric, both protocols have distinct blind spots under different network environments. (**Visual Suggestion**: Zoom in on the top-left corner of both heatmaps.)
+Look at BBR and CUBIC in the top-left corner of both heatmaps. Under both objectives, AdvNet finds environments with large performance gaps in both directions. This is not a contradiction: it shows that even under the same metric, both protocols have distinct blind spots under different network environments.
 
 However, a high score alone only tells us where a protocol struggles, not why. Next, let's look at how the authors diagnosed the root causes inside several discovered environments.
 
@@ -216,18 +216,24 @@ However, a high score alone only tells us where a protocol struggles, not why. N
 
 The authors further investigate why BBR scored so poorly under the throughput-only objective. By examining the logs, the authors found that AdvNet generated an environment that maintains a high RTT for about one second and then suddenly drops the RTT. As a result, packets sent earlier during the high-RTT phase are still in flight when packets sent later during the low-RTT phase arrive at the receiver first.
 
+(**Click**)
+
 Using eBPF and Wireshark, the authors traced the exact sequence of events:
 
 1. The receiver sends duplicate ACKs (dup ACKs) after seeing out-of-order packets. Duplicate ACKs quickly reach the sender during the low-RTT phase.
 2. Upon receiving three dup ACKs, the sender initiates a fast retransmit for the delayed packet.
-3. Crucially, the original delayed packet finally arrives at the receiver just before its fast-retransmitted copy. The receiver processes the original packet and advances its ACK number.
-4. Then, the fast-retransmitted copy arrives. This specific arrival order triggers a bug in the Linux kernel's ACK-update logic: even as subsequent packets arrive normally, the receiver fails to advance the acknowledgment number and keeps sending dup ACKs, eventually forcing the sender into a retransmission timeout (RTO).
+   (**Click**)
 
-(**Visual Suggestion**: Draw a sequence diagram showing the timeline.)
+3. Crucially, the original delayed packet finally arrives at the receiver just before its fast-retransmitted copy. The receiver processes the original packet and advances its ACK number.
+4. Then, the fast-retransmitted copy arrives. This specific arrival order triggers a bug in the Linux kernel's ACK-update logic. (**Click**) Even as subsequent packets arrive normally, the receiver fails to advance the acknowledgment number and keeps sending dup ACKs, eventually forcing the sender into a retransmission timeout (RTO).
 
 Why did this kernel TCP receive bug surface specifically when testing BBR? Unlike traditional window-based protocols that send bursts of packets, BBR paces packets smoothly to maintain a steady volume in flight. This allows AdvNet's RTT drop to space the packets into this exact arrival order. This also underscores the value of emulating real kernel code rather than testing simplified simulator models.
 
-When the authors re-tested on a newer Linux kernel from Google's BBR team, this ACK bug no longer appeared. Even so, AdvNet found another scenario (**Visual Suggestion**: Show Figure 6) where CUBIC quickly ramps up throughput while BBR v3 stays low during a short 5-second run. Extending the run showed that BBR v3 eventually ramps up. This indicates slow convergence of BBR v3 in this environment.
+(**Click**)
+
+When the authors re-tested on a newer Linux kernel from Google's BBR team, this ACK bug no longer appeared. Even so, AdvNet found another scenario where CUBIC quickly ramps up throughput while BBR v3 stays low during a short 5-second run. (**Click**) Extending the run showed that BBR v3 eventually ramps up. This indicates slow convergence of BBR v3 in this environment.
+
+(**Click**)
 
 ### 6.4 UC1 Case Study: Fairness Between Competing Flows
 

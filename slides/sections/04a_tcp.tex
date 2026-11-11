@@ -1,81 +1,86 @@
-% 19 — Script §6.3, RTT drop through fast retransmission.
-\source{Sequence diagram by presenters, based on §4.4.1.}
-\begin{frame}[t]{A sudden RTT drop reorders packets}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.61\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,0) rectangle (540,365);
-\node at (90,345) {BBR sender};\node at (450,345) {Receiver};
-\draw[SemGray] (90,320)--(90,10);\draw[SemGray] (450,320)--(450,10);
-\draw[-{Stealth[length=7pt]},SemGray,dashed,line width=1.6pt] (90,305)--(450,35);
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (255,285) {Earlier packet $P$: delayed};
-\foreach \y in {245,200,155} {
-  \draw[flow] (90,\y)--(450,{\y-10});
-  \draw[ack] (450,{\y-17})--(90,{\y-32});
+% Script section 6.3: ACK bug and slow convergence on a newer kernel.
+\sectiontag{4}\source{}
+\begin{frame}[t]{UC1: Linux Kernel TCP ACK Bug}
+\definecolor{PacketBlue}{HTML}{0047CC}
+\definecolor{OriginalPurple}{HTML}{7820A0}
+\definecolor{AckGreen}{HTML}{007A35}
+\definecolor{RetransmitRed}{HTML}{D02020}
+\centering
+\begin{tikzpicture}[x=1pt,y=1pt,
+ every node/.style={font=\fontsize{20}{24}\selectfont\bfseries\boldmath,align=center},
+ packet/.style={flow,draw=PacketBlue,line width=2.6pt},
+ reply/.style={ack,draw=AckGreen,dashed,line width=2.6pt}]
+\path[use as bounding box] (0,0) rectangle (890,285);
+\node[anchor=east] at (108,210) {Sender};
+\node[anchor=east] at (108,60) {Receiver};
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (115,210)--(880,210);
+\draw[-{Stealth[length=7pt]},SemGray,line width=1.2pt] (115,60)--(880,60);
+\node[anchor=east,text=SemGray] at (880,135) {Time $\rightarrow$};
+\draw[SemGray,densely dotted,line width=1.2pt] (220,230)--(220,42);
+\node[text=SemGray] at (220,20) {RTT drop};
+\node[anchor=south,text=OriginalPurple] at (145,245) {Original $P$};
+\draw[OriginalPurple,line width=1.4pt] (145,244)--(140,214);
+\draw[packet,draw=OriginalPurple,dashed] (140,210)--(550,60);
+\node[text=OriginalPurple,fill=white,inner sep=3pt] at (195,163) {Delayed};
+\node[anchor=south,text=PacketBlue] at (300,245) {Later packets};
+\foreach \start/\finish in {245/295,280/330,315/365} {
+  \draw[packet] (\start,210)--(\finish,60);
 }
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (265,260) {Later packets take the faster path};
-\node[fill=white,font=\fontsize{20}{25}\selectfont] at (270,95) {Three duplicate ACKs return};
-\node[anchor=north west,font=\fontsize{20}{25}\selectfont,text=SemOrange,align=left] at (105,66) {Fast retransmit $P$};
-\end{tikzpicture}
-\column{.34\textwidth}
-\lead{1. High RTT, then a sharp drop}
-Later packets overtake the earlier packet.
-\vspace{12pt}\par
-\lead{2. A gap in sequence numbers}
-The receiver sends duplicate ACKs.
-\vspace{12pt}\par
-\lead{3. Three dup ACKs}
-The sender retransmits the delayed packet.
-\end{columns}
+\uncover<2->{
+\foreach \start/\finish in {295/345,330/380,365/415} {
+  \draw[reply] (\start,60)--(\finish,210);
+}
+\node[text=AckGreen,anchor=north] at (330,44) {3 dup ACKs};
+\node[anchor=south,text=RetransmitRed] at (460,245) {Fast retransmit $P$};
+\draw[RetransmitRed,line width=1.4pt] (460,244)--(425,214);
+\draw[packet,draw=RetransmitRed] (425,210)--(580,60);
+}
+\uncover<3->{
+\fill[OriginalPurple] (550,60) circle (3pt);
+\fill[RetransmitRed] (580,60) circle (3pt);
+\node[anchor=north,text=OriginalPurple] at (545,44) {$P$};
+\node[anchor=north,text=RetransmitRed] at (590,44) {Copy};
+\draw[reply] (550,60)--(600,210);
+\node[text=AckGreen,fill=white,inner sep=2pt,align=left] at (620,143) {ACK\\advances};
+}
+\uncover<4->{
+\node[anchor=south,text=PacketBlue] at (705,245) {Further data};
+\draw[packet] (640,210)--(690,60);
+\draw[packet] (710,210)--(760,60);
+\draw[reply] (690,60)--(740,210);
+\draw[reply] (760,60)--(810,210);
+\node[text=AckGreen,anchor=north] at (725,44) {ACK stays fixed};
+\draw[RetransmitRed,line width=2.6pt] (850,202)--(850,218);
+\node[anchor=south,text=RetransmitRed] at (850,232) {RTO};
+}
+\end{tikzpicture}\par
+\vspace{8pt}
+\raggedright
+\begin{overlayarea}{\textwidth}{100pt}
+\compactfont
+\only<1>{High RTT for $\sim$1 s, then a sharp drop: later packets overtake $P$.\par}
+\only<2>{Three duplicate ACKs trigger fast retransmit while the original $P$ is still in flight.\par}
+\only<3>{The original $P$ arrives first and advances the ACK number. Its retransmitted copy then triggers the ACK-update bug.\par}
+\only<4>{Further packets arrive, but the ACK number stays fixed; the sender eventually enters RTO.\par
+\vspace{7pt}
+{\labelfont Why BBR? Smooth pacing makes this arrival order easier to trigger.\par
+\color{SemGray}Authors verified using eBPF and Wireshark.\par}}
+\end{overlayarea}
 \end{frame}
 
-% 20 — Script §6.3, arrival order, bug, diagnosis.
-\source{Sequence diagram by presenters, based on §4.4.1.}
-\begin{frame}[t]{The arrival order triggers a receiver ACK bug}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.56\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,0) rectangle (490,350);
-\node at (70,330) {Sender};\node at (420,330) {Receiver};
-\draw[SemGray] (70,305)--(70,15);\draw[SemGray] (420,305)--(420,15);
-\draw[flow] (70,305)--(420,245);
-\node[above,font=\fontsize{20}{25}\selectfont,fill=white] at (240,280) {Original $P$ arrives};
-% The fast retransmission is sent before the original reaches the receiver.
-\draw[flow,draw=SemOrange] (70,255)--(420,205);
-\node[above,font=\fontsize{20}{25}\selectfont,fill=white] at (250,234) {Retransmitted $P$ arrives};
-\draw[ack] (420,232)--(70,200);
-\node[below,font=\fontsize{20}{25}\selectfont,fill=white] at (250,201) {ACK advances};
-\draw[flow] (70,155)--(420,120);
-\node[above,font=\fontsize{20}{25}\selectfont,fill=white] at (240,140) {Subsequent data};
-\draw[ack,draw=SemOrange] (420,100)--(70,65);
-\node[below,font=\fontsize{20}{25}\selectfont,fill=white,text=SemOrange] at (250,82) {ACK remains stuck};
-\end{tikzpicture}
-\column{.39\textwidth}
-\lead{Original first, retransmission second}
-This order triggers the receiver's ACK-update logic bug.
-\vspace{20pt}\par
-Further data arrives, but the ACK number fails to advance.
-\vspace{20pt}\par
-\key{Repeated dup ACKs eventually force a retransmission timeout (RTO).}
-\end{columns}
-\vspace{5pt}
-{\compactfont Diagnosis: eBPF confirmed the timeout; Wireshark confirmed packet arrival.}
-\end{frame}
-
-% 21 — Script §6.3, newer kernel and Fig. 6.
-\source{Fig. 6 (original throughput panel).}
-\begin{frame}[t]{A newer kernel still exposes slow BBR growth}
-\bodyfont
-The earlier ACK bug was no longer observed on the newer kernel.
-\vspace{26pt}
+\sectiontag{4}\source{Fig. 6 (throughput panel), AdvNet.}
+\begin{frame}[t]{UC1: BBR v3 Slow Convergence on a Newer Kernel}
+\compactfont
+On kernel 6.13.7+, the earlier ACK bug was no longer observed.\par
+\vspace{18pt}
 \includegraphics[width=\linewidth]{fig06_throughput.png}
-\begin{center}{\labelfont Time (seconds)}\end{center}
-\begin{points}
-\item CUBIC ramps up quickly in this discovered environment.
-\item BBR v3 underutilizes the path during the short run.
-\end{points}
+\begin{center}\labelfont Time (seconds)\end{center}
+\begin{itemize}
+\setlength{\itemsep}{12pt}
+\item CUBIC ramps up quickly; BBR v3 stays low over the 5-second run.
+\pause
+\item In a longer run, BBR v3 eventually ramps up: slow convergence, rather than a permanent stall.
+\end{itemize}
 \end{frame}
 
 % 22 — Script §6.4, fairness.
