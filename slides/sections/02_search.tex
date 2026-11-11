@@ -82,146 +82,124 @@ PDO: a packet delivery opportunity specifies when a packet may leave.\par
 \end{itemize}
 \end{frame}
 
-% 09 — Script §5.2, complete traces and GA loop.
-\source{GA diagram by presenters.}
-\begin{frame}[t]{GA evolves a population of complete traces}
+% Separate the search-method rationale from the operator example.
+\source{}
+\begin{frame}[t]{Trace-Based Genetic Algorithm}
 \bodyfont
-\textbf{Generate first, then replay:} avoids synchronizing an online adversary\par
-with both target and reference during execution.
-\vspace{28pt}
-\begin{center}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-25) rectangle (880,185);
-\node[box,text width=155pt,minimum height=90pt] (p) at (95,115) {Population\\of traces};
-\node[box,text width=160pt,minimum height=90pt] (e) at (325,115) {Evaluate\\protocols};
-\node[box,text width=155pt,minimum height=90pt] (s) at (550,115) {Select promising\\candidates};
-\node[box,text width=160pt,minimum height=90pt] (o) at (785,115) {Crossover\\and mutation};
-\draw[flow] (p)--(e);\draw[flow] (e)--(s);\draw[flow] (s)--(o);
-\draw[flow] (o.south)--(785,0)--(95,0)--(p.south);
-\node[fill=white] at (440,0) {Next generation, until the budget ends};
-\end{tikzpicture}
-\end{center}
-\textbf{Genes:} bandwidths, delays, durations, and fixed parameters.\par\vspace{10pt}
-\key{Fitness = measured performance-gap score.}
-\end{frame}
-
-% 10 — Script §5.2, operator example.
-\source{Teaching example by presenters.}
-\begin{frame}[t]{Crossover recombines; mutation introduces new values}
-\bodyfont
+\vspace{12pt}
 \begin{columns}[T,onlytextwidth]
-\column{.50\textwidth}
-\raggedright
-\lead{Two-point crossover}
-Exchange the middle segment.
-\vspace{15pt}
-{\renewcommand{\arraystretch}{1.65}\setlength{\tabcolsep}{13pt}
-\begin{tabular}{@{}lc|cc|c@{}}
-& 1 & 2 & 3 & 4\\
-Parent A & \cellcolor{PaleBlue}20 & \cellcolor{PaleBlue}5 & \cellcolor{PaleBlue}40 & \cellcolor{PaleBlue}10\\
-Parent B & \cellcolor{PaleTeal}60 & \cellcolor{PaleTeal}30 & \cellcolor{PaleTeal}15 & \cellcolor{PaleTeal}80\\\addlinespace[10pt]
-Child A & \cellcolor{PaleBlue}20 & \cellcolor{PaleTeal}30 & \cellcolor{PaleTeal}15 & \cellcolor{PaleBlue}10\\
-Child B & \cellcolor{PaleTeal}60 & \cellcolor{PaleBlue}5 & \cellcolor{PaleBlue}40 & \cellcolor{PaleTeal}80\\
-\end{tabular}}
-\column{.50\textwidth}
-\raggedright
-\lead{Uniform integer mutation}
-Each gene changes with probability $p$.
-\vspace{24pt}\par
-{\fontsize{38}{45}\selectfont\color{SemTeal}15 $\rightarrow$ 73}
-\vspace{20pt}\par
-Sample an integer from that gene's allowed range.\par\vspace{10pt}
-Here: 1--100.
-\end{columns}
-\end{frame}
-
-% 11 — Script §5.2, Fig. 3a and 3b.
-\source{Fig. 3a--b (redrawn).}
-\begin{frame}[t]{Genetic search improves on random generation}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.49\textwidth}\key{One-hour budget: GA vs. random}
-\column{.49\textwidth}\key{Two-hour budget: GA, BO, EPS}
-\end{columns}
-\vspace{4pt}
-\includegraphics[width=\linewidth]{fig03_search_redrawn.pdf}
-{\labelfont RG: random generation\quad BO: Bayesian optimization\quad EPS: epsilon-greedy}
-\end{frame}
-
-% 12 — Script §5.3, SimpleMax and noisy observations.
-\source{Measurement illustration by presenters.}
-\begin{frame}[t]{The highest observation can be a lucky outlier}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.61\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-45) rectangle (540,330);
-\draw[->,SemGray,line width=1.2pt] (65,30)--(65,310) node[above] {Score};
-\draw[->,SemGray,line width=1.2pt] (65,30)--(535,30);
-\foreach \x/\y in {170/216,195/224,220/220,245/228,270/212}{\fill[SemBlue] (\x,\y) circle (5pt);}
-\foreach \x/\y in {355/100,380/120,405/140,430/160}{\fill[SemOrange] (\x,\y) circle (5pt);}
-\fill[SemOrange] (455,290) circle (7pt);
-\draw[dashed,SemBlue,line width=1.5pt] (150,220)--(285,220);
-\draw[dashed,SemOrange,line width=1.5pt] (335,162)--(475,162);
-\node[below,text width=180pt] at (220,20) {Environment A\\Higher mean};
-\node[below,text width=180pt] at (410,20) {Environment B\\Lower mean};
-\draw[SemOrange,line width=1.4pt] (455,290) circle (14pt);
-\end{tikzpicture}
-\column{.34\textwidth}
-\lead{SimpleMax}
-Return the trace with the largest score observed during search.
-\vspace{24pt}\par
-One unusually high run can make B look best.
-\vspace{24pt}\par
-\key{Re-evaluation tests whether the high score persists.}
-\end{columns}
-\end{frame}
-
-% 13 — Script §5.3, MRE.
-\source{Selection diagram by presenters.}
-\begin{frame}[t]{Post-learning selection focuses runs on strong candidates}
-\bodyfont
-\begin{columns}[T,onlytextwidth]
-\column{.38\textwidth}
-\begin{tikzpicture}[x=1pt,y=1pt]
-\path[use as bounding box] (0,-10) rectangle (330,275);
-\filldraw[fill=PaleBlue,draw=SemBlue,line width=1.3pt] (10,260)--(320,260)--(275,170)--(55,170)--cycle;
-\node at (165,218) {Top 25 environments};
-\filldraw[fill=PaleTeal,draw=SemTeal,line width=1.3pt] (55,145)--(275,145)--(230,60)--(100,60)--cycle;
-\node at (165,105) {Keep the\\upper half};
-\draw[flow] (165,170)--(165,145);
-\draw[flow] (165,60)--(165,22);
-\node[below] at (165,22) {$\leq 5$ candidates};
-\end{tikzpicture}
-\column{.57\textwidth}
-\lead{Multi-round elimination (MRE)}
+\column{425pt}
+{\color{SemBlue}\textbf{Why not online RL?}}\par
 \begin{points}
-\item Run each remaining candidate once per round.
-\item Rank by the mean observed so far; remove roughly half.
-\item At five or fewer, keep measuring until time is up; return the highest mean.
+\item Requires fine-grained monitoring and live control of network conditions.
+\item Timing differences and execution noise make target/reference synchronization difficult.
+\item Stale or mismatched observations can make learning unstable.
+\end{points}
+\column{425pt}
+\pause
+{\color{SemBlue}\textbf{Genetic algorithm (GA)}}\par
+\begin{points}
+\item Candidate: a complete trace $T$.\newline Genes: its numerical parameters.
+\item Fitness: the measured performance-gap score.
+\item Select promising parents; apply crossover and mutation to form the next generation.
+\item Repeat evaluation and selection until the budget expires.
 \end{points}
 \end{columns}
-\vspace{15pt}
-{\compactfont\key{During search: medians}\quad$\rightarrow$\quad\key{PLS: means}\quad$\rightarrow$\quad\key{Independent evaluation}}
 \end{frame}
 
-% 14 — Script §5.3, Fig. 2, wrap-up and speaker handoff.
-\source{Fig. 2 (original).}
-\begin{frame}[t]{Reserve a small part of the budget for selection}
+\source{}
+\begin{frame}[t]{GA Example: Crossover and Mutation}
 \bodyfont
+{\color{SemBlue}\textbf{Two-point crossover}}\par
+\vspace{12pt}
+\begin{columns}[c,onlytextwidth]
+\column{445pt}
+{\compactfont\renewcommand{\arraystretch}{1.15}\setlength{\tabcolsep}{10pt}
+\begin{tabular}{@{}l c|cc|c@{}}
+\toprule
+& Gene 1 & Gene 2 & Gene 3 & Gene 4\\\midrule
+Parent A & 20 & \cellcolor{blue!70!black}\textcolor{white}{5} & \cellcolor{blue!70!black}\textcolor{white}{40} & 10\\
+Parent B & 60 & \cellcolor{orange!65}30 & \cellcolor{orange!65}15 & 80\\\midrule
+Child A & 20 & \cellcolor{orange!65}30 & \cellcolor{orange!65}15 & 10\\
+Child B & 60 & \cellcolor{blue!70!black}\textcolor{white}{5} & \cellcolor{blue!70!black}\textcolor{white}{40} & 80\\\bottomrule
+\end{tabular}\par}
+\vspace{10pt}
+{\fontsize{18}{22}\selectfont\color{SemGray}e.g., Genes 1--2: bandwidth; Genes 3--4: one-way delay.\par}
+\column{420pt}\compactfont
+The vertical lines mark two cut points.\par
+\vspace{12pt}
+Swap genes 2 and 3; keep the outer genes from the original parent.\par
+\vspace{12pt}
+Aligned columns represent the same parameter, so crossover preserves bounds.
+\end{columns}
+\pause
+\vspace{14pt}
+{\color{SemBlue}\textbf{Uniform integer mutation}}\par
+\vspace{12pt}
 \begin{columns}[T,onlytextwidth]
-\column{.68\textwidth}
-\includegraphics[width=\linewidth]{fig02_budget.png}
-\column{.28\textwidth}
-{\fontsize{38}{44}\selectfont\color{SemBlue}\textbf{90\%}}\par
-Search for environments
-\vspace{20pt}\par
-{\fontsize{38}{44}\selectfont\color{SemTeal}\textbf{10\%}}\par
-Post-learning selection
-\vspace{24pt}\par
-{\compactfont Best split in this experiment.}
-\vspace{18pt}\par
-{\compactfont Compact traces + GA + PLS}
+\column{445pt}\compactfont
+Child A:\par
+\vspace{10pt}
+$[20,30,\textcolor{red}{15},10]\;\to\;[20,30,\textcolor{red}{73},10]$
+\column{420pt}\labelfont
+With probability $p$, replace each gene by an integer sampled uniformly from its allowed range.\par
 \end{columns}
 \end{frame}
 
+% Revised comparison using original Figure 3 panels.
+\source{Fig. 3a--b, AdvNet.}
+\begin{frame}[t]{Comparing Optimization Algorithms}
+\compactfont
+GA: genetic algorithm\qquad RG: random generation\par
+\vspace{6pt}
+BO: Bayesian optimization (random forest)\qquad EPS: $\epsilon$-greedy search\par
+\vspace{8pt}
+\begin{columns}[T,onlytextwidth]
+\column{425pt}
+{\color{SemBlue}\textbf{Fig. 3a: one-hour budget}}\par
+\vspace{4pt}
+\includegraphics[page=13,trim=74bp 555bp 279bp 84bp,clip,width=380pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\column{425pt}
+{\color{SemBlue}\textbf{Fig. 3b: two-hour budget}}\par
+\vspace{4pt}
+\includegraphics[page=13,trim=279bp 555bp 73bp 84bp,clip,width=380pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\end{columns}
+\pause
+\vspace{8pt}
+\begin{columns}[T,onlytextwidth]
+\column{425pt}\compactfont
+GA beats RG across all three weights; execution feedback helps.
+\column{425pt}\compactfont
+No clear winner across settings; GA has a slightly higher average.
+\end{columns}
+\end{frame}
+
+% Revised noise handling and PLS page.
+\source{Fig. 2 and \S3.3, AdvNet.}
+\begin{frame}[t]{Post-Learning Selection and Noise Handling}
+\compactfont
+SimpleMax selects the single highest observed score, which may be a noisy outlier.\par
+\vspace{8pt}
+\begin{columns}[c,onlytextwidth]
+\column{410pt}
+\includegraphics[page=12,trim=300bp 234bp 44bp 400bp,clip,width=410pt]{../docs/AdvNet - Revealing Performance Issues in Network Protocols by Generating Adversarial Environments.pdf}
+\column{455pt}\labelfont
+\begin{enumerate}\labelfont\setlength{\itemsep}{4pt}
+\item During search: median reference and target performance across repeated runs, then score.
+\item PLS: re-test candidates and compare mean scores.
+\item After selection: independent single-instance re-evaluation.
+\end{enumerate}
+\vspace{12pt}
+{\color{SemBlue}\textbf{Multi-Round Elimination (MRE)}}\par
+\vspace{7pt}
+Top 25 candidates\par
+$\downarrow$\quad Re-test; discard the bottom half by mean\par
+$\leq 5$ remain: repeat until the budget ends\par
+$\downarrow$\quad Return the highest mean score\par
+\end{columns}
+\pause
+\vspace{8pt}\compactfont
+0\% PLS: score $\approx0.59$\quad$\to$\quad 10\% PLS: score $\approx0.80$ (best).\par
+\vspace{8pt}
+More time for PLS leaves less time to explore new environments.
+\end{frame}
